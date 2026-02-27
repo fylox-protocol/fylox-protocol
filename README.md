@@ -7,12 +7,12 @@ and live with Pi in daily life — without ever converting to fiat.
 
 ## What Fylox does
 
-- 💙 Pay at merchants via QR — merchant receives local currency instantly
-- 💙 Visa/Mastercard card linked to your Pi wallet
-- 💙 Pay electricity, gas, internet & taxes with Pi
-- 💙 Load transit cards (SUBE, Beep, TuLlave, Oyster) with Pi
-- 💙 Top up any mobile number — 200+ carriers globally
-- 💙 No bank account required. Works in 200 countries.
+- Pay at merchants via QR — merchant receives local currency instantly
+- Visa/Mastercard card linked to your Pi wallet
+- Pay electricity, gas, internet & taxes with Pi
+- Load transit cards (SUBE, Beep, TuLlave, Oyster) with Pi
+- Top up any mobile number — 200+ carriers globally
+- No bank account required. Works in 200 countries.
 
 ## Fylox Protocol — Four Layers
 
