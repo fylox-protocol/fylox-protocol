@@ -30,7 +30,7 @@ FYLOX
 Consumer payment interface — the daily spending layer connecting Pioneers to merchants worldwide
 
 Live Demo
-🔗 sweet-rugelach-043888.netlify.app
+🔗 app.fyloxprotocol.com
 25 fully interactive screens
 10 languages supported
 Real Pi SDK integration
@@ -123,7 +123,7 @@ Built in public. From zero. Day 1.
 🐦 Twitter/X: @FyloxProtocol
 💬 Telegram: t.me/FyloxProtocol
 ▶️ YouTube: @FyloxProtocol
-🔗 Live Demo: sweet-rugelach-043888.netlify.app
+🔗 Live Demo: app.fyloxprotocol.com
 🌐 Web: fyloxprotocol.com (launching Pi Day 2026)
 
 License
