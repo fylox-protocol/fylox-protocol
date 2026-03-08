@@ -46,7 +46,7 @@ First Look
 For Pioneers
 
 1. Open Pi Browser on your phone
-2. Go to sweet-rugelach-043888.netlify.app
+2. Go to app.fyloxprotocol.com
 3. On Pi Browser, your Pi balance loads automatically
 4. Scan any merchant QR and pay in π — merchant network launching Pi Day 2026
 No download. No registration. No bank account.
