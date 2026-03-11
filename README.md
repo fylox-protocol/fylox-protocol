@@ -1,8 +1,8 @@
 # Fylox Protocol
 
 ![License](https://img.shields.io/badge/license-MIT-green)
-[![Stars](https://img.shields.io/github/stars/fylox-protocol/fylox-protocol?style=social)](https://github.com/fylox-protocol/fylox-protocol/stargazers)
-[![Forks](https://img.shields.io/github/forks/fylox-protocol/fylox-protocol?style=social)](https://github.com/fylox-protocol/fylox-protocol/network/members)
+![Ecosystem](https://img.shields.io/badge/ecosystem-Pi%20Network-orange)
+![Infrastructure](https://img.shields.io/badge/type-payment%20protocol-purple)
 [![Issues](https://img.shields.io/github/issues/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/pulls)
 [![Last Commit](https://img.shields.io/github/last-commit/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/commits/main)
@@ -10,8 +10,8 @@
 [![Website](https://img.shields.io/badge/Website-Live%20Demo-00b4d8)](https://app.fyloxprotocol.com)
 [![Twitter Follow](https://img.shields.io/twitter/follow/FyloxProtocol?style=social)](https://x.com/FyloxProtocol)
 ![Project Status](https://img.shields.io/badge/status-MVP-blue)
-![Ecosystem](https://img.shields.io/badge/ecosystem-Pi%20Network-orange)
-![Infrastructure](https://img.shields.io/badge/type-payment%20protocol-purple)
+[![Stars](https://img.shields.io/github/stars/fylox-protocol/fylox-protocol?style=social)](https://github.com/fylox-protocol/fylox-protocol/stargazers)
+[![Forks](https://img.shields.io/github/forks/fylox-protocol/fylox-protocol?style=social)](https://github.com/fylox-protocol/fylox-protocol/network/members)
 
 Real-world payment infrastructure for the Pi ecosystem.
 
