@@ -39,6 +39,8 @@ A Payment Request includes the following fields:
   "timestamp": "2026-03-11T00:00:00Z",
   "callback_url": "https://merchant.example.com/fylox_callback"
 }
+
+{
 ## QR Representation
 
 Payment requests can be encoded in a QR code to enable **simple scanning and payment**.
@@ -74,3 +76,4 @@ Copiar código
   - `metadata` for custom merchant data
   - `expiry` to set payment expiration time
   - `fees` to include transaction fees for processing
+}
