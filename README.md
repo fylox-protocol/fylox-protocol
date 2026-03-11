@@ -7,7 +7,6 @@
 [![Pull Requests](https://img.shields.io/github/issues-pr/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/pulls)
 [![Last Commit](https://img.shields.io/github/last-commit/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/commits/main)
 [![Contributors](https://img.shields.io/github/contributors/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/graphs/contributors)
-[![Pi Day 2026](https://img.shields.io/badge/Launch-Pi%20Day%202026-00b4d8.svg)](https://app.fyloxprotocol.com)
 [![Website](https://img.shields.io/badge/Website-Live%20Demo-00b4d8)](https://app.fyloxprotocol.com)
 [![Twitter Follow](https://img.shields.io/twitter/follow/FyloxProtocol?style=social)](https://x.com/FyloxProtocol)
 
