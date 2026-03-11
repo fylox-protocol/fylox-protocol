@@ -39,29 +39,3 @@ A Payment Request includes the following fields:
   "timestamp": "2026-03-11T00:00:00Z",
   "callback_url": "https://merchant.example.com/fylox_callback"
 }
-QR Representation
-Payment requests can be encoded in a QR code to enable simple scanning and payment.
-QR URI Example
-Plain text
-Copiar código
-fylox://pay?merchant=fylox_merchant_001&amount=25.50&currency=Pi&reference=INV-20260311-001
-Notes
-fylox://pay is the protocol scheme.
-All fields are URL-encoded.
-Optional fields (description, callback_url) may be omitted if not needed.
-Validation Rules
-merchant_id must be unique and registered within the Fylox ecosystem.
-amount must be a positive number.
-currency must be a supported token (initially Pi).
-timestamp must follow ISO 8601 format.
-If callback_url is present, it must use HTTPS.
-Security Considerations
-All QR data should be signed or validated by the payer’s wallet to prevent tampering.
-Merchants should verify reference and amount before confirming the payment.
-All callbacks should implement proper authentication and replay protection.
-Extensibility
-Future versions may support multi-chain currencies.
-Additional optional fields may include:
-metadata for custom merchant data
-expiry to set payment expiration time
-fees to include transaction fees for processing
