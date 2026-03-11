@@ -38,9 +38,7 @@ A Payment Request includes the following fields:
   "reference": "INV-20260311-001",
   "timestamp": "2026-03-11T00:00:00Z",
   "callback_url": "https://merchant.example.com/fylox_callback"
-
 }
-
 
 ## QR Representation
 
