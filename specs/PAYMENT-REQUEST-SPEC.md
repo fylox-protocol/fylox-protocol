@@ -41,7 +41,7 @@ A Payment Request includes the following fields:
 
 }
 
-QR Representation
+## QR Representation
 Payment requests can be encoded in a QR code to enable simple scanning and payment.
 QR URI Example
 
