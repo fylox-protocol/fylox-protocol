@@ -19,6 +19,35 @@ The long-term vision of Fylox is to become a foundational payment layer that ena
 
 By providing simple payment flows and developer-friendly integrations, Fylox seeks to bridge digital currency with everyday commerce.
 
+# Why Fylox Exists
+
+Many digital currency ecosystems struggle to reach real-world usage due to the lack of simple payment infrastructure.
+
+Fylox explores a minimal payment layer designed to make everyday transactions easier within the Pi ecosystem.
+
+The goal is not to replace existing systems, but to experiment with simple payment flows that could enable practical usage of Pi in real-world environments.
+
+---
+
+# Design Principles
+
+Fylox is designed around a few simple principles:
+
+• Simplicity — payments should be easy to use in everyday situations  
+• Real-world usability — focus on practical payment flows  
+• Open infrastructure — developers should be able to build on top of it  
+• Incremental development — start small, validate, then expand  
+
+---
+
+# Early Stage Project
+
+Fylox is an early-stage open-source experiment focused on exploring payment infrastructure ideas for the Pi ecosystem.
+
+The current version is a minimal prototype (MVP) designed to test QR-based payment flows.
+
+Features, architecture, and integrations may evolve as the project develops.
+
 ---
 
 # Problem
