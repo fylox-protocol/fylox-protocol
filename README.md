@@ -8,10 +8,10 @@
 [![Last Commit](https://img.shields.io/github/last-commit/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/commits/main)
 [![Contributors](https://img.shields.io/github/contributors/fylox-protocol/fylox-protocol)](https://github.com/fylox-protocol/fylox-protocol/graphs/contributors)
 [![Website](https://img.shields.io/badge/Website-Live%20Demo-00b4d8)](https://app.fyloxprotocol.com)
-[![Twitter Follow](https://img.shields.io/twitter/follow/FyloxProtocol?style=social)](https://x.com/FyloxProtocol)
 ![Project Status](https://img.shields.io/badge/status-MVP-blue)
 [![Stars](https://img.shields.io/github/stars/fylox-protocol/fylox-protocol?style=social)](https://github.com/fylox-protocol/fylox-protocol/stargazers)
 [![Forks](https://img.shields.io/github/forks/fylox-protocol/fylox-protocol?style=social)](https://github.com/fylox-protocol/fylox-protocol/network/members)
+[![Twitter Follow](https://img.shields.io/twitter/follow/FyloxProtocol?style=social)](https://x.com/FyloxProtocol)
 
 Real-world payment infrastructure for the Pi ecosystem.
 
