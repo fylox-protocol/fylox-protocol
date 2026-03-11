@@ -1003,43 +1003,56 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 <!-- S13 MERCHANT MAP -->
 <div class="scr" id="s13">
   <div class="grid"></div>
-    <div class="sbar"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg><svg width="18" height="18" viewBox="0 0 24 18" fill="currentColor"><rect x="0" y="1" width="20" height="16" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="20" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="2" y="3" width="13" height="12" rx="2" fill="currentColor" opacity="0.8"/></svg></div></div>
-    <div class="tnav"><div class="bk" data-go="s5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div><div class="ttitle">Merchants</div><div style="width:36px"></div></div>
-  <div class="sc">
-    <input class="srch" placeholder="Search merchants near you..." type="text">
-    <div style="background:var(--bg2);border:1px solid var(--b);border-radius:18px;height:220px;margin-bottom:16px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center">
-      <div style="position:absolute;inset:0;background:radial-gradient(circle at 40% 50%,rgba(0,212,232,.08),transparent 40%),radial-gradient(circle at 70% 30%,rgba(139,92,246,.06),transparent 30%)"></div>
-      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:20px 20px"></div>
-      <!-- Map pins behind text -->
-      <div style="position:absolute;top:22%;left:20%;width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);z-index:1"></div>
-      <div style="position:absolute;top:18%;left:72%;width:8px;height:8px;border-radius:50%;background:var(--c2);box-shadow:0 0 8px var(--c2);z-index:1"></div>
-      <div style="position:absolute;top:72%;left:68%;width:8px;height:8px;border-radius:50%;background:var(--ylw);box-shadow:0 0 8px var(--ylw);z-index:1"></div>
-      <div style="position:absolute;top:75%;left:18%;width:7px;height:7px;border-radius:50%;background:var(--grn);box-shadow:0 0 7px var(--grn);z-index:1"></div>
-      <div style="position:relative;z-index:3;text-align:center">
-        <div style="font-size:32px;margin-bottom:8px">🗺️</div>
-        <div style="font-size:13px;color:var(--t2)">Map view · 12 merchants nearby</div>
-      </div>
-    </div>
-    <div class="sh">Nearby</div>
-    <div class="row" data-go="s14">
-      <div class="ti" style="background:rgba(0,200,120,.1);font-size:22px">🍕</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:700">La Pizzería</div><div style="font-size:12px;color:var(--t2);margin-top:1px">120m away · Food</div></div>
-      <div class="tag tag-g">Open</div>
-    </div>
-    <div class="row" data-go="s14">
-      <div class="ti" style="background:rgba(255,183,0,.1);font-size:22px">☕</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:700">Café del Centro</div><div style="font-size:12px;color:var(--t2);margin-top:1px">280m away · Coffee</div></div>
-      <div class="tag tag-g">Open</div>
-    </div>
-    <div class="row" data-go="s14">
-      <div class="ti" style="background:rgba(0,140,200,.1);font-size:22px">💊</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:700">Farmacia Cruz Verde</div><div style="font-size:12px;color:var(--t2);margin-top:1px">450m away · Pharmacy</div></div>
-      <div class="tag tag-g">Open</div>
+  <div class="sbar"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg><svg width="18" height="18" viewBox="0 0 24 18" fill="currentColor"><rect x="0" y="1" width="20" height="16" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="20" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="2" y="3" width="13" height="12" rx="2" fill="currentColor" opacity="0.8"/></svg></div></div>
+  <div class="tnav"><div class="bk" data-go="s5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div><div class="ttitle">Merchants</div><div style="width:36px;height:36px;background:rgba(0,212,232,.1);border:1px solid rgba(0,212,232,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;">🗺️</div></div>
+  <div style="position:relative;margin:0 20px 12px;z-index:2;">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:15px;">🔍</span>
+    <input class="srch" placeholder="Search merchants near you..." type="text" style="padding-left:40px;">
+  </div>
+  <div style="display:flex;gap:8px;padding:0 20px 12px;overflow-x:auto;flex-shrink:0;position:relative;z-index:2;">
+    <div style="flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid rgba(0,212,232,.25);color:var(--c);background:rgba(0,212,232,.1);">All</div>
+    <div style="flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);color:var(--t3);background:var(--bg3);">🍕 Food</div>
+    <div style="flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);color:var(--t3);background:var(--bg3);">☕ Coffee</div>
+    <div style="flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);color:var(--t3);background:var(--bg3);">🛍️ Retail</div>
+    <div style="flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);color:var(--t3);background:var(--bg3);">💊 Pharmacy</div>
+    <div style="flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);color:var(--t3);background:var(--bg3);">⚡ Services</div>
+    <div style="flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);color:var(--t3);background:var(--bg3);">🚌 Transit</div>
+  </div>
+  <div style="margin:0 20px 14px;background:var(--bg2);border:1px solid var(--b);border-radius:18px;height:175px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:2;">
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:20px 20px;"></div>
+    <div style="position:absolute;top:-40px;left:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,232,.09),transparent 70%);"></div>
+    <div style="position:absolute;bottom:-20px;right:10px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.07),transparent 70%);"></div>
+    <div style="position:absolute;top:30%;left:22%;width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c);z-index:1;"></div>
+    <div style="position:absolute;top:20%;left:68%;width:8px;height:8px;border-radius:50%;background:var(--c2);box-shadow:0 0 10px var(--c2);z-index:1;"></div>
+    <div style="position:absolute;top:65%;left:62%;width:9px;height:9px;border-radius:50%;background:var(--ylw);box-shadow:0 0 10px var(--ylw);z-index:1;"></div>
+    <div style="position:absolute;top:70%;left:18%;width:7px;height:7px;border-radius:50%;background:var(--grn);box-shadow:0 0 8px var(--grn);z-index:1;"></div>
+    <div style="position:absolute;top:42%;left:46%;width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 14px var(--c);border:2px solid #fff;z-index:1;"></div>
+    <div style="position:relative;z-index:3;text-align:center;">
+      <div style="font-size:11px;color:var(--t3);margin-bottom:5px;letter-spacing:.3px;">12 Pi merchants nearby</div>
+      <div style="font-size:13px;font-weight:600;color:var(--c);">📍 Buenos Aires, Argentina</div>
     </div>
   </div>
-    <div class="bnav"><div class="bi"><div class="ni on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="nl on">Home</div></div><div class="bi" data-go="s16"><div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="nl">Wallet</div></div><div class="bi" data-go="s21"><div class="ni ni-earn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="nl nl-earn">Earn</div></div><div class="bi" data-go="s17"><div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="nl">Profile</div></div>  </div>
+  <div class="sc">
+    <div class="sh">Nearby · 12 results</div>
+    <div class="row" data-go="s14"><div class="ti" style="background:rgba(0,200,120,.1)">🍕</div><div style="flex:1"><div style="font-size:14px;font-weight:600">La Pizzería</div><div style="font-size:11px;color:var(--t2);margin-top:2px">120m · Food & Restaurant</div></div><div class="tag tag-g">Open</div></div>
+    <div class="row" data-go="s14"><div class="ti" style="background:rgba(255,183,0,.1)">☕</div><div style="flex:1"><div style="font-size:14px;font-weight:600">Café del Centro</div><div style="font-size:11px;color:var(--t2);margin-top:2px">280m · Coffee & Bakery</div></div><div class="tag tag-g">Open</div></div>
+    <div class="row" data-go="s14"><div class="ti" style="background:rgba(0,140,200,.1)">💊</div><div style="flex:1"><div style="font-size:14px;font-weight:600">Farmacia Cruz Verde</div><div style="font-size:11px;color:var(--t2);margin-top:2px">450m · Pharmacy</div></div><div class="tag tag-g">Open</div></div>
+    <div class="row" data-go="s14"><div class="ti" style="background:rgba(139,92,246,.1)">📱</div><div style="flex:1"><div style="font-size:14px;font-weight:600">TechStore BA</div><div style="font-size:11px;color:var(--t2);margin-top:2px">620m · Electronics</div></div><div class="tag tag-c">New</div></div>
+    <div class="row" data-go="s14"><div class="ti" style="background:rgba(255,100,100,.1)">🛍️</div><div style="flex:1"><div style="font-size:14px;font-weight:600">Ropa Urbana</div><div style="font-size:11px;color:var(--t2);margin-top:2px">890m · Retail</div></div><div class="tag tag-y">Busy</div></div>
+    <div style="margin:14px 0 20px;background:var(--bg2);border:1px solid var(--b);border-radius:18px;padding:18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(0,212,232,.04));pointer-events:none;"></div>
+      <div style="width:44px;height:44px;border-radius:14px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;position:relative;z-index:1;">🏪</div>
+      <div style="flex:1;position:relative;z-index:1;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Register your business</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.4;">Start accepting Pi payments. Free setup, instant verification.</div>
+      </div>
+      <div style="font-size:18px;color:var(--c2);position:relative;z-index:1;">→</div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <div class="bnav"><div class="bi"><div class="ni on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="nl on">Home</div></div><div class="bi" data-go="s16"><div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="nl">Wallet</div></div><div class="bi" data-go="s21"><div class="ni ni-earn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="nl nl-earn">Earn</div></div><div class="bi" data-go="s17"><div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="nl">Profile</div></div></div>
 </div>
-
+  
 <!-- S14 MERCHANT DETAIL -->
 <div class="scr" id="s14">
   <div class="grid"></div>
