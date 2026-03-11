@@ -1,152 +1,155 @@
 # Fylox Protocol
 
-Real-world payment infrastructure for the Pi Network ecosystem.
+![Project Status](https://img.shields.io/badge/status-MVP-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Ecosystem](https://img.shields.io/badge/ecosystem-Pi%20Network-orange)
+![Infrastructure](https://img.shields.io/badge/type-payment%20protocol-purple)
 
-Fylox enables pioneers to **spend Pi in the real world** through a simple and scalable payment system.
+Real-world payment infrastructure for the Pi ecosystem.
 
-The project begins with QR-based payments and evolves toward a broader decentralized economic infrastructure.
+Fylox is an open infrastructure layer designed to enable simple, real-world payments using Pi through QR-based transactions and merchant integrations.
 
----
-
-# Overview
-
-Millions of pioneers already hold Pi.
-
-However, real-world payment infrastructure for Pi is still limited.
-
-Fylox aims to solve this by providing a lightweight protocol that enables:
-
-• QR-based payments  
-• peer-to-peer transactions  
-• merchant integrations  
-• real-world economic activity using Pi  
-
-The first version focuses on a simple MVP designed to test usability and real-world payment flows.
-
----
-
-# MVP
-
-The current implementation focuses on one core capability:
-
-**QR-based Pi payments.**
-
-Users can:
-
-• send Pi to other pioneers  
-• pay merchants by scanning a QR code  
-• test real-world payment scenarios  
-
-The goal of this stage is to validate real-world usage and gather community feedback.
-
----
-
-# Protocol Architecture
-
-Fylox is designed as a modular protocol composed of multiple layers.
-
-Current layer:
-
-• Fylox Payment Layer (MVP)
-
-Future layers:
-
-• Oracle Layer  
-• Nexus Layer  
-• Agora Layer  
-• Marketplace Layer  
-
-More details are available in:
-
-ARCHITECTURE.md
-
----
-
-# Roadmap
-
-Phase 1  
-Protocol foundation and MVP launch.
-
-Phase 2  
-Developer ecosystem and documentation.
-
-Phase 3  
-Merchant onboarding and real-world payment experiments.
-
-Phase 4  
-Network expansion and service integrations.
-
-Phase 5  
-Global payment infrastructure for Pi.
-
-See the full roadmap in:
-
-ROADMAP.md
-
----
-
-# Technology Stack
-
-Fylox is intentionally lightweight.
-
-Tech stack:
-
-• HTML  
-• TailwindCSS  
-• Vanilla JavaScript  
-• Pi SDK  
-
-This allows fast iteration and easy community contributions.
-
----
-
-# Contributing
-
-Fylox is an open infrastructure project.
-
-We welcome contributions from developers, designers, and pioneers who want to help build real-world utility for Pi.
-
-See:
-
-CONTRIBUTING.md
-
----
-
-# Whitepaper
-
-The Fylox whitepaper explains the long-term vision of the protocol and its role within the Pi ecosystem.
-
-Whitepaper available in this repository.
-
----
-
-# Project Status
-
-Early-stage prototype.
-
-The current version is designed for testing and experimentation within the Pi ecosystem.
-
-Community feedback is essential for the evolution of the protocol.
+The protocol aims to simplify how users, merchants, and applications interact with Pi payments in everyday environments.
 
 ---
 
 # Vision
 
-The long-term goal of Fylox is simple:
+The long-term vision of Fylox is to become a foundational payment layer that enables real-world economic activity within the Pi ecosystem.
 
-Enable pioneers to use Pi as a real-world currency.
-
-By providing the infrastructure for everyday payments, Fylox aims to unlock real economic activity within the Pi ecosystem.
+By providing simple payment flows and developer-friendly integrations, Fylox seeks to bridge digital currency with everyday commerce.
 
 ---
 
-# Community
+# Problem
 
-Follow the project for updates:
+Digital currencies promise borderless payments, but real-world usage remains limited.
 
-X (Twitter)  
-@FyloxProtocol
+Key challenges include:
+
+• Lack of simple payment infrastructure  
+• Limited merchant tools  
+• Difficult integration for applications  
+• Poor user experience in everyday transactions  
+
+Without simple infrastructure, digital currencies struggle to reach real-world adoption.
 
 ---
 
-Built for the global community of Pi Pioneers.
+# Solution
+
+Fylox introduces a lightweight payment infrastructure focused on simplicity and usability.
+
+The first implementation focuses on QR-based payments that allow users to send Pi to merchants in real-world scenarios.
+
+The protocol is designed to evolve into a broader payment layer capable of supporting applications, services, and digital commerce.
+
+---
+
+# MVP
+
+The first version of Fylox focuses on a minimal and testable payment flow.
+
+Current MVP features include:
+
+• QR payment generation  
+• Pi payment confirmation  
+• Basic merchant transaction flow  
+• Simple user payment experience  
+
+The goal of the MVP is to test real-world payment interactions within the Pi ecosystem.
+
+---
+
+# Architecture
+
+Simplified payment flow:
+
+User  
+↓  
+Scan QR  
+↓  
+Fylox Payment Layer  
+↓  
+Pi Network Transaction  
+↓  
+Merchant Confirmation  
+
+Detailed architecture documentation can be found in:
+
+ARCHITECTURE.md
+
+---
+
+# Integrations
+
+Fylox is designed to allow integrations for developers, merchants, and applications.
+
+Possible integrations include:
+
+• local merchants  
+• marketplaces  
+• delivery services  
+• digital services  
+• payment-enabled applications  
+
+See:
+
+INTEGRATIONS.md
+
+---
+
+# Project Status
+
+Fylox is currently in early development (MVP stage).
+
+The current focus is testing QR-based Pi payment flows and validating real-world usability within the ecosystem.
+
+Fylox is an independent open-source project and is not affiliated with the Pi Network core team.
+
+---
+
+# Roadmap
+
+The development roadmap outlines future protocol evolution including:
+
+• expanded merchant tools  
+• developer integrations  
+• payment infrastructure modules  
+• broader ecosystem integrations  
+
+See:
+
+ROADMAP.md
+
+---
+
+# Contributing
+
+Contributions from developers and pioneers are welcome.
+
+Please read:
+
+CONTRIBUTING.md
+
+before submitting contributions or opening pull requests.
+
+---
+
+# Security
+
+If you discover a vulnerability, please report it responsibly.
+
+See:
+
+SECURITY.md
+
+---
+
+# License
+
+Fylox Protocol is released under the MIT License.
+
+See:
+
+LICENSE
