@@ -23,7 +23,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 - Links to documentation and legal properly connected
 
 ### Fixed
-- Removed texts that could be seen as “hype”
+- Removed texts that could be seen as “hype"
 - Validated repo file structure
 
 ## [Previous Releases]
