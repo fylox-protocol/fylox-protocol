@@ -1138,7 +1138,7 @@ function goTo(id) {
   // Populate s7 with real values
   
 if (id === 's7') {
-  const amt = (kval && kval !== '0') ? kval : '0.00';
+  const amt = (window.SEND_AMT && window.SEND_AMT !== '0') ? window.SEND_AMT : '0.00';
   const recip = window.SEND_TO || '@Pioneer';
   const el7amt = document.getElementById('s7amt');
   const el7to = document.getElementById('s7to');
