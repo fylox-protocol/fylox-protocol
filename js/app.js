@@ -1089,23 +1089,14 @@ setTimeout(() => {
 let kval = '0';
 
 document.addEventListener('click', function(e) {
-
-  const k = e.target.dataset.k;
-
-  if (k !== undefined) {
-
-    if (k === 'x') { kval = kval.length > 1 ? kval.slice(0,-1) : '0'; }
-
-    else if (k === '.') { if (!kval.includes('.')) kval += '.'; }
-
-    else { kval = kval === '0' ? k : kval + k; if (kval.length > 9) kval = kval.slice(0,-1); }
-
-    const el = document.getElementById('sa');
-
-    if (el) {window.KVAL = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>';
-
-  }
-
+  const k = e.target.dataset.k;
+  if (k !== undefined) {
+    if (k === 'x') { kval = kval.length > 1 ? kval.slice(0,-1) : '0'; }
+    else if (k === '.') { if (!kval.includes('.')) kval += '.'; }
+    else { kval = kval === '0' ? k : kval + k; if (kval.length > 9) kval = kval.slice(0,-1); }
+    const el = document.getElementById('sa');
+    if (el) { window.KVAL = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>'; }
+  }
 });
 
 
