@@ -757,10 +757,10 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   <div class="sc" style="display:flex;flex-direction:column">
     <div style="text-align:center;padding:28px 0 20px">
       <div style="font-size:13px;color:var(--t2);margin-bottom:10px">Send to</div>
-      <div style="display:inline-flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--b);border-radius:50px;padding:10px 18px">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--cd);display:flex;align-items:center;justify-content:center;color:var(--c);font-size:14px;font-weight:700">J</div>
-        <div style="font-size:15px;font-weight:600">@john</div>
-      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--b);border-radius:50px;padding:10px 18px;width:100%;max-width:280px">
+  <div style="width:32px;height:32px;border-radius:50%;background:var(--cd);display:flex;align-items:center;justify-content:center;color:var(--c);font-size:14px;font-weight:700">@</div>
+  <input id="send-to-input" type="text" placeholder="username or .pi address" style="background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:600;width:100%;" oninput="window.SEND_TO='@'+this.value.replace('@','')">
+</div>
     </div>
     <div style="text-align:center;padding:10px 0 20px">
       <div class="amt" id="sa" style="margin-bottom:6px">0.00 <span style="font-size:26px;color:var(--c)">π</span></div>
