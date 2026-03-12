@@ -1095,7 +1095,7 @@ document.addEventListener('click', function(e) {
     else if (k === '.') { if (!kval.includes('.')) kval += '.'; }
     else { kval = kval === '0' ? k : kval + k; if (kval.length > 9) kval = kval.slice(0,-1); }
     const el = document.getElementById('sa');
-    if (el) { window.KVAL = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>'; }
+   if (el) { window.KVAL = kval; window.SEND_AMT = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>'; }
   }
 });
 
