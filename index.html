@@ -773,7 +773,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       <div class="kkey" data-k=".">.</div><div class="kkey" data-k="0">0</div><div class="kkey kc" data-k="x">⌫</div>
     </div>
     <div style="flex:1"></div>
-     <button class="btn bp" data-go="s7" data-i18n="continueBtn" onclick="var a=kval!=='0'?kval:'0.00'; document.getElementById('s7amt').innerHTML=a+' <span style=\'font-size:26px;color:var(--c)\'>π</span>'; document.getElementById('s7total').textContent=a+' π';">Continue</button>
+    <button class="btn bp" data-go="s7" data-i18n="continueBtn" onclick="window.SEND_TO='@'+((document.getElementById('send-to-input').value||'').replace('@','')||'Pioneer'); var a=kval!=='0'?kval:'0.00'; document.getElementById('s7amt').innerHTML=a+' <span style=\'font-size:26px;color:var(--c)\'>π</span>'; document.getElementById('s7total').textContent=a+' π'; document.getElementById('s7to').textContent=window.SEND_TO;">Continue</button> 
   </div>
 </div>
 
