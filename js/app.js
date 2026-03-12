@@ -1102,7 +1102,7 @@ document.addEventListener('click', function(e) {
 
     const el = document.getElementById('sa');
 
-    if (el) el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>';
+    if (el) {window.KVAL = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>';
 
   }
 
