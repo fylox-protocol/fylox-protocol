@@ -1136,10 +1136,9 @@ function goTo(id) {
   if (sc) sc.scrollTop = 0;
   
   // Populate s7 with real values
+  
 if (id === 's7') {
-  const saEl = document.getElementById('sa');
-const rawAmt = saEl ? saEl.textContent.replace('π','').trim() : '0';
-const amt = rawAmt === '0' || rawAmt === '' ? '0.00' : rawAmt;
+  const amt = (kval && kval !== '0') ? kval : '0.00';
   const recip = window.SEND_TO || '@Pioneer';
   const el7amt = document.getElementById('s7amt');
   const el7to = document.getElementById('s7to');
