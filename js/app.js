@@ -99,6 +99,12 @@ const LANGS = {
     switchAppearance:'Switch appearance',
 
     lightMode:'Light Mode',
+    
+    oracleDesc:'Real-world data verification by Pioneers',
+    
+    agoraDesc:'AI model governance by 47M Pioneers',
+    
+    nexusTitle:'NEXUS Protocol Score',
 
   },
 
@@ -194,6 +200,12 @@ const LANGS = {
     switchAppearance:'Cambiar apariencia',
 
     lightMode:'Modo claro',
+    
+    oracleDesc:'Verificación de datos del mundo real por Pioneers',
+    
+    agoraDesc:'Gobernanza de IA por 47M Pioneers',  
+    
+    nexusTitle:'Puntuación Protocolo NEXUS',
 
   },
 
@@ -228,6 +240,7 @@ const LANGS = {
     acceptTask:'Tanggapin ang gawain', submitVote:'Bumoto at kumita',
 
     votes:'Mga boto', participation:'Pakikilahok',
+    
 
 
     // New keys
@@ -289,6 +302,12 @@ const LANGS = {
     switchAppearance:'Baguhin ang hitsura',
 
     lightMode:'Light Mode',
+    
+    oracleDesc:'Pag-verify ng datos sa totoong mundo ng mga Pioneer',
+    
+    agoraDesc:'Pamamahala ng AI ng 47M Pioneers',
+    
+    nexusTitle:'NEXUS Protocol Score',  
 
   },
 
@@ -384,6 +403,12 @@ const LANGS = {
     switchAppearance:'Change how e look',
 
     lightMode:'Light Mode',
+    
+    oracleDesc:'Real-world data check by Pioneers',
+    
+    agoraDesc:'AI governance by 47M Pioneers',
+    
+    nexusTitle:'NEXUS Protocol Score',
 
   },
 
@@ -479,6 +504,12 @@ const LANGS = {
     switchAppearance:'रूप बदलें',
 
     lightMode:'लाइट मोड',
+    
+    oracleDesc:'Pioneers द्वारा वास्तविक डेटा सत्यापन',
+    
+    agoraDesc:'47M Pioneers द्वारा AI शासन',
+    
+    nexusTitle:'NEXUS प्रोटोकॉल स्कोर',
 
   },
 
@@ -574,6 +605,12 @@ const LANGS = {
     switchAppearance:'Mudar aparência',
 
     lightMode:'Modo Claro',
+    
+    oracleDesc:'Verificação de dados do mundo real por Pioneers',
+    
+    agoraDesc:'Governança de IA por 47M Pioneers',
+    
+    nexusTitle:'Pontuação Protocolo NEXUS',
 
   },
 
@@ -628,6 +665,9 @@ const LANGS = {
     allFilter:'全部', sentFilter:'已发送', receivedFilter:'已接收',
 
     personalInfo:'个人信息', switchAppearance:'切换外观', lightMode:'浅色模式',
+    
+    oracleDesc:'先锋者验证现实世界数据', agoraDesc:'47M先锋者AI治理', nexusTitle:'NEXUS协议评分',
+
 
   },
 
@@ -723,7 +763,12 @@ const LANGS = {
     switchAppearance:'Ubah tampilan',
 
     lightMode:'Mode Terang',
-
+    
+    oracleDesc:'Verifikasi data dunia nyata oleh Pioneers',
+    
+    agoraDesc:'Tata kelola AI oleh 47M Pioneers',
+    
+    nexusTitle:'Skor Protokol NEXUS',
   },
 
   vi: {
@@ -818,6 +863,12 @@ const LANGS = {
     switchAppearance:'Đổi giao diện',
 
     lightMode:'Chế độ sáng',
+    
+    oracleDesc:'Xác minh dữ liệu thực tế bởi Pioneers',
+    
+    agoraDesc:'Quản trị AI bởi 47M Pioneers',
+    
+    nexusTitle:'Điểm Giao thức NEXUS',
 
   },
 
@@ -913,6 +964,12 @@ const LANGS = {
     switchAppearance:'화면 전환',
 
     lightMode:'라이트 모드',
+    
+    oracleDesc:'파이오니어들의 실세계 데이터 검증',
+    
+    agoraDesc:'4700만 파이오니어의 AI 거버넌스',
+    
+    nexusTitle:'NEXUS 프로토콜 점수',
 
   },
 
