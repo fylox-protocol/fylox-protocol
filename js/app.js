@@ -1143,6 +1143,23 @@ function goTo(id) {
   const sc = next.querySelector('.sc');
 
   if (sc) sc.scrollTop = 0;
+  
+  // Populate s7 with real values
+if (id === 's7') {
+  const amt = kval === '0' ? '0.00' : kval;
+  const recip = window.SEND_TO || '@Pioneer';
+  const el7amt = document.getElementById('s7amt');
+  const el7to = document.getElementById('s7to');
+  const el7total = document.getElementById('s7total');
+  if (el7amt) el7amt.innerHTML = amt + ' <span style="font-size:26px;color:var(--c)">π</span>';
+  if (el7to) el7to.textContent = recip;
+  if (el7total) el7total.textContent = amt + ' π';
+  window.SEND_AMT = amt;
+}
+if (id === 's8') {
+  const el8 = document.getElementById('s8msg');
+  if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
+}
 
   if (navigator.vibrate) navigator.vibrate(20);
 
