@@ -2043,4 +2043,8 @@ function toggleFilterChip(el) {
 
 }
 
+// Remove orphaned bnavs
+document.querySelectorAll('.bnav').forEach(function(nav) {
+  if (!nav.closest('.scr')) nav.remove();
+});
 
