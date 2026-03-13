@@ -414,5 +414,4 @@ html.light .filter-chip.active { background:rgba(0,212,232,.12) !important; bord
 /* Dark toggle button */
 html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 
-.bnav{display:none!important}
-#s5.scr.show > .bnav{display:flex!important}
+
