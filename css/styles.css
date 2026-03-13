@@ -411,5 +411,5 @@ html.light .filter-chip.active { background:rgba(0,212,232,.12) !important; bord
 /* Dark toggle button */
 html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 
-body > .bnav{display:none!important}
-#app > .bnav{display:none!important}
+.bnav{visibility:hidden;pointer-events:none}
+#s5.scr.show .bnav{visibility:visible;pointer-events:auto}
