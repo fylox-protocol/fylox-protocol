@@ -2042,11 +2042,3 @@ function toggleFilterChip(el) {
   if (navigator.vibrate) navigator.vibrate(20);
 
 }
-
-// Remove orphaned bnavs
-document.querySelectorAll('.bnav').forEach(function(nav) {
-  const scr = nav.closest('.scr');
-  if (!scr) {
-    nav.parentElement.remove();
-  }
-});
