@@ -2045,6 +2045,8 @@ function toggleFilterChip(el) {
 
 // Remove orphaned bnavs
 document.querySelectorAll('.bnav').forEach(function(nav) {
-  if (!nav.closest('.scr')) nav.remove();
+  const scr = nav.closest('.scr');
+  if (!scr) {
+    nav.parentElement.remove();
+  }
 });
-
