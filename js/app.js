@@ -1210,7 +1210,26 @@ if (id === 's8') {
   if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
 }
 
-  if (navigator.vibrate) navigator.vibrate(20);
+// Actualizar estado activo del bottom nav
+  document.querySelectorAll('.bnav .bi').forEach(btn => {
+    const ni = btn.querySelector('.ni');
+    const nl = btn.querySelector('.nl');
+    if (!ni || !nl) return;
+
+    const dest = btn.dataset.go;
+    if (!dest) return;
+
+    const isActive = dest === id;
+    if (isActive) {
+      ni.classList.add('on');
+      nl.classList.add('on');
+    } else {
+      ni.classList.remove('on');
+      nl.classList.remove('on');
+    }
+  });
+
+  if (navigator.vibrate) navigator.vibrate(20);
 
 }
 
