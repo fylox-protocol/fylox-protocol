@@ -1790,12 +1790,14 @@ window.onload = function() {
   setTimeout(function() {
   if (window.Pi) {
 } else {
+      
     // ── DEMO MODE (browser / investor preview) ────
     console.log('[Fylox] Demo mode — no Pi Browser');
     updateUIWithUser(FYLOX_DEMO.username, FYLOX_DEMO.piid, FYLOX_DEMO.balance);
   }
   }, 500);
-};      
+};  
+
     // ── RUNNING IN PI BROWSER ──────────────────────
 
    Pi.init({ version: "2.0", sandbox: true, appId: "fylox-protocol" });
