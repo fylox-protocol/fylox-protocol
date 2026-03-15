@@ -1822,12 +1822,6 @@ window.onload = function() {
 };
 
 
-    // Show loading state on balance
-
-    const hb = document.getElementById('home-balance');
-
-    if (hb) hb.innerHTML = `<span style="font-size:20px;color:var(--t2)">Loading...</span>`;
-
 
     Pi.authenticate(
 
