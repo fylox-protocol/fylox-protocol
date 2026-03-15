@@ -1785,6 +1785,32 @@ function updateUIWithUser(username, piid, balance) {
 
 }
 
+// ─── Dark / Light Mode Toggle ─────────────────────────────
+function toggleDark() {
+  const html = document.documentElement;
+  const isDark = !html.classList.contains('light');
+  if (isDark) {
+    html.classList.add('light');
+    localStorage.setItem('fylox-theme', 'light');
+  } else {
+    html.classList.remove('light');
+    localStorage.setItem('fylox-theme', 'dark');
+  }
+  const btn = document.getElementById('dark-toggle-btn');
+  if (btn) btn.classList.toggle('on', !isDark);
+  const label = document.getElementById('dark-label');
+  if (label) label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+}
+
+// Apply saved theme on load
+(function() {
+  const saved = localStorage.getItem('fylox-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    const btn = document.getElementById('dark-toggle-btn');
+    if (btn) btn.classList.add('on');
+  }
+})();
 
 window.onload = function() {
   if (window.Pi) {
