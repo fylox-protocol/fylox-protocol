@@ -188,7 +188,7 @@ right:0;z-index:9999}
 .toast-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .toast-body{flex:1;min-width:0}
 .toast-title{font-size:13px;font-weight:700;color:var(--toast-title, #F5F5FF);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.toast-sub{font-size:11px;color:var(--toast-sub, rgba(245,245,255,.55));margin-top:2px}
+.toast-sub{font-size:11px;color:var(--toast-sub, rgba(245,245,255,.55));margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .toast-amt{font-family:var(--fd);font-weight:800;font-size:15px;color:var(--c);flex-shrink:0}
 
 /* stagger children of scrollable screens */
