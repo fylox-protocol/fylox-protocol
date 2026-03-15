@@ -788,7 +788,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:14px;color:var(--t2)">Network fee</span><span style="font-size:14px;font-weight:600;color:var(--grn)">Free</span></div>
       <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:700">Total</span><span style="font-family:var(--fd);font-size:16px;font-weight:800" id="s7total">0.00 π</span></div>
     </div>
-    <button class="btn bp mb8" data-go="s8" onclick="var a=document.getElementById('s7total').textContent.replace('π','').trim(); var el=document.getElementById('s8msg'); if(el) el.textContent=a+' π sent to '+(window.SEND_TO||'@Pioneer');">Confirm & Send</button>
+    <button class="btn bp mb8" onclick="fyloxSendPayment()">Confirm & Send</button>
     <button class="btn bg" data-go="s5">Cancel</button>
     <div style="height:80px"></div>
   </div>
