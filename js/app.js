@@ -1552,19 +1552,20 @@ function showToast(data) {
 
 
 // Start toasts after 4s, then every 18-28s
-
+// DISABLED FOR MVP
+/*
 setTimeout(() => {
 
-  const t = getToasts(); showToast(t[toastIdx++ % t.length]);
+  const t = getToasts(); showToast(t[toastIdx++ % t.length]);
 
-  setInterval(() => {
+  setInterval(() => {
 
-    const t = getToasts(); showToast(t[toastIdx++ % t.length]);
+    const t = getToasts(); showToast(t[toastIdx++ % t.length]);
 
-  }, 18000 + Math.random() * 10000);
+  }, 18000 + Math.random() * 10000);
 
 }, 4000);
-
+*/
 
 // ─── π Price Ticker ───────────────────────────────
 
