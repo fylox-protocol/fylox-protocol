@@ -1792,8 +1792,7 @@ window.onload = function() {
 
     // ── RUNNING IN PI BROWSER ──────────────────────
 
-    Pi.init({ version: "2.0", sandbox: false });
-
+   Pi.init({ version: "2.0", sandbox: true });
     console.log('[Fylox] Pi Browser detected ✅');
 
 
