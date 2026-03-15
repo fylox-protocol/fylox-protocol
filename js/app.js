@@ -1812,6 +1812,42 @@ function toggleDark() {
   }
 })();
 
+// ─── Fylox Payment ─────────────────────────────────
+function fyloxSendPayment() {
+  const amt = parseFloat(document.getElementById('s7total').textContent.replace('π','').trim()) || 0;
+  const to = window.SEND_TO || '@Pioneer';
+
+  if (!window.Pi) {
+    // Demo mode
+    const el = document.getElementById('s8msg');
+    if (el) el.textContent = amt + ' π sent to ' + to;
+    goTo('s8');
+    return;
+  }
+
+  Pi.createPayment({
+    amount: amt,
+    memo: 'Fylox payment to ' + to,
+    metadata: { to: to }
+  }, {
+    onReadyForServerApproval: function(paymentId) {
+      console.log('[Fylox] Payment ready:', paymentId);
+      goTo('s8');
+      const el = document.getElementById('s8msg');
+      if (el) el.textContent = amt + ' π sent to ' + to;
+    },
+    onReadyForServerCompletion: function(paymentId, txid) {
+      console.log('[Fylox] Payment complete:', txid);
+    },
+    onCancel: function(paymentId) {
+      console.log('[Fylox] Payment cancelled');
+    },
+    onError: function(error, payment) {
+      console.log('[Fylox] Payment error:', error);
+    }
+  });
+}
+
 window.onload = function() {
   if (window.Pi) {
       
