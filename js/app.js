@@ -1209,7 +1209,12 @@ if (id === 's8') {
   const el8 = document.getElementById('s8msg');
   if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
 }
-
+// Mostrar/ocultar bnav según la pantalla
+  const bnav = document.querySelector('.bnav');
+  const navScreens = ['s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18','s19','s20','s21','s22','s23','s24'];
+  if (bnav) {
+    bnav.style.display = navScreens.includes(id) ? 'flex' : 'none';
+  }
 // Actualizar estado activo del bottom nav
   document.querySelectorAll('.bnav .bi').forEach(btn => {
     const ni = btn.querySelector('.ni');
