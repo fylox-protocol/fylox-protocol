@@ -181,6 +181,8 @@ right:0;z-index:9999}
   box-shadow:0 8px 32px var(--toast-shadow, rgba(0,0,0,.55));
   animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) both;
   pointer-events:all;
+  max-width:320px;
+  width:auto;
 }
 .toast.out{animation:toastOut .25s ease forwards}
 .toast-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
