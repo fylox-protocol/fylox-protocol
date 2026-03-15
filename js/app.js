@@ -1787,21 +1787,39 @@ function updateUIWithUser(username, piid, balance) {
 
 
 window.onload = function() {
-  setTimeout(function() {
   if (window.Pi) {
-} else {
       
-    // ── DEMO MODE (browser / investor preview) ────
+    // ── RUNNING IN PI BROWSER ──────────────────────
+    Pi.init({ version: "2.0", sandbox: true, appId: "fylox-protocol" });
+    console.log('[Fylox] Pi Browser detected ✅');
+
+    const hb = document.getElementById('home-balance');
+    if (hb) hb.innerHTML = `<span style="font-size:20px;color:var(--t2)">Loading...</span>`;
+
+    Pi.authenticate(
+      ['payments', 'username', 'wallet_address'],
+      function(incompletePayment) {
+        if (incompletePayment) {
+          console.log('[Fylox] Incomplete payment found:', incompletePayment.identifier);
+        }
+      }
+    ).then(function(auth) {
+      const username = auth.user.username;
+      const piid = username + '.pi';
+      console.log('[Fylox] Authenticated:', username);
+      updateUIWithUser(username, piid, FYLOX_DEMO.balance);
+    }).catch(function(err) {
+      console.log('[Fylox] Auth error:', err);
+      updateUIWithUser(FYLOX_DEMO.username, FYLOX_DEMO.piid, FYLOX_DEMO.balance);
+    });
+
+  } else {
+      
+    // ── DEMO MODE ────
     console.log('[Fylox] Demo mode — no Pi Browser');
     updateUIWithUser(FYLOX_DEMO.username, FYLOX_DEMO.piid, FYLOX_DEMO.balance);
   }
-  }, 500);
-};  
-
-    // ── RUNNING IN PI BROWSER ──────────────────────
-
-   Pi.init({ version: "2.0", sandbox: true, appId: "fylox-protocol" });
-    console.log('[Fylox] Pi Browser detected ✅');
+};
 
 
     // Show loading state on balance
