@@ -1209,10 +1209,10 @@ if (id === 's8') {
   const el8 = document.getElementById('s8msg');
   if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
 }
-    if (id === 's9') {
+if (id === 's9') {
   const wb = document.getElementById('wallet-balance');
   if (wb) {
-    const target = parseFloat(wb.dataset.value || wb.textContent.replace('π','').trim()) || 0;
+    const target = parseFloat(wb.dataset.value || '100') || 100;
     wb.dataset.value = target;
     let start = 0;
     const duration = 1200;
@@ -1222,9 +1222,9 @@ if (id === 's8') {
       const progress = Math.min(elapsed / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
       const current = (start + (target - start) * ease).toFixed(2);
-      wb.textContent = current + ' π';
+      wb.innerHTML = current + ' <span style="font-size:24px;color:var(--c)">π</span>';
       if (progress < 1) requestAnimationFrame(animate);
-      else wb.textContent = target.toFixed(2) + ' π';
+      else wb.innerHTML = target.toFixed(2) + ' <span style="font-size:24px;color:var(--c)">π</span>';
     };
     requestAnimationFrame(animate);
   }
