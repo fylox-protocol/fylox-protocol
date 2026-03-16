@@ -1260,7 +1260,7 @@ if (id === 's16') {
     
 // Mostrar/ocultar bnav según la pantalla
   const bnav = document.querySelector('.bnav');
-  const navScreens = ['s5','s9','s10','s11','s12','s14','s15','s16','s17','s18','s19','s20','s21','s22','s23','s24'];
+  const navScreens = ['s5','s9','s10','s11','s12','s14','s15','s16','s17','s18','s19','s20','s21','s22','s24'];
   if (bnav) {
     bnav.style.display = navScreens.includes(id) ? 'flex' : 'none';
   }
