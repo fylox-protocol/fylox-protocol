@@ -1733,78 +1733,7 @@ function updateOracleConfirmed() {
 }
 
 setInterval(updateOracleConfirmed, 12000);
-
-
-// ─── Pi Network SDK (dApp) ────────────────────────
-
-// ─── Pi Network SDK — Real user & balance ────────
-
-const FYLOX_DEMO = {
-
-  username: 'joaquin_vera',
-
-  piid: 'joaquin.pi',
-
-  balance: 100.00,
-
-  balanceARS: 50000
-
-};
-
-
-function updateUIWithUser(username, piid, balance) {
-
-  const piPerUSD = piPrice;
-
-  const arsPerUSD = 1050; // approx ARS/USD
-
-  const balanceUSD = balance * piPerUSD;
-
-  const balanceARS = Math.round(balanceUSD * arsPerUSD).toLocaleString('es-AR');
-
-  const balanceFmt = balance.toFixed(2);
-
-
-  // Home
-
-  const hb = document.getElementById('home-balance');
-
-  if (hb) hb.innerHTML = `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`;
-
-  const hars = document.getElementById('home-ars');
-
-  if (hars) hars.textContent = balanceARS;
-
-  const hpid = document.getElementById('home-piid');
-
-  if (hpid) hpid.textContent = piid;
-
-  const hu = document.getElementById('home-username');
-
-  if (hu) hu.textContent = '@' + username;
-
-
-  // Wallet
-
-  const wb = document.getElementById('wallet-balance');
-
-  if (wb) wb.innerHTML = `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`;
-
-
-  // Profile
-
-  const pu = document.getElementById('profile-username');
-
-  if (pu) pu.textContent = '@' + username;
-
-
-  // Receive address
-
-  const ra = document.getElementById('receive-address');
-
-  if (ra) ra.textContent = '@' + username + ' · ' + piid;
-
-}
+  
 
 // ─── Dark / Light Mode Toggle ─────────────────────────────
 function toggleDark() {
@@ -1869,41 +1798,135 @@ function fyloxSendPayment() {
   });
 }
 
-window.onload = function() {
+// ─── UI Update ────────────────────────────────────
+function updateUIWithUser(username, balance) {
+  const piid       = username + '.pi';
+  const balanceUSD = balance * piPrice;
+  const arsPerUSD  = 1050;
+  const balanceARS = Math.round(balanceUSD * arsPerUSD).toLocaleString('es-AR');
+  const balanceFmt = balance.toFixed(2);
+
+  const hb = document.getElementById('home-balance');
+  if (hb) hb.innerHTML = `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`;
+  const hars = document.getElementById('home-ars');
+  if (hars) hars.textContent = balanceARS;
+  const hpid = document.getElementById('home-piid');
+  if (hpid) hpid.textContent = piid;
+  const hu = document.getElementById('home-username');
+  if (hu) hu.textContent = '@' + username;
+  const wb = document.getElementById('wallet-balance');
+  if (wb) {
+    wb.dataset.value = balance;
+    wb.innerHTML = `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`;
+  }
+  const pu = document.getElementById('profile-username');
+  if (pu) pu.textContent = '@' + username;
+  const ra = document.getElementById('receive-address');
+  if (ra) ra.textContent = '@' + username + ' · ' + piid;
+}
+
+// ─── Autenticación con backend ────────────────────
+async function authenticateWithBackend(piAccessToken) {
+  try {
+    const data = await apiCall('POST', '/auth/pi', { accessToken: piAccessToken });
+    setToken(data.token);
+    return data.user;
+  } catch (err) {
+    console.error('[Fylox] Error autenticando con backend:', err.message);
+    throw err;
+  }
+}
+
+async function fetchBalance() {
+  try {
+    const data = await apiCall('GET', '/user/balance');
+    return data.balance;
+  } catch (err) {
+    console.warn('[Fylox] No se pudo obtener balance:', err.message);
+    return 0;
+  }
+}
+
+// ─── Fylox Payment ────────────────────────────────
+function fyloxSendPayment() {
+  const amt = parseFloat(document.getElementById('s7total')?.textContent.replace('π','').trim()) || 0;
+  const to  = window.SEND_TO || '@Pioneer';
+
+  if (amt <= 0) return;
+
+  if (!window.Pi) {
+    const el = document.getElementById('s8msg');
+    if (el) el.textContent = amt + ' π sent to ' + to;
+    goTo('s8');
+    return;
+  }
+
+  Pi.createPayment({
+    amount:   amt,
+    memo:     'Fylox payment to ' + to,
+    metadata: { to },
+  }, {
+    onReadyForServerApproval: async function(paymentId) {
+      try {
+        await apiCall('POST', '/payments/approve', { paymentId });
+        console.log('[Fylox] ✅ Pago aprobado');
+      } catch (err) {
+        console.error('[Fylox] ❌ Error aprobando pago:', err.message);
+      }
+    },
+    onReadyForServerCompletion: async function(paymentId, txid) {
+      try {
+        await apiCall('POST', '/payments/complete', { paymentId, txid });
+        const el = document.getElementById('s8msg');
+        if (el) el.textContent = amt + ' π sent to ' + to;
+        goTo('s8');
+        const newBalance = await fetchBalance();
+        updateUIWithUser(window._fyloxUsername || 'Pioneer', newBalance);
+      } catch (err) {
+        console.error('[Fylox] ❌ Error completando pago:', err.message);
+      }
+    },
+    onCancel: function(paymentId) {
+      console.log('[Fylox] Pago cancelado:', paymentId);
+    },
+    onError: function(error) {
+      console.error('[Fylox] Error Pi SDK:', error);
+    },
+  });
+}
+
+// ─── Init ─────────────────────────────────────────
+window.onload = async function() {
   if (window.Pi) {
-      
-    // ── RUNNING IN PI BROWSER ──────────────────────
-    Pi.init({ version: "2.0", sandbox: true, appId: "fylox-protocol" });
-    console.log('[Fylox] Pi Browser detected ✅');
+    Pi.init({ version: '2.0', sandbox: true, appId: 'fylox-protocol' });
+    console.log('[Fylox] Pi Browser detectado ✅');
 
     const hb = document.getElementById('home-balance');
     if (hb) hb.innerHTML = `<span style="font-size:20px;color:var(--t2)">Loading...</span>`;
 
-    Pi.authenticate(
-      ['payments', 'username', 'wallet_address'],
-      function(incompletePayment) {
-        if (incompletePayment) {
-          console.log('[Fylox] Incomplete payment found:', incompletePayment.identifier);
+    try {
+      const auth = await Pi.authenticate(
+        ['payments', 'username', 'wallet_address'],
+        function(incompletePayment) {
+          if (incompletePayment) {
+            console.log('[Fylox] Pago incompleto:', incompletePayment.identifier);
+          }
         }
-      }
-    ).then(function(auth) {
-      const username = auth.user.username;
-      const piid = username + '.pi';
-      console.log('[Fylox] Authenticated:', username);
-      updateUIWithUser(username, piid, FYLOX_DEMO.balance);
-    }).catch(function(err) {
-      console.log('[Fylox] Auth error:', err);
-      updateUIWithUser(FYLOX_DEMO.username, FYLOX_DEMO.piid, FYLOX_DEMO.balance);
-    });
+      );
+      window._fyloxUsername = auth.user.username;
+      await authenticateWithBackend(auth.accessToken);
+      const balance = await fetchBalance();
+      updateUIWithUser(auth.user.username, balance);
+    } catch (err) {
+      console.error('[Fylox] Error de autenticación:', err.message);
+      updateUIWithUser('Pioneer', 0);
+    }
 
   } else {
-      
-    // ── DEMO MODE ────
-    console.log('[Fylox] Demo mode — no Pi Browser');
-    updateUIWithUser(FYLOX_DEMO.username, FYLOX_DEMO.piid, FYLOX_DEMO.balance);
+    console.log('[Fylox] Demo mode');
+    updateUIWithUser('joaquin_vera', 100.00);
   }
 };
-
 
 
 
