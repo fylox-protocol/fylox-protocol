@@ -169,7 +169,10 @@ right:0;z-index:9999}
 @keyframes countUp{from{transform:translateY(6px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes priceFlash{0%,100%{color:inherit}50%{color:#00d4e8}}
 @keyframes priceFlashDown{0%,100%{color:inherit}50%{color:#ff4757}}
-
+@keyframes pulseGlow {
+  0%,100%{opacity:.6;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.05)}
+}
 .toast{
   background:var(--toast-bg, rgba(18,18,26,.97));
   backdrop-filter:blur(24px);
