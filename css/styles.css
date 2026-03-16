@@ -318,64 +318,76 @@ right:0;z-index:9999}
 /* ═══════════════════════════════════════════════
    LIGHT MODE — html.light overrides
    ═══════════════════════════════════════════════ */
+
+html.light {
+  --bg:#F0F2F5;--bg2:#FFFFFF;--bg3:#E8EAF0;--bg4:#DDE0E8;
+  --b:rgba(0,0,0,.08);--b2:rgba(0,0,0,.12);--b3:rgba(0,0,0,.05);
+  --t1:#090B10;--t2:rgba(9,11,16,.65);--t3:rgba(9,11,16,.40);--t4:rgba(9,11,16,.12);
+}
+
 html.light body { background:#F0F2F5; color:#090B10; }
+html.light #app { background:#F0F2F5; }
+html.light .scr { background:#F0F2F5 !important; color:#090B10 !important; }
 
-/* Screens */
-html.light .scr { background:#F0F2F5 !important; color:#090B10; }
-
-/* Cards, rows, boxes */
-html.light .card { background:#FFFFFF !important; border-color:rgba(0,0,0,.08) !important; }
-html.light .row  { background:#FFFFFF !important; border-color:rgba(0,0,0,.08) !important; }
+html.light .card { background:#FFFFFF !important; border-color:rgba(0,0,0,.08) !important; color:#090B10 !important; }
+html.light .row  { background:#FFFFFF !important; border-color:rgba(0,0,0,.08) !important; color:#090B10 !important; }
 html.light .bc   { background:#FFFFFF !important; border-color:rgba(0,0,0,.08) !important; }
-html.light .task-card { background:#FFFFFF !important; border-color:rgba(0,212,232,.2) !important; }
-html.light .task-card-p { background:#FFFFFF !important; border-color:rgba(139,92,246,.2) !important; }
-html.light .vote-card { background:#FFFFFF !important; }
-html.light .fcard { background:linear-gradient(135deg,#E8F0FF,#D8E8FF) !important; border-color:rgba(0,120,200,.2) !important; }
-
-/* Balance card in home */
+html.light .stat-card { background:#FFFFFF !important; border-color:rgba(0,0,0,.08) !important; color:#090B10 !important; }
+html.light .task-card { background:#FFFFFF !important; border-color:rgba(0,212,232,.2) !important; color:#090B10 !important; }
+html.light .task-card-p { background:#FFFFFF !important; border-color:rgba(139,92,246,.2) !important; color:#090B10 !important; }
+html.light .vote-card { background:#FFFFFF !important; color:#090B10 !important; }
+html.light .vote-opt { background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.1) !important; color:#090B10 !important; }
+html.light .vote-opt.vsel { background:rgba(0,224,144,.12) !important; border-color:var(--grn) !important; color:var(--grn) !important; }
+html.light .fcard { background:linear-gradient(135deg,#080E1E,#121828) !important; }
 html.light .bal-card { background:linear-gradient(135deg,rgba(0,212,232,.12),rgba(139,92,246,.12)) !important; border-color:rgba(0,212,232,.3) !important; }
 
-/* Bottom nav */
 html.light .bnav { background:rgba(255,255,255,.95) !important; border-color:rgba(0,0,0,.08) !important; }
 html.light .nl { color:#8896A8 !important; }
 html.light .nl.on { color:var(--c) !important; }
 
-/* Top bar & nav */
-html.light .sbar { background:transparent; color:#090B10; }
-html.light .tnav { background:transparent; }
+html.light .sbar { color:#090B10 !important; }
+html.light .stime { color:#090B10 !important; }
+html.light .sicons { color:#090B10 !important; }
+html.light .ttitle { color:#090B10 !important; }
+html.light .tbrand-name { color:#090B10 !important; }
 html.light .bk { background:rgba(0,0,0,.06) !important; border-color:rgba(0,0,0,.1) !important; color:#090B10 !important; }
 
-/* Section headers */
 html.light .sh { color:#8896A8 !important; }
+html.light .lbl { color:rgba(9,11,16,.45) !important; }
+html.light .amt { color:#090B10 !important; }
+html.light .bg { background:#E8EAF0 !important; color:#090B10 !important; border-color:rgba(0,0,0,.1) !important; }
 
-/* Transaction rows */
+html.light .kkey { background:#E8EAF0 !important; border-color:rgba(0,0,0,.08) !important; color:#090B10 !important; }
+html.light .kbtn { background:rgba(0,0,0,.06) !important; color:#090B10 !important; }
+html.light .srch { background:#E8EAF0 !important; border-color:rgba(0,0,0,.1) !important; color:#090B10 !important; }
+html.light .srch::placeholder { color:rgba(9,11,16,.4) !important; }
+html.light .inp { background:rgba(0,0,0,.05) !important; border-color:rgba(0,0,0,.12) !important; color:#090B10 !important; }
+html.light .inp::placeholder { color:#8896A8 !important; }
+
 html.light .tx { border-color:rgba(0,0,0,.06) !important; }
 html.light .ti { background:rgba(0,0,0,.05) !important; }
-
-/* Onboarding panels with dark gradient bg */
-html.light [style*="background:linear-gradient(160deg,#060A14"] {
-  background:linear-gradient(160deg,#EEF2FF,#E8F0FF) !important;
-}
-
-/* Wallet card (Pi card) — keep dark, it's a physical card metaphor */
-/* Pill badges */
 html.light .pill-live { background:rgba(0,212,232,.12); border-color:rgba(0,212,232,.3); }
 html.light .pill-pend { background:rgba(255,183,0,.1); border-color:rgba(255,183,0,.3); }
-html.light .tag { filter:none; }
+html.light .filter-chip { background:rgba(0,0,0,.05) !important; border-color:rgba(0,0,0,.1) !important; color:#4A5568 !important; }
+html.light .filter-chip.on { background:rgba(0,212,232,.12) !important; border-color:var(--c) !important; color:var(--c) !important; }
 
-/* Language sheet */
+html.light .str-track { stroke:rgba(0,0,0,.08) !important; }
+html.light .lbar-bg { background:rgba(0,0,0,.08) !important; }
+html.light .pstat { background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.08) !important; }
+
 html.light .lang-sheet { background:#FFFFFF !important; border-color:rgba(0,0,0,.1) !important; }
+html.light .lang-sheet-title { color:#090B10 !important; }
 html.light .lang-btn { background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.1) !important; color:#090B10 !important; }
 html.light .lang-btn.active, html.light .lang-btn:hover { background:rgba(0,212,232,.1) !important; border-color:rgba(0,212,232,.4) !important; color:var(--c) !important; }
 html.light .lang-overlay { background:rgba(0,0,0,.4) !important; }
 
-/* Demo modal */
-html.light .demo-modal-box { background:#FFFFFF !important; border-color:rgba(0,0,0,.1) !important; }
+html.light .demo-modal-box { background:#FFFFFF !important; border-color:rgba(0,0,0,.1) !important; color:#090B10 !important; }
+html.light .dark-toggle { background:rgba(0,0,0,.12) !important; }
+html.light .dark-toggle.on { background:var(--c) !important; }
 
-/* Score ring track */
-html.light .str-track { stroke:rgba(0,0,0,.08) !important; }
-
-/* Wallet screen dark card panels */
+html.light [style*="background:linear-gradient(160deg,#060A14"] {
+  background:linear-gradient(160deg,#EEF2FF,#E8F0FF) !important;
+}
 html.light [style*="background:linear-gradient(135deg,#060E22"] {
   background:linear-gradient(135deg,#E8F2FF,#D8EBFF) !important;
   border-color:rgba(0,140,200,.2) !important;
@@ -385,38 +397,14 @@ html.light [style*="background:linear-gradient(135deg,#0A0E0A"] {
   border-color:rgba(0,180,100,.2) !important;
 }
 
-/* s25 payment received */
 html.light #s25 { background:#F0F2F5 !important; }
-
-/* s_error screen */
 html.light #s_error { background:#F0F2F5 !important; }
 
-/* Hardcoded white text that needs to go dark */
+html.light .toast { background:rgba(255,255,255,.97) !important; border-color:rgba(0,0,0,.1) !important; box-shadow:0 8px 32px rgba(0,0,0,.15) !important; }
+html.light .toast-title { color:#090B10 !important; }
+html.light .toast-sub { color:rgba(9,11,16,.55) !important; }
+
 html.light strong[style*="color:white"] { color:#090B10 !important; }
-
-/* Input fields */
-html.light .inp { background:rgba(0,0,0,.05) !important; border-color:rgba(0,0,0,.12) !important; color:#090B10 !important; }
-html.light .inp::placeholder { color:#8896A8 !important; }
-
-/* Keypad buttons */
-html.light .kbtn { background:rgba(0,0,0,.06) !important; color:#090B10 !important; }
-html.light .kbtn-sp { background:rgba(0,212,232,.1) !important; }
-
-/* Profile screen stats */
-html.light .pstat { background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.08) !important; }
-
-/* AGORA vote options */
-html.light .vote-opt { background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.1) !important; color:#090B10 !important; }
-html.light .vote-opt.sel { background:rgba(0,212,232,.1) !important; border-color:rgba(0,212,232,.4) !important; color:var(--c) !important; }
-
-/* Progress bars background */
-html.light .lbar-bg { background:rgba(0,0,0,.08) !important; }
-
-/* Filter chips */
-html.light .filter-chip { background:rgba(0,0,0,.05) !important; border-color:rgba(0,0,0,.1) !important; color:#4A5568 !important; }
-html.light .filter-chip.active { background:rgba(0,212,232,.12) !important; border-color:rgba(0,212,232,.4) !important; color:var(--c) !important; }
-
-/* Dark toggle button */
-html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
-
-}
+html.light [style*="color:rgba(255,255,255"] { color:rgba(9,11,16,.7) !important; }
+html.light [style*="color:#fff"] { color:#090B10 !important; }
+html.light [style*="color:white"] { color:#090B10 !important; }
