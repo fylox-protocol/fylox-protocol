@@ -1,5 +1,33 @@
 
 // ═══════════════════════════════════════════════════
+//  FYLOX API CLIENT
+// ═══════════════════════════════════════════════════
+
+const FYLOX_API = 'https://fylox-backend.onrender.com/api';
+
+let _fyloxToken = null;
+
+function getToken()   { return _fyloxToken; }
+function setToken(t)  { _fyloxToken = t; }
+function clearToken() { _fyloxToken = null; }
+
+async function apiCall(method, path, body) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (_fyloxToken) headers['Authorization'] = 'Bearer ' + _fyloxToken;
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const res  = await fetch(FYLOX_API + path, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error del servidor');
+    return data;
+  } catch (err) {
+    console.error('[Fylox API]', path, err.message);
+    throw err;
+  }
+}
+
+// ═══════════════════════════════════════════════════
 
 //  FYLOX LANGUAGE ENGINE
 
@@ -1762,41 +1790,6 @@ function toggleDark() {
   }
 })();
 
-// ─── Fylox Payment ─────────────────────────────────
-function fyloxSendPayment() {
-  const amt = parseFloat(document.getElementById('s7total').textContent.replace('π','').trim()) || 0;
-  const to = window.SEND_TO || '@Pioneer';
-
-  if (!window.Pi) {
-    // Demo mode
-    const el = document.getElementById('s8msg');
-    if (el) el.textContent = amt + ' π sent to ' + to;
-    goTo('s8');
-    return;
-  }
-
-  Pi.createPayment({
-    amount: amt,
-    memo: 'Fylox payment to ' + to,
-    metadata: { to: to }
-  }, {
-    onReadyForServerApproval: function(paymentId) {
-      console.log('[Fylox] Payment ready:', paymentId);
-      goTo('s8');
-      const el = document.getElementById('s8msg');
-      if (el) el.textContent = amt + ' π sent to ' + to;
-    },
-    onReadyForServerCompletion: function(paymentId, txid) {
-      console.log('[Fylox] Payment complete:', txid);
-    },
-    onCancel: function(paymentId) {
-      console.log('[Fylox] Payment cancelled');
-    },
-    onError: function(error, payment) {
-      console.log('[Fylox] Payment error:', error);
-    }
-  });
-}
 
 // ─── UI Update ────────────────────────────────────
 function updateUIWithUser(username, balance) {
