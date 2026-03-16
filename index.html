@@ -648,52 +648,106 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     </div>
   </div>
   <div class="sc">
-    <!-- Greeting -->
-    <div style="margin-bottom:16px">
-      <div style="font-size:13px;color:var(--t2);margin-bottom:3px;font-weight:400">Good morning,</div>
-      <div style="font-family:var(--fd);font-weight:800;font-size:26px;letter-spacing:-.7px">Joaquin 👋</div>
+    <!-- Header greeting -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-size:12px;color:var(--t3);font-weight:500;letter-spacing:.3px;margin-bottom:2px" id="home-greeting">Good morning,</div>
+        <div style="font-family:var(--fd);font-weight:800;font-size:24px;letter-spacing:-.6px" id="home-username">@joaquin_vera 👋</div>
+      </div>
+      <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--c),var(--c2));display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 20px rgba(0,212,232,.3)">🦁</div>
     </div>
-    <!-- Balance Card -->
-    <div class="bc mb20">
-      <div class="bc-glow"></div><div class="bc-glow2"></div>
-      <div style="font-size:10px;color:var(--t3);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:8px;font-weight:600;font-family:var(--fn)" data-i18n="balance">Available Balance</div>
-      <div id="home-balance" style="font-family:var(--fd);font-weight:800;font-size:44px;letter-spacing:-2.5px;margin-bottom:5px;line-height:1;position:relative;z-index:1">100.00 <span style="font-size:24px;color:var(--c)">π</span></div>
-      <div style="font-size:13px;color:var(--t2);font-weight:400;margin-bottom:0;position:relative;z-index:1">≈ <span id="home-ars">50,000</span> ARS · <span id="home-piid">joaquin.pi</span></div>
-      <div style="display:flex;gap:16px;margin-top:14px;padding-top:13px;border-top:1px solid var(--b);align-items:center;position:relative;z-index:1">
-        <div style="font-size:12px;color:var(--c);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:600" data-go="s18"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg data-i18n="history"> History</div>
-        <div style="font-size:12px;color:var(--c);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:600" data-go="s10"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg data-i18n="addPi"> Add Pi</div>
-        <div style="margin-left:auto"><div data-go="s9" style="width:34px;height:34px;border-radius:10px;background:var(--cd);border:1px solid var(--cb);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--c)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg></div></div>
+
+    <!-- Balance Hero Card -->
+    <div style="background:linear-gradient(135deg,#0A0F1E 0%,#111827 50%,#0D1425 100%);border:1px solid rgba(0,212,232,.18);border-radius:28px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden">
+      <!-- Glow effects -->
+      <div style="position:absolute;top:-60px;right:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,232,.12),transparent 65%);pointer-events:none"></div>
+      <div style="position:absolute;bottom:-60px;left:-20px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.10),transparent 65%);pointer-events:none"></div>
+      <!-- Pi price ticker -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(0,212,232,.08);border:1px solid rgba(0,212,232,.15);border-radius:20px;padding:4px 10px">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse-dot 2s infinite"></div>
+          <span style="font-size:11px;font-weight:700;color:var(--t2)">π</span>
+          <span id="pi-price" style="font-size:11px;font-weight:700;color:var(--grn);font-family:var(--fm)">$0.3400</span>
+        </div>
+        <div style="font-size:10px;color:var(--t3)">Live · Testnet</div>
+      </div>
+      <!-- Balance -->
+      <div style="margin-bottom:6px">
+        <div style="font-size:11px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:6px" data-i18n="balance">Available Balance</div>
+        <div id="home-balance" style="font-family:var(--fd);font-weight:900;font-size:52px;letter-spacing:-3px;line-height:1;color:#FFFFFF">100.00 <span style="font-size:26px;color:var(--c)">π</span></div>
+      </div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:20px">≈ <span id="home-ars">50,000</span> ARS · <span id="home-piid" style="color:var(--c);font-family:var(--fm);font-size:12px">joaquin.pi</span></div>
+      <!-- Mini chart bars -->
+      <div style="display:flex;align-items:flex-end;gap:3px;height:28px;margin-bottom:18px;opacity:.6">
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:40%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:55%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:35%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:70%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:45%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:80%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:60%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:90%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:65%"></div>
+        <div style="flex:1;background:var(--c);border-radius:3px 3px 0 0;height:100%"></div>
+        <div style="flex:1;background:rgba(0,212,232,.3);border-radius:3px 3px 0 0;height:75%"></div>
+        <div style="flex:1;background:rgba(0,212,232,.3);border-radius:3px 3px 0 0;height:85%"></div>
+      </div>
+      <!-- Action buttons -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div data-go="s6" style="background:linear-gradient(135deg,var(--c),#00AACC);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;box-shadow:0 4px 16px rgba(0,212,232,.25)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          <span style="font-size:11px;font-weight:700;color:#000" data-i18n="send">Send</span>
+        </div>
+        <div data-go="s9" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          <span style="font-size:11px;font-weight:700;color:var(--t1)" data-i18n="receive">Receive</span>
+        </div>
+        <div data-go="s10" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+          <span style="font-size:11px;font-weight:700;color:var(--t1)" data-i18n="scanQR">Scan</span>
+        </div>
       </div>
     </div>
-    <!-- Quick Actions -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px">
-      <div data-go="s6" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--cd);border:1px solid var(--cb);display:flex;align-items:center;justify-content:center;color:var(--c)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="send">Send</span></div>
-      <div data-go="s9" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--cd);border:1px solid var(--cb);display:flex;align-items:center;justify-content:center;color:var(--c)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="receive">Receive</span></div>
-      <div data-go="s10" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="scanQR">Scan QR</span></div>
-      <div data-go="s15" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="card">Card</span></div>
-      <div data-go="s13" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="merchants">Merchants</span></div>
-      <div data-go="s12" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="transit">Transit</span></div>
-      <div data-go="s11" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="bills">Bills</span></div>
-      <div data-go="s18" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer"><div style="width:54px;height:54px;border-radius:16px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span style="font-size:10px;color:var(--t2);font-weight:600;letter-spacing:.2px" data-i18n="activity">Activity</span></div>
-    </div>
-    <!-- Combined Pi Day + Testnet Banner -->
-    <div style="background:linear-gradient(135deg,rgba(0,212,232,.1),rgba(139,92,246,.1));border:1px solid rgba(0,212,232,.2);border-radius:18px;padding:13px 16px;margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
-        <div style="width:7px;height:7px;border-radius:50%;background:#FFB700;box-shadow:0 0 8px #FFB700;flex-shrink:0;animation:pulse-dot 2s infinite"></div>
-        <div style="font-size:11px;font-weight:700;color:#FFB700;letter-spacing:.4px">PI TESTNET ACTIVE</div>
-        <div onclick="showDemoInfo()" style="margin-left:auto;font-size:10px;font-weight:700;color:#FFB700;background:rgba(255,183,0,.15);border:1px solid rgba(255,183,0,.25);border-radius:7px;padding:3px 8px;cursor:pointer">DEMO</div>
+
+    <!-- Quick Actions Row -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:22px">
+      <div data-go="s15" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+        <span style="font-size:9px;color:var(--t2);font-weight:600" data-i18n="card">Card</span>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between">
+      <div data-go="s13" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+        <span style="font-size:9px;color:var(--t2);font-weight:600" data-i18n="merchants">Merchants</span>
+      </div>
+      <div data-go="s12" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <span style="font-size:9px;color:var(--t2);font-weight:600" data-i18n="transit">Transit</span>
+      </div>
+      <div data-go="s11" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <span style="font-size:9px;color:var(--t2);font-weight:600" data-i18n="bills">Bills</span>
+      </div>
+      <div data-go="s18" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--t2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <span style="font-size:9px;color:var(--t2);font-weight:600" data-i18n="activity">Activity</span>
+      </div>
+    </div>
+
+    <!-- Testnet Banner -->
+    <div style="background:linear-gradient(135deg,rgba(0,212,232,.08),rgba(139,92,246,.08));border:1px solid rgba(0,212,232,.18);border-radius:18px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:11px;background:rgba(255,183,0,.12);display:flex;align-items:center;justify-content:center;font-size:18px">🚀</div>
         <div>
-          <div style="font-family:var(--fd);font-size:16px;font-weight:800;letter-spacing:-.3px">Pi Day 2026 🚀</div>
-          <div style="font-size:11px;color:var(--t2);margin-top:2px">March 14 · Full mainnet launch</div>
-        </div>
-        <div style="text-align:right">
-          <div id="piday-countdown" style="font-family:var(--fd);font-size:20px;font-weight:900;color:var(--c);letter-spacing:-.5px">8d 00h</div>
-          <div style="font-size:10px;color:var(--t3)">remaining</div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:-.2px">Pi Day 2026</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:1px">March 14 · Full mainnet</div>
         </div>
       </div>
+      <div style="text-align:right">
+        <div id="piday-countdown" style="font-family:var(--fd);font-size:22px;font-weight:900;color:var(--c);letter-spacing:-.5px">8d 00h</div>
+        <div style="font-size:10px;color:var(--t3)">remaining</div>
+      </div>
     </div>
+
     <!-- Earn Banner -->
     <div class="earn-banner" data-go="s21">
       <div class="earn-icon">⚡</div>
