@@ -1209,7 +1209,7 @@ if (id === 's8') {
   const el8 = document.getElementById('s8msg');
   if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
 }
-if (id === 's9') {
+if (id === 's16') {
   const wb = document.getElementById('wallet-balance');
   if (wb) {
     const target = parseFloat(wb.dataset.value || '100') || 100;
