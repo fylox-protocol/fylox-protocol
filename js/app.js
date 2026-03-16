@@ -1209,6 +1209,27 @@ if (id === 's8') {
   const el8 = document.getElementById('s8msg');
   if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
 }
+    if (id === 's9') {
+  const wb = document.getElementById('wallet-balance');
+  if (wb) {
+    const target = parseFloat(wb.dataset.value || wb.textContent.replace('π','').trim()) || 0;
+    wb.dataset.value = target;
+    let start = 0;
+    const duration = 1200;
+    const startTime = performance.now();
+    const animate = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = (start + (target - start) * ease).toFixed(2);
+      wb.textContent = current + ' π';
+      if (progress < 1) requestAnimationFrame(animate);
+      else wb.textContent = target.toFixed(2) + ' π';
+    };
+    requestAnimationFrame(animate);
+  }
+}
+    
 // Mostrar/ocultar bnav según la pantalla
   const bnav = document.querySelector('.bnav');
   const navScreens = ['s5','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18','s19','s20','s21','s22','s23','s24'];
