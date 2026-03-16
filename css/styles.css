@@ -408,3 +408,23 @@ html.light strong[style*="color:white"] { color:#090B10 !important; }
 html.light [style*="color:rgba(255,255,255"] { color:rgba(9,11,16,.7) !important; }
 html.light [style*="color:#fff"] { color:#090B10 !important; }
 html.light [style*="color:white"] { color:#090B10 !important; }
+
+/* Earn cards en light mode */
+html.light { 
+  --earn-card-ylw: linear-gradient(135deg,#FFFBEB,#FFF3CC);
+  --earn-card-cyan: linear-gradient(135deg,#EBF9FC,#D6F2F7);
+  --earn-card-grn: linear-gradient(135deg,#EBFAF2,#D6F5E6);
+  --earn-card-purple: linear-gradient(135deg,#F3EBFF,#E8D6FF);
+  --earn-stat-bg: rgba(0,0,0,.04);
+  --earn-label-ylw: rgba(180,120,0,.8);
+}
+
+html.light .task-card,
+html.light .task-card-p {
+  color:#090B10 !important;
+}
+
+html.light .task-card * ,
+html.light .task-card-p * {
+  color:#090B10 !important;
+}
