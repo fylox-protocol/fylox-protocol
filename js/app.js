@@ -1910,10 +1910,10 @@ window.onload = async function() {
       await authenticateWithBackend(auth.accessToken);
       const balance = await fetchBalance();
       updateUIWithUser(auth.user.username, balance);
-} catch (err) {
-  console.error('[Fylox] Error de autenticación:', err.message);
-  updateUIWithUser(window._fyloxUsername || 'Pioneer', 100.00);
-}
+    } catch (err) {
+      console.error('[Fylox] Error de autenticación:', err.message);
+      updateUIWithUser(window._fyloxUsername || 'Pioneer', 100.00);
+    }
 
   } else {
     console.log('[Fylox] Demo mode');
