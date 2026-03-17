@@ -346,6 +346,25 @@ const LANGS = {
 
 let currentLang = 'en';
 
+// ═══════════════════════════════════════════════════
+//  AUTO-DETECT LANGUAGE — Silicon Valley style
+//  Detects browser language, maps to supported langs,
+//  falls back to English. No interruption to onboarding.
+// ═══════════════════════════════════════════════════
+function detectLang() {
+  const supported = Object.keys(LANGS);
+  const browserLangs = navigator.languages || [navigator.language || 'en'];
+  for (const bl of browserLangs) {
+    const code = bl.toLowerCase().split('-')[0];
+    // Direct match
+    if (supported.includes(code)) return code;
+    // Special mappings
+    const map = { 'zh': 'zh', 'fil': 'tl', 'tl': 'tl', 'ha': 'ng', 'yo': 'ng', 'ig': 'ng' };
+    if (map[code]) return map[code];
+  }
+  return 'en';
+}
+
 const REVERSE_LOOKUP = (() => {
   const map = {};
   const keys = [
@@ -408,48 +427,56 @@ function applyLang(code) {
 
 function setLang(code) {
   applyLang(code);
-  const curr = document.querySelector('.scr.show');
-  if (curr && curr.id === 's_lang') goTo('s1');
   hideLangPicker();
 }
 
 function showLangPicker() {
-  document.getElementById('lang-overlay').classList.add('show');
+  const overlay = document.getElementById('lang-overlay');
+  if (overlay) overlay.classList.add('show');
 }
 
 function hideLangPicker(e) {
-  if (!e || e.target === document.getElementById('lang-overlay')) {
-    document.getElementById('lang-overlay').classList.remove('show');
+  const overlay = document.getElementById('lang-overlay');
+  if (!overlay) return;
+  if (!e || e.target === overlay) {
+    overlay.classList.remove('show');
   }
 }
 
-setTimeout(() => {
-  const curr = document.querySelector('.scr.show');
-  if (curr && curr.id === 's0') goTo('s_lang');
-}, 2800);
+// ═══════════════════════════════════════════════════
+//  THEME
+// ═══════════════════════════════════════════════════
+
+(function() {
+  const saved = localStorage.getItem('fylox-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    const btn = document.getElementById('dark-toggle-btn');
+    if (btn) btn.classList.add('on');
+  }
+})();
+
+function toggleDark() {
+  const html = document.documentElement;
+  const isDark = !html.classList.contains('light');
+  if (isDark) {
+    html.classList.add('light');
+    localStorage.setItem('fylox-theme', 'light');
+  } else {
+    html.classList.remove('light');
+    localStorage.setItem('fylox-theme', 'dark');
+  }
+  const btn = document.getElementById('dark-toggle-btn');
+  if (btn) btn.classList.toggle('on', !isDark);
+  const label = document.getElementById('dark-label');
+  if (label) label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+}
 
 // ═══════════════════════════════════════════════════
-//  FYLOX LIVE ENGINE
+//  NAVIGATION
 // ═══════════════════════════════════════════════════
 
 let kval = '0';
-
-document.addEventListener('click', function(e) {
-  const k = e.target.dataset.k;
-  if (k !== undefined) {
-    if (k === 'x') { kval = kval.length > 1 ? kval.slice(0,-1) : '0'; }
-    else if (k === '.') { if (!kval.includes('.')) kval += '.'; }
-    else { kval = kval === '0' ? k : kval + k; if (kval.length > 9) kval = kval.slice(0,-1); }
-    const el = document.getElementById('sa');
-    if (el) { window.KVAL = kval; window.SEND_AMT = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>'; }
-  }
-});
-
-function selVote(el, group) {
-  document.querySelectorAll('.vote-opt').forEach(b => b.classList.remove('vsel'));
-  el.classList.add('vsel');
-  if (navigator.vibrate) navigator.vibrate(40);
-}
 
 function goTo(id) {
   const curr = document.querySelector('.scr.show');
@@ -518,6 +545,32 @@ document.addEventListener('click', function(e) {
   const el = e.target.closest('[data-go]');
   if (el) { e.preventDefault(); goTo(el.dataset.go); }
 });
+
+document.addEventListener('click', function(e) {
+  const k = e.target.dataset.k;
+  if (k !== undefined) {
+    if (k === 'x') { kval = kval.length > 1 ? kval.slice(0,-1) : '0'; }
+    else if (k === '.') { if (!kval.includes('.')) kval += '.'; }
+    else { kval = kval === '0' ? k : kval + k; if (kval.length > 9) kval = kval.slice(0,-1); }
+    const el = document.getElementById('sa');
+    if (el) { window.KVAL = kval; window.SEND_AMT = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>'; }
+  }
+});
+
+function selVote(el, group) {
+  document.querySelectorAll('.vote-opt').forEach(b => b.classList.remove('vsel'));
+  el.classList.add('vsel');
+  if (navigator.vibrate) navigator.vibrate(40);
+}
+
+function filterTx(el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ═══════════════════════════════════════════════════
+//  LIVE ENGINE
+// ═══════════════════════════════════════════════════
 
 function updateTime() {
   const now = new Date();
@@ -602,6 +655,10 @@ function updateOracleConfirmed() {
 }
 setInterval(updateOracleConfirmed, 12000);
 
+// ═══════════════════════════════════════════════════
+//  TOASTS
+// ═══════════════════════════════════════════════════
+
 const TOAST_I18N = {
   en: [
     { title:'Maria C. sent you Pi', sub:'Verified Pioneer · Buenos Aires' },
@@ -666,30 +723,9 @@ function showToast(data) {
   }, 4200);
 }
 
-function toggleDark() {
-  const html = document.documentElement;
-  const isDark = !html.classList.contains('light');
-  if (isDark) {
-    html.classList.add('light');
-    localStorage.setItem('fylox-theme', 'light');
-  } else {
-    html.classList.remove('light');
-    localStorage.setItem('fylox-theme', 'dark');
-  }
-  const btn = document.getElementById('dark-toggle-btn');
-  if (btn) btn.classList.toggle('on', !isDark);
-  const label = document.getElementById('dark-label');
-  if (label) label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
-}
-
-(function() {
-  const saved = localStorage.getItem('fylox-theme');
-  if (saved === 'light') {
-    document.documentElement.classList.add('light');
-    const btn = document.getElementById('dark-toggle-btn');
-    if (btn) btn.classList.add('on');
-  }
-})();
+// ═══════════════════════════════════════════════════
+//  USER DATA
+// ═══════════════════════════════════════════════════
 
 function updateUIWithUser(username, balance) {
   const piid = username + '.pi';
@@ -714,6 +750,11 @@ function updateUIWithUser(username, balance) {
   if (pu) pu.textContent = '@' + username;
   const ra = document.getElementById('receive-address');
   if (ra) ra.textContent = '@' + username + ' · ' + piid;
+  // Update s3 card username
+  const s3u = document.getElementById('s3-username');
+  if (s3u) s3u.textContent = '@' + username + '.pi';
+  const s3bu = document.getElementById('s3-back-username');
+  if (s3bu) s3bu.textContent = '@' + username + '.pi';
 }
 
 async function authenticateWithBackend(piAccessToken) {
@@ -780,11 +821,18 @@ function fyloxSendPayment() {
     },
   });
 }
-function filterTx(el) {
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-}
+
+// ═══════════════════════════════════════════════════
+//  INIT — Auto-detect language, no interruptions
+// ═══════════════════════════════════════════════════
 window.onload = async function() {
+
+  // 1. Auto-detect & apply language silently
+  const detectedLang = detectLang();
+  applyLang(detectedLang);
+  console.log('[Fylox] Language detected:', detectedLang);
+
+  // 2. Pi SDK auth or demo mode
   if (window.Pi) {
     Pi.init({ version: '2.0', sandbox: true, appId: 'fylox-protocol' });
     console.log('[Fylox] Pi Browser detectado');
@@ -811,4 +859,12 @@ window.onload = async function() {
     console.log('[Fylox] Demo mode');
     updateUIWithUser('joaquin_vera', 100.00);
   }
+
+  // 3. Start toast engine
+  setTimeout(function fireToast() {
+    const toasts = getToasts();
+    showToast(toasts[toastIdx % toasts.length]);
+    toastIdx++;
+    setTimeout(fireToast, 6000 + Math.random() * 4000);
+  }, 3500);
 };
