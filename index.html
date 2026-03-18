@@ -532,6 +532,131 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 
   </div>
 </div>
+  <div class="scr show" id="s0" style="align-items:center;justify-content:center;overflow:hidden;z-index:100;">
+
+  <!-- Deep space background -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#0A1628 0%,#040608 50%,#000 100%)"></div>
+
+  <!-- Animated aurora top -->
+  <div style="position:absolute;top:-200px;left:-100px;width:700px;height:500px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,212,232,.12) 0%,rgba(0,212,232,.04) 40%,transparent 70%);animation:s0Aurora 8s ease-in-out infinite;pointer-events:none"></div>
+  <div style="position:absolute;top:-150px;right:-150px;width:600px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(139,92,246,.10) 0%,transparent 65%);animation:s0Aurora 10s ease-in-out infinite 2s;pointer-events:none"></div>
+  <div style="position:absolute;bottom:-100px;left:50%;transform:translateX(-50%);width:400px;height:300px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,224,144,.06) 0%,transparent 65%);animation:s0Aurora 7s ease-in-out infinite 4s;pointer-events:none"></div>
+
+  <!-- Particle grid -->
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(0,212,232,.35) 1px,transparent 1px);background-size:44px 44px;opacity:.18;animation:s0GridShift 20s linear infinite;pointer-events:none"></div>
+
+  <!-- Horizontal scan line -->
+  <div style="position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,232,.4),transparent);animation:s0Scan 4s ease-in-out infinite;pointer-events:none"></div>
+
+  <!-- Bottom vignette -->
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.96));pointer-events:none"></div>
+
+  <!-- Main content -->
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:2;width:100%;height:100%;padding:0 28px;">
+
+    <!-- Logo -->
+    <div style="position:relative;margin-bottom:24px;animation:s0LogoIn 1s cubic-bezier(.34,1.56,.64,1) both .1s">
+      <!-- Outer glow rings -->
+      <div style="position:absolute;inset:-20px;border-radius:38px;border:1px solid rgba(0,212,232,.2);animation:s0Ring 4s ease-out infinite"></div>
+      <div style="position:absolute;inset:-38px;border-radius:48px;border:1px solid rgba(0,212,232,.08);animation:s0Ring 4s ease-out .8s infinite"></div>
+      <div style="position:absolute;inset:-56px;border-radius:58px;border:1px solid rgba(139,92,246,.05);animation:s0Ring 4s ease-out 1.6s infinite"></div>
+      <!-- Icon box -->
+      <div style="width:100px;height:100px;border-radius:26px;border:1px solid rgba(0,212,232,.4);overflow:hidden;background:linear-gradient(135deg,rgba(0,212,232,.15) 0%,rgba(0,0,0,.5) 100%);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(0,212,232,.5),0 0 120px rgba(0,212,232,.2),0 24px 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.2)">
+        <img src="assets/ICONOS/Fylox_icono_v2.png" style="width:100%;height:100%;object-fit:cover">
+      </div>
+    </div>
+
+    <!-- Brand -->
+    <div style="position:relative;margin-bottom:6px;animation:s0FadeUp .7s cubic-bezier(.22,1,.36,1) both .3s">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:64px;letter-spacing:-5px;line-height:1;color:#fff;text-shadow:0 0 80px rgba(0,212,232,.3)">Fylox</div>
+    </div>
+
+    <!-- Tagline -->
+    <div style="animation:s0FadeUp .6s cubic-bezier(.22,1,.36,1) both .45s;text-align:center;margin-bottom:4px">
+      <div style="font-size:17px;font-weight:600;color:rgba(255,255,255,.75);letter-spacing:.1px;line-height:1.5">Spend Pi in the real world.</div>
+    </div>
+    <div style="animation:s0FadeUp .6s cubic-bezier(.22,1,.36,1) both .52s;text-align:center;margin-bottom:36px">
+      <div style="font-size:13px;color:rgba(255,255,255,.3);letter-spacing:.3px;line-height:1.7">The payment infrastructure<br>Pi Network was waiting for.</div>
+    </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-bottom:28px;animation:s0FadeUp .6s cubic-bezier(.22,1,.36,1) both .6s">
+      <div style="background:rgba(0,212,232,.05);border:1px solid rgba(0,212,232,.12);border-radius:16px;padding:14px 8px;text-align:center;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,232,.4),transparent)"></div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:22px;letter-spacing:-1px;color:#00D4E8;margin-bottom:3px">47M</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px">PIONEERS</div>
+      </div>
+      <div style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:14px 8px;text-align:center;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(139,92,246,.4),transparent)"></div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:22px;letter-spacing:-1px;color:#8B5CF6;margin-bottom:3px">200</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px">COUNTRIES</div>
+      </div>
+      <div style="background:rgba(0,224,144,.05);border:1px solid rgba(0,224,144,.12);border-radius:16px;padding:14px 8px;text-align:center;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,144,.4),transparent)"></div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:22px;letter-spacing:-1px;color:#00E090;margin-bottom:3px">5</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px">LAYERS</div>
+      </div>
+    </div>
+
+    <!-- Feature pills -->
+    <div style="display:flex;gap:6px;margin-bottom:32px;animation:s0FadeUp .6s cubic-bezier(.22,1,.36,1) both .66s;flex-wrap:wrap;justify-content:center">
+      <span style="font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:5px 14px;border-radius:20px;font-weight:600;letter-spacing:.2px">Groceries</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:5px 14px;border-radius:20px;font-weight:600;letter-spacing:.2px">Bills</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:5px 14px;border-radius:20px;font-weight:600;letter-spacing:.2px">Transit</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:5px 14px;border-radius:20px;font-weight:600;letter-spacing:.2px">Flights</span>
+    </div>
+
+    <!-- CTA -->
+    <div style="width:100%;animation:s0FadeUp .6s cubic-bezier(.22,1,.36,1) both .72s">
+      <button class="btn bp mb8" data-go="s1" style="font-size:17px;padding:19px;letter-spacing:-.3px;width:100%;border-radius:18px;background:linear-gradient(135deg,#00D4E8,#00AACC);color:#000;font-weight:800;box-shadow:0 0 80px rgba(0,212,232,.4),0 0 40px rgba(0,212,232,.2),0 12px 32px rgba(0,0,0,.4);border:none;position:relative;overflow:hidden">
+        <span style="position:relative;z-index:1">Get started →</span>
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);pointer-events:none"></div>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div style="display:flex;align-items:center;gap:6px;animation:s0FadeUp .6s cubic-bezier(.22,1,.36,1) both .8s;margin-top:14px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#00E090;box-shadow:0 0 8px rgba(0,224,144,.8);animation:s0Dot 2s ease-in-out infinite"></div>
+      <div style="font-size:11px;color:rgba(255,255,255,.2);letter-spacing:.5px">Testnet Live · Pi Network · March 2026</div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes s0Aurora {
+  0%,100% { transform: scale(1) translate(0,0); opacity:1; }
+  50%      { transform: scale(1.1) translate(20px,-20px); opacity:.7; }
+}
+@keyframes s0GridShift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 44px 44px; }
+}
+@keyframes s0Scan {
+  0%   { top: -2px; opacity:0; }
+  10%  { opacity:1; }
+  90%  { opacity:1; }
+  100% { top: 100%; opacity:0; }
+}
+@keyframes s0Ring {
+  0%   { opacity:.8; transform:scale(1); }
+  50%  { opacity:.3; transform:scale(1.03); }
+  100% { opacity:.8; transform:scale(1); }
+}
+@keyframes s0LogoIn {
+  from { opacity:0; transform:scale(.7) translateY(20px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes s0FadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes s0Dot {
+  0%,100% { opacity:1; }
+  50%      { opacity:.3; }
+}
+</style>
+
     <!-- ========== S1 ONBOARDING ========== -->
 <div class="scr" id="s1">
   <div style="flex:1;position:relative;overflow:hidden;background:linear-gradient(160deg,#060A14 0%,#0A0E1C 100%)">
