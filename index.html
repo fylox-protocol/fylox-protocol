@@ -469,16 +469,32 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   
 <!-- ========== S0 SPLASH ========== -->
 <div class="scr show" id="s0" style="align-items:center;justify-content:center;overflow:hidden;z-index:100;">
-  <div class="grid"></div>
 
-  <!-- Ambient glows -->
-  <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,232,.18),transparent 60%);top:-200px;left:-180px;pointer-events:none;animation:pulseGlow 5s ease-in-out infinite"></div>
-  <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.14),transparent 60%);bottom:-150px;right:-150px;pointer-events:none;animation:pulseGlow 5s ease-in-out infinite 1s"></div>
-  <div style="position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,144,.08),transparent 60%);top:40%;left:50%;transform:translate(-50%,-50%);pointer-events:none;animation:pulseGlow 4s ease-in-out infinite 2s"></div>
+  <!-- Background layers (mismo que s4) -->
+  <div style="position:absolute;inset:0;background:#060608"></div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(0,212,232,.07) 0%,transparent 65%)"></div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 10%,rgba(139,92,246,.05) 0%,transparent 55%)"></div>
+
+  <!-- Animated grid lines -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,232,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,232,.025) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at 50% 50%,black 30%,transparent 80%);pointer-events:none"></div>
+
+  <!-- Orbiting ring 1 -->
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;height:320px;border-radius:50%;border:1px solid rgba(0,212,232,.06);animation:s0Orbit 12s linear infinite;pointer-events:none"></div>
+  <!-- Orbiting ring 2 -->
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:240px;height:240px;border-radius:50%;border:1px solid rgba(0,212,232,.08);animation:s0Orbit 8s linear infinite reverse;pointer-events:none"></div>
+  <!-- Orbiting dot on ring 1 -->
+  <div style="position:absolute;top:50%;left:50%;width:320px;height:320px;margin:-160px 0 0 -160px;animation:s0Orbit 12s linear infinite;pointer-events:none">
+    <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 12px rgba(0,212,232,.8)"></div>
+  </div>
+  <!-- Orbiting dot on ring 2 -->
+  <div style="position:absolute;top:50%;left:50%;width:240px;height:240px;margin:-120px 0 0 -120px;animation:s0Orbit 8s linear infinite reverse;pointer-events:none">
+    <div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:rgba(139,92,246,.9);box-shadow:0 0 8px rgba(139,92,246,.7)"></div>
+  </div>
 
   <!-- Bottom gradient fade -->
   <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 20%,rgba(6,6,8,.98));pointer-events:none"></div>
 
+  <!-- Content -->
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:2;width:100%;height:100%;padding:0 28px;">
 
     <!-- Logo with rings -->
@@ -516,11 +532,12 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 
     <!-- Feature pills -->
     <div style="display:flex;gap:6px;margin-bottom:36px;animation:splashFadeUp .5s ease both .62s;flex-wrap:wrap;justify-content:center;">
-  <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Groceries</span>
-  <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Bills</span>
-  <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Transit</span>
-  <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Flights</span>
-</div>
+      <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Groceries</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Bills</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Transit</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-weight:600">Flights</span>
+    </div>
+
     <!-- CTA Button -->
     <button class="btn bp mb8" data-go="s1" style="font-size:17px;padding:18px;letter-spacing:-.3px;width:100%;animation:splashFadeUp .5s ease both .7s;box-shadow:0 0 60px rgba(0,212,232,.3),0 8px 32px rgba(0,212,232,.2);">Get started →</button>
 
@@ -532,6 +549,13 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 
   </div>
 </div>
+
+<style>
+@keyframes s0Orbit {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+</style>
 
     <!-- ========== S1 ONBOARDING ========== -->
 <div class="scr" id="s1">
