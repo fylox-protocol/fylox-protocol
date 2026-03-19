@@ -760,9 +760,12 @@ function updateUIWithUser(username, balance) {
   if (s3bu) s3bu.textContent = '@' + username + '.pi';
 }
 
-async function authenticateWithBackend(piAccessToken) {
+async function authenticateWithBackend(piAccessToken, walletAddress) {
   try {
-    const data = await apiCall('POST', '/auth/pi', { accessToken: piAccessToken });
+    const data = await apiCall('POST', '/auth/pi', {
+      accessToken: piAccessToken,
+      walletAddress: walletAddress || null,
+    });
     setToken(data.token);
     return data.user;
   } catch (err) {
@@ -886,7 +889,7 @@ async function piLogin() {
     window._fyloxUsername = auth.user.username;
     window._fyloxWallet   = auth.user.wallet_address || null;
 
-    await authenticateWithBackend(auth.accessToken);
+    await authenticateWithBackend(auth.accessToken, window._fyloxWallet);
     const balance = await fetchBalance();
     updateUIWithUser(auth.user.username, balance);
     goTo('s5');
