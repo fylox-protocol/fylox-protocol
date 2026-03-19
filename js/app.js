@@ -889,6 +889,19 @@ async function piLogin() {
     window._fyloxUsername = auth.user.username;
     window._fyloxWallet   = auth.user.wallet_address || null;
 
+    // Si el SDK no devolvió wallet_address, la pedimos directamente
+    if (!window._fyloxWallet && window.Pi.Wallet) {
+      try {
+        const walletData = await Pi.Wallet.getUserMigratedWalletAddresses();
+        if (walletData?.wallets?.length > 0) {
+          window._fyloxWallet = walletData.wallets[0].publicKey;
+          console.log('[Fylox] Wallet obtenida via Wallet API:', window._fyloxWallet);
+        }
+      } catch (wErr) {
+        console.warn('[Fylox] No se pudo obtener wallet via API:', wErr.message);
+      }
+    }
+
     await authenticateWithBackend(auth.accessToken, window._fyloxWallet);
     const balance = await fetchBalance();
     updateUIWithUser(auth.user.username, balance);
