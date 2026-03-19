@@ -872,13 +872,21 @@ window.onload = async function() {
     if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">Loading...</span>';
     try {
       const auth = await Pi.authenticate(
-        ['payments', 'username', 'wallet_address'],
-        function(incompletePayment) {
-          if (incompletePayment) {
-            console.log('[Fylox] Pago incompleto:', incompletePayment.identifier);
-          }
-        }
-      );
+        ['payments', 'username'],
+        async function(incompletePayment) {
+  if (incompletePayment) {
+    console.log('[Fylox] Pago incompleto detectado:', incompletePayment.identifier);
+    try {
+      await apiCall('POST', '/payments/complete', {
+        paymentId: incompletePayment.identifier,
+        txid: incompletePayment.transaction?.txid || null,
+      });
+    } catch (err) {
+      await apiCall('POST', '/payments/cancel', { paymentId: incompletePayment.identifier }).catch(() => {});
+    }
+  }
+}
+);
       window._fyloxUsername = auth.user.username;
       await authenticateWithBackend(auth.accessToken);
       const balance = await fetchBalance();
