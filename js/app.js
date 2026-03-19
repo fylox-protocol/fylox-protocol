@@ -448,12 +448,15 @@ function hideLangPicker(e) {
 // ═══════════════════════════════════════════════════
 
 (function() {
-  const saved = localStorage.getItem('fylox-theme');
-  if (saved === 'light') {
-    document.documentElement.classList.add('light');
-    const btn = document.getElementById('dark-toggle-btn');
-    if (btn) btn.classList.add('on');
-  }
+  // Use FyloxStorage wrapper — safe in Pi Browser environment
+  try {
+    const saved = localStorage.getItem('fylox-theme');
+    if (saved === 'light') {
+      document.documentElement.classList.add('light');
+      const btn = document.getElementById('dark-toggle-btn');
+      if (btn) btn.classList.add('on');
+    }
+  } catch(e) { /* Pi Browser may restrict localStorage on load */ }
 })();
 
 function toggleDark() {
@@ -461,10 +464,10 @@ function toggleDark() {
   const isDark = !html.classList.contains('light');
   if (isDark) {
     html.classList.add('light');
-    localStorage.setItem('fylox-theme', 'light');
+    FyloxStorage.set('fylox-theme', 'light');
   } else {
     html.classList.remove('light');
-    localStorage.setItem('fylox-theme', 'dark');
+    FyloxStorage.set('fylox-theme', 'dark');
   }
   const btn = document.getElementById('dark-toggle-btn');
   if (btn) btn.classList.toggle('on', !isDark);
@@ -823,6 +826,78 @@ function fyloxSendPayment() {
 }
 
 // ═══════════════════════════════════════════════════
+//  SAFE STORAGE — Pi Browser localStorage fallback
+// ═══════════════════════════════════════════════════
+const FyloxStorage = {
+  _mem: {},
+  get(key) {
+    try { return localStorage.getItem(key); } catch(e) { return this._mem[key] || null; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, val); } catch(e) { this._mem[key] = val; }
+  }
+};
+
+// ═══════════════════════════════════════════════════
+//  PI LOGIN — Called by "Continue with Pi Network" btn
+//  Handles both Pi Browser (real auth) and demo mode
+// ═══════════════════════════════════════════════════
+async function piLogin() {
+  const btn = document.getElementById('pi-login-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span style="position:relative;z-index:1">Connecting to Pi Network…</span>';
+  }
+
+  if (!window.Pi) {
+    // Demo mode — navegador normal, no Pi Browser
+    console.log('[Fylox] Demo mode login');
+    updateUIWithUser('joaquin_vera', 100.00);
+    goTo('s5');
+    return;
+  }
+
+  try {
+    const isSandbox = new URLSearchParams(window.location.search).get('sandbox') === '1';
+    Pi.init({ version: '2.0', sandbox: isSandbox });
+    console.log('[Fylox] Modo:', isSandbox ? 'Sandbox ✓' : 'Mainnet ✓');
+
+    const auth = await Pi.authenticate(
+      ['payments', 'username', 'wallet_address'],
+      async function onIncompletePayment(incompletePayment) {
+        if (!incompletePayment) return;
+        console.log('[Fylox] Pago incompleto detectado:', incompletePayment.identifier);
+        try {
+          await apiCall('POST', '/payments/complete', {
+            paymentId: incompletePayment.identifier,
+            txid: incompletePayment.transaction?.txid || null,
+          });
+        } catch (err) {
+          await apiCall('POST', '/payments/cancel', { paymentId: incompletePayment.identifier }).catch(() => {});
+        }
+      }
+    );
+
+    window._fyloxUsername = auth.user.username;
+    window._fyloxWallet   = auth.user.wallet_address || null;
+
+    await authenticateWithBackend(auth.accessToken);
+    const balance = await fetchBalance();
+    updateUIWithUser(auth.user.username, balance);
+    goTo('s5');
+
+  } catch (err) {
+    console.error('[Fylox] Error de autenticacion:', err.message);
+    if (btn) {
+      btn.innerHTML = '<span style="position:relative;z-index:1">Error — Reintentar →</span>';
+      btn.style.background = 'rgba(255,77,106,.25)';
+      btn.style.color = '#FF4D6A';
+      btn.disabled = false;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════
 //  INIT — Auto-detect language, no interruptions
 // ═══════════════════════════════════════════════════
 window.onload = async function() {
@@ -864,37 +939,20 @@ window.onload = async function() {
   applyLang(detectedLang);
   console.log('[Fylox] Language detected:', detectedLang);
 
-  // 2. Pi SDK auth or demo mode
-  if (window.Pi) {
-    Pi.init({ version: '2.0', sandbox: true, appId: 'fylox-protocol' });
-    console.log('[Fylox] Pi Browser detectado');
-    const hb = document.getElementById('home-balance');
-    if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">Loading...</span>';
-    try {
-      const auth = await Pi.authenticate(
-        ['payments', 'username'],
-        async function(incompletePayment) {
-  if (incompletePayment) {
-    console.log('[Fylox] Pago incompleto detectado:', incompletePayment.identifier);
-    try {
-      await apiCall('POST', '/payments/complete', {
-        paymentId: incompletePayment.identifier,
-        txid: incompletePayment.transaction?.txid || null,
-      });
-    } catch (err) {
-      await apiCall('POST', '/payments/cancel', { paymentId: incompletePayment.identifier }).catch(() => {});
-    }
+  // 2. Apply theme using safe storage (Pi Browser compatible)
+  const savedTheme = FyloxStorage.get('fylox-theme');
+  if (savedTheme === 'light') {
+    document.documentElement.classList.add('light');
+    const btn = document.getElementById('dark-toggle-btn');
+    if (btn) btn.classList.add('on');
   }
-}
-);
-      window._fyloxUsername = auth.user.username;
-      await authenticateWithBackend(auth.accessToken);
-      const balance = await fetchBalance();
-      updateUIWithUser(auth.user.username, balance);
-    } catch (err) {
-      console.error('[Fylox] Error de autenticacion:', err.message);
-      updateUIWithUser(window._fyloxUsername || 'Pioneer', 100.00);
-    }
+
+  // 3. Pre-set balance as Loading if in Pi Browser, demo values otherwise
+  //    Real auth happens when the user taps "Continue with Pi Network"
+  if (window.Pi) {
+    console.log('[Fylox] Pi Browser detectado — auth pendiente de tap del usuario');
+    const hb = document.getElementById('home-balance');
+    if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
   } else {
     console.log('[Fylox] Demo mode');
     updateUIWithUser('joaquin_vera', 100.00);
