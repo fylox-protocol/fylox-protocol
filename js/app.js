@@ -801,7 +801,12 @@ function fyloxSendPayment() {
         await apiCall('POST', '/payments/approve', { paymentId });
         console.log('[Fylox] Pago aprobado');
       } catch (err) {
-        console.error('[Fylox] Error aprobando pago:', err.message);
+        // "ya aprobado" no es un error real — el pago puede continuar
+        if (err.message && err.message.includes('ya aprobado')) {
+          console.warn('[Fylox] Pago ya aprobado previamente — continuando');
+        } else {
+          console.error('[Fylox] Error aprobando pago:', err.message);
+        }
       }
     },
     onReadyForServerCompletion: async function(paymentId, txid) {
