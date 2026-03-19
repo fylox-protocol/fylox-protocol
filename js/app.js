@@ -511,19 +511,56 @@ function goTo(id) {
     if (wb) {
       const target = parseFloat(wb.dataset.value || '100') || 100;
       wb.dataset.value = target;
-      let start = 0;
-      const duration = 1200;
-      const startTime = performance.now();
-      const animate = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 3);
-        const current = (start + (target - start) * ease).toFixed(2);
-        wb.innerHTML = current + ' <span style="font-size:24px;color:var(--c)">π</span>';
-        if (progress < 1) requestAnimationFrame(animate);
-        else wb.innerHTML = target.toFixed(2) + ' <span style="font-size:24px;color:var(--c)">π</span>';
-      };
-      requestAnimationFrame(animate);
+
+      // ── SILICON VALLEY COUNTER — spring physics + stagger ──
+      const duration  = 1800;
+      const delay     = 120; // ms antes de arrancar
+      let startTime   = null;
+
+      // Easing: exponential out — arranca rápido, frena suave al final
+      const easeOutExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+
+      // Fase 1: fade + slide del contenedor
+      wb.style.opacity  = '0';
+      wb.style.transform = 'translateY(12px)';
+      wb.style.transition = `opacity 0.35s ease, transform 0.45s cubic-bezier(.22,1,.36,1)`;
+      wb.innerHTML = `0.00 <span style="font-size:24px;color:var(--c)">π</span>`;
+
+      setTimeout(() => {
+        wb.style.opacity   = '1';
+        wb.style.transform = 'translateY(0)';
+
+        // Fase 2: conteo numérico con easing
+        const animate = (now) => {
+          if (!startTime) startTime = now;
+          const elapsed  = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased    = easeOutExpo(progress);
+          const current  = (target * eased).toFixed(2);
+
+          // Glow cyan en los últimos frames
+          const glowOpacity = progress > 0.85 ? (progress - 0.85) / 0.15 : 0;
+          wb.innerHTML = `<span style="
+            text-shadow: 0 0 ${Math.round(glowOpacity * 32)}px rgba(0,212,232,${(glowOpacity * 0.6).toFixed(2)});
+            transition: text-shadow 0.1s ease;
+          ">${current}</span> <span style="font-size:24px;color:var(--c)">π</span>`;
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            // Frame final — limpio, sin glow
+            wb.innerHTML = `${target.toFixed(2)} <span style="font-size:24px;color:var(--c)">π</span>`;
+            // Micro-pulse al terminar
+            wb.style.transform = 'scale(1.03)';
+            wb.style.transition = 'transform 0.15s cubic-bezier(.34,1.56,.64,1)';
+            setTimeout(() => {
+              wb.style.transform = 'scale(1)';
+              wb.style.transition = 'transform 0.2s ease';
+            }, 150);
+          }
+        };
+        requestAnimationFrame(animate);
+      }, delay);
     }
   }
 
