@@ -506,7 +506,29 @@ function goTo(id) {
     const el8 = document.getElementById('s8msg');
     if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
   }
-  if (id === 's9') {
+  
+if (id === 's9') {
+    const wb = document.getElementById('wallet-balance');
+    if (wb) {
+      const target = parseFloat(wb.dataset.value || '100') || 100;
+      wb.dataset.value = target;
+      let start = 0;
+      const duration = 1200;
+      const startTime = performance.now();
+      const animate = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const current = (start + (target - start) * ease).toFixed(2);
+        wb.innerHTML = current + ' <span style="font-size:24px;color:var(--c)">π</span>';
+        if (progress < 1) requestAnimationFrame(animate);
+        else wb.innerHTML = target.toFixed(2) + ' <span style="font-size:24px;color:var(--c)">π</span>';
+      };
+      requestAnimationFrame(animate);
+    }
+  }
+
+  if (id === 's16') {
     const wb = document.getElementById('wallet-balance');
     if (wb) {
       const target = parseFloat(wb.dataset.value || '100') || 100;
@@ -524,7 +546,7 @@ function goTo(id) {
       requestAnimationFrame(animate);
     }
   }
-
+  
   const bnav = document.querySelector('.bnav');
   const navScreens = ['s5','s9','s10','s11','s12','s14','s15','s16','s17','s18','s19','s20','s21','s22','s23','s24'];
   if (bnav) bnav.style.display = navScreens.includes(id) ? 'flex' : 'none';
