@@ -222,6 +222,8 @@ const LANGS = {
     sendToPlaceholder:'username or .pi address',
     toLabel:'To', networkFee:'Network fee', freeLabel:'Free', totalLabel:'Total',
     globalCoverage:'Global · 200+ Countries',
+    clearAll:'Clear all', paymentConfirmedTitle:'Payment confirmed', youReceived:'You received 25 π', topUpDaysAgo:'Top up recommended · 2 days ago',
+    balanceLabel:'Balance', lowBalance:'Low balance', topUpAmount:'Top up amount',
     openLabel:'Open', newLabel:'New', busyLabel:'Busy',
   },
   es: {
@@ -417,6 +419,8 @@ const LANGS = {
     sendToPlaceholder:'usuario o dirección .pi',
     toLabel:'Para', networkFee:'Comisión de red', freeLabel:'Gratis', totalLabel:'Total',
     globalCoverage:'Global · 200+ Países',
+    clearAll:'Borrar todo', paymentConfirmedTitle:'Pago confirmado', youReceived:'Recibiste 25 π', topUpDaysAgo:'Se recomienda recargar · hace 2 días',
+    balanceLabel:'Saldo', lowBalance:'Saldo bajo', topUpAmount:'Monto a recargar',
     openLabel:'Abierto', newLabel:'Nuevo', busyLabel:'Ocupado',
   },
   tl: {
@@ -612,6 +616,8 @@ const LANGS = {
     sendToPlaceholder:'username o .pi address',
     toLabel:'Para kay', networkFee:'Bayad sa network', freeLabel:'Libre', totalLabel:'Kabuuan',
     globalCoverage:'Global · 200+ Bansa',
+    clearAll:'Burahin lahat', paymentConfirmedTitle:'Nakumpirmang bayad', youReceived:'Natanggap mo ang 25 π', topUpDaysAgo:'Inirerekomendang mag-load · 2 araw na ang nakalipas',
+    balanceLabel:'Balanse', lowBalance:'Mababang balanse', topUpAmount:'Halaga ng load',
     openLabel:'Bukas', newLabel:'Bago', busyLabel:'Abala',
   },
   ng: {
@@ -805,6 +811,8 @@ const LANGS = {
     sendToPlaceholder:'username or .pi address',
     toLabel:'To', networkFee:'Network fee', freeLabel:'Free', totalLabel:'Total',
     globalCoverage:'Global · 200+ Countries',
+    clearAll:'Clear all', paymentConfirmedTitle:'Payment confirmed', youReceived:'You don receive 25 π', topUpDaysAgo:'Top up recommended · 2 days ago',
+    balanceLabel:'Balance', lowBalance:'Balance don low', topUpAmount:'Amount to top up',
     openLabel:'Open', newLabel:'New', busyLabel:'Busy',
   },
   hi: {
@@ -1000,6 +1008,8 @@ const LANGS = {
     sendToPlaceholder:'यूज़रनेम या .pi पता',
     toLabel:'को', networkFee:'नेटवर्क शुल्क', freeLabel:'निःशुल्क', totalLabel:'कुल',
     globalCoverage:'वैश्विक · 200+ देश',
+    clearAll:'सब हटाएं', paymentConfirmedTitle:'भुगतान पुष्टि', youReceived:'आपको 25 π मिला', topUpDaysAgo:'रिचार्ज की सलाह · 2 दिन पहले',
+    balanceLabel:'बैलेंस', lowBalance:'कम बैलेंस', topUpAmount:'रिचार्ज राशि',
     openLabel:'खुला', newLabel:'नया', busyLabel:'व्यस्त',
   },
   pt: {
@@ -1195,7 +1205,8 @@ const LANGS = {
     sendToPlaceholder:'usuário ou endereço .pi',
     toLabel:'Para', networkFee:'Taxa de rede', freeLabel:'Grátis', totalLabel:'Total',
     globalCoverage:'Global · 200+ Países',
-    openLabel:'Aberto', newLabel:'Novo', busyLabel:'Ocupado',
+    clearAll:'Limpar tudo', paymentConfirmedTitle:'Pagamento confirmado', youReceived:'Você recebeu 25 π', topUpDaysAgo:'Recarga recomendada · há 2 dias',
+    balanceLabel:'Saldo', lowBalance:'Saldo baixo', topUpAmount:'Valor a recarregar',
   },
   zh: {
     flag:'🇨🇳', name:'中文',
@@ -1387,6 +1398,8 @@ const LANGS = {
     sendToPlaceholder:'用户名或.pi地址',
     toLabel:'收款方', networkFee:'网络费用', freeLabel:'免费', totalLabel:'总计',
     globalCoverage:'全球 · 200+国家',
+    clearAll:'清除全部', paymentConfirmedTitle:'付款已确认', youReceived:'您收到了25 π', topUpDaysAgo:'建议充值 · 2天前',
+    balanceLabel:'余额', lowBalance:'余额不足', topUpAmount:'充值金额',
     openLabel:'营业中', newLabel:'新店', busyLabel:'繁忙',
   },
   id: {
@@ -1582,6 +1595,8 @@ const LANGS = {
     sendToPlaceholder:'username atau alamat .pi',
     toLabel:'Kepada', networkFee:'Biaya jaringan', freeLabel:'Gratis', totalLabel:'Total',
     globalCoverage:'Global · 200+ Negara',
+    clearAll:'Hapus semua', paymentConfirmedTitle:'Pembayaran dikonfirmasi', youReceived:'Anda menerima 25 π', topUpDaysAgo:'Isi ulang disarankan · 2 hari lalu',
+    balanceLabel:'Saldo', lowBalance:'Saldo rendah', topUpAmount:'Jumlah isi ulang',
     openLabel:'Buka', newLabel:'Baru', busyLabel:'Sibuk',
   },
   vi: {
@@ -1777,6 +1792,8 @@ const LANGS = {
     sendToPlaceholder:'tên người dùng hoặc địa chỉ .pi',
     toLabel:'Đến', networkFee:'Phí mạng', freeLabel:'Miễn phí', totalLabel:'Tổng cộng',
     globalCoverage:'Toàn cầu · 200+ Quốc gia',
+    clearAll:'Xóa tất cả', paymentConfirmedTitle:'Thanh toán được xác nhận', youReceived:'Bạn nhận được 25 π', topUpDaysAgo:'Nên nạp tiền · 2 ngày trước',
+    balanceLabel:'Số dư', lowBalance:'Số dư thấp', topUpAmount:'Số tiền nạp',
     openLabel:'Mở cửa', newLabel:'Mới', busyLabel:'Bận',
   },
   ko: {
@@ -1970,6 +1987,8 @@ const LANGS = {
     sendToPlaceholder:'사용자명 또는 .pi 주소',
     toLabel:'받는 사람', networkFee:'네트워크 수수료', freeLabel:'무료', totalLabel:'합계',
     globalCoverage:'글로벌 · 200개국 이상',
+    clearAll:'모두 지우기', paymentConfirmedTitle:'결제 확인됨', youReceived:'25 π 받았습니다', topUpDaysAgo:'충전 권장 · 2일 전',
+    balanceLabel:'잔액', lowBalance:'잔액 부족', topUpAmount:'충전 금액',
     openLabel:'영업 중', newLabel:'신규', busyLabel:'혼잡',
   },
 };
@@ -2036,6 +2055,7 @@ const REVERSE_LOOKUP = (() => {
     'virtualCardNfc','tapToPay','showQR','cardSettings',
     'humanitarianTask','voteYes','voteNo','voteConsent',
     'goodReputation','monthlyEarningsTitle',
+    'balanceLabel','lowBalance','topUpAmount',
   ];
   Object.values(LANGS).forEach(langObj => {
     keys.forEach(key => {
