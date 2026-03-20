@@ -210,6 +210,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · Unlock 1.6x multiplier',
     getEndorsements:'Get 3 endorsements',
     endorsementReward:'+15 pts · Social layer boost',
+    sendTo:'Send to', sendingLabel:'Sending', backToCard:'Back to Card',
   },
   es: {
     flag:'🇪🇸', name:'Español',
@@ -392,6 +393,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · Desbloquear multiplicador 1.6x',
     getEndorsements:'Obtener 3 avales',
     endorsementReward:'+15 pts · Impulso capa social',
+    sendTo:'Enviar a', sendingLabel:'Enviando', backToCard:'Volver a la Tarjeta',
   },
   tl: {
     flag:'🇵🇭', name:'Filipino',
@@ -574,6 +576,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · I-unlock ang 1.6x multiplier',
     getEndorsements:'Kumuha ng 3 endorsement',
     endorsementReward:'+15 pts · Social layer boost',
+    sendTo:'Ipadala sa', sendingLabel:'Nagpapadala', backToCard:'Bumalik sa Card',
   },
   ng: {
     flag:'🇳🇬', name:'Naija Pidgin',
@@ -754,6 +757,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · Unlock 1.6x multiplier',
     getEndorsements:'Get 3 endorsements',
     endorsementReward:'+15 pts · Social layer boost',
+    sendTo:'Send to', sendingLabel:'E dey go', backToCard:'Go Back to Card',
   },
   hi: {
     flag:'🇮🇳', name:'हिंदी',
@@ -936,6 +940,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · 1.6x मल्टीप्लायर अनलॉक करें',
     getEndorsements:'3 अवाल प्राप्त करें',
     endorsementReward:'+15 pts · सामाजिक परत बढ़ावा',
+    sendTo:'भेजें को', sendingLabel:'भेजा जा रहा है', backToCard:'कार्ड पर वापस',
   },
   pt: {
     flag:'🇧🇷', name:'Português',
@@ -1118,6 +1123,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · Desbloquear multiplicador 1.6x',
     getEndorsements:'Obter 3 endossos',
     endorsementReward:'+15 pts · Impulso camada social',
+    sendTo:'Enviar para', sendingLabel:'Enviando', backToCard:'Voltar ao Cartão',
   },
   zh: {
     flag:'🇨🇳', name:'中文',
@@ -1297,6 +1303,7 @@ const LANGS = {
     oracleTaskReward:'+28分 · 解锁1.6x倍数',
     getEndorsements:'获得3个背书',
     endorsementReward:'+15分 · 社交层加成',
+    sendTo:'发送至', sendingLabel:'发送中', backToCard:'返回卡片',
   },
   id: {
     flag:'🇮🇩', name:'Indonesia',
@@ -1479,6 +1486,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · Buka pengganda 1.6x',
     getEndorsements:'Dapatkan 3 dukungan',
     endorsementReward:'+15 pts · Dorongan lapisan sosial',
+    sendTo:'Kirim ke', sendingLabel:'Mengirim', backToCard:'Kembali ke Kartu',
   },
   vi: {
     flag:'🇻🇳', name:'Tiếng Việt',
@@ -1661,6 +1669,7 @@ const LANGS = {
     oracleTaskReward:'+28 điểm · Mở khóa hệ số 1.6x',
     getEndorsements:'Nhận 3 tín nhiệm',
     endorsementReward:'+15 điểm · Tăng cường lớp xã hội',
+    sendTo:'Gửi tới', sendingLabel:'Đang gửi', backToCard:'Quay lại Thẻ',
   },
   ko: {
     flag:'🇰🇷', name:'한국어',
@@ -1841,6 +1850,7 @@ const LANGS = {
     oracleTaskReward:'+28 pts · 1.6x 승수 잠금 해제',
     getEndorsements:'보증 3개 받기',
     endorsementReward:'+15 pts · 소셜 레이어 강화',
+    sendTo:'보내기', sendingLabel:'전송 중', backToCard:'카드로 돌아가기',
   },
 };
 
