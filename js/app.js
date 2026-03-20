@@ -783,8 +783,8 @@ function updateUIWithUser(username, balance) {
   if (hu) hu.textContent = '@' + username;
   const wb = document.getElementById('wallet-balance');
   if (wb) {
+    // Solo guardamos el valor — la animación lo muestra al abrir Wallet (s9)
     wb.dataset.value = balance;
-    wb.innerHTML = `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`;
   }
   const pu = document.getElementById('profile-username');
   if (pu) pu.textContent = '@' + username;
