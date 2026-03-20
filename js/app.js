@@ -999,11 +999,5 @@ window.onload = async function() {
     updateUIWithUser('joaquin_vera', 100.00);
   }
 
-  // 3. Start toast engine
-  setTimeout(function fireToast() {
-    const toasts = getToasts();
-    showToast(toasts[toastIdx % toasts.length]);
-    toastIdx++;
-    setTimeout(fireToast, 6000 + Math.random() * 4000);
-  }, 3500);
+  
 };
