@@ -2287,20 +2287,37 @@ updateTime();
 setInterval(updateTime, 10000);
 
 let piPrice = 0.3400;
+let piPriceBase = 0.3400;
 
-function updatePiPrice() {
-  const delta = (Math.random() - 0.48) * 0.0015;
-  const isUp = delta > 0;
-  piPrice = Math.max(0.30, Math.min(0.42, piPrice + delta));
-  const el = document.getElementById('pi-price');
-  if (el) {
-    el.textContent = '$' + piPrice.toFixed(4);
-    el.classList.remove('price-up','price-down');
-    void el.offsetWidth;
-    el.classList.add(isUp ? 'price-up' : 'price-down');
+async function fetchPiPrice() {
+  try {
+    const res = await fetch('https://www.okx.com/api/v5/market/ticker?instId=PI-USDT');
+    const data = await res.json();
+    if (data?.data?.[0]?.last) {
+      const newPrice = parseFloat(data.data[0].last);
+      const isUp = newPrice >= piPriceBase;
+      piPriceBase = newPrice;
+      piPrice = newPrice;
+      const el = document.getElementById('pi-price');
+      if (el) {
+        el.textContent = '$' + piPrice.toFixed(4);
+        el.classList.remove('price-up', 'price-down');
+        void el.offsetWidth;
+        el.classList.add(isUp ? 'price-up' : 'price-down');
+      }
+      const balanceEl = document.getElementById('home-ars');
+      if (balanceEl && window._fyloxBalance) {
+        balanceEl.textContent = (window._fyloxBalance * piPrice).toFixed(3);
+      }
+    }
+  } catch (err) {
+    console.warn('[Fylox] No se pudo obtener precio de Pi:', err.message);
   }
 }
-setInterval(updatePiPrice, 3800);
+
+// Precio real de OKX al cargar y cada 60 segundos
+fetchPiPrice();
+setInterval(fetchPiPrice, 60000);
 
 let pioneers = 47293841;
 
@@ -2514,15 +2531,15 @@ function showToast(data) {
 // ═══════════════════════════════════════════════════
 
 function updateUIWithUser(username, balance) {
+  window._fyloxBalance = balance;
+  window._fyloxUsername = username;
   const piid = username + '.pi';
   const balanceUSD = balance * piPrice;
-  const arsPerUSD = 1050;
-  const balanceARS = Math.round(balanceUSD * arsPerUSD).toLocaleString('es-AR');
   const balanceFmt = balance.toFixed(2);
   const hb = document.getElementById('home-balance');
   if (hb) hb.innerHTML = `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`;
   const hars = document.getElementById('home-ars');
-  if (hars) hars.textContent = balanceARS;
+  if (hars) hars.textContent = balanceUSD.toFixed(3);
   const hpid = document.getElementById('home-piid');
   if (hpid) hpid.textContent = piid;
   const hu = document.getElementById('home-username');
