@@ -522,13 +522,14 @@ function goTo(id) {
 
       // Fase 1: fade + slide del contenedor
       wb.style.opacity  = '0';
-      wb.style.transform = 'translateY(12px)';
-      wb.style.transition = `opacity 0.35s ease, transform 0.45s cubic-bezier(.22,1,.36,1)`;
+      wb.style.transform = 'translateY(8px)';
+      wb.style.transition = 'none';
       wb.innerHTML = `0.00 <span style="font-size:24px;color:var(--c)">π</span>`;
 
       setTimeout(() => {
-        wb.style.opacity   = '1';
-        wb.style.transform = 'translateY(0)';
+         wb.style.transition = 'opacity 0.4s ease, transform 0.5s cubic-bezier(.22,1,.36,1)';
+         wb.style.opacity   = '1';
+         wb.style.transform = 'translateY(0)';
 
         // Fase 2: conteo numérico con easing
         const animate = (now) => {
