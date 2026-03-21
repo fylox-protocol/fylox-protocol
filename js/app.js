@@ -2733,7 +2733,9 @@ async function fetchBalance() {
 }
 
 function fyloxSendPayment() {
-  const amt = parseFloat(document.getElementById('s7total')?.textContent.replace('π','').trim()) || 0;
+  // Leer monto desde SEND_AMT (seteado por s11q) o desde s7total (seteado por s6)
+  const rawAmt = window.SEND_AMT || document.getElementById('s7total')?.textContent.replace('π','').trim() || '0';
+  const amt = parseFloat(rawAmt) || 0;
   const to = window.SEND_TO || '@Pioneer';
   if (amt <= 0) return;
   if (!window.Pi) {
