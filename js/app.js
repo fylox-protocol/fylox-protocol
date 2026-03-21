@@ -2695,7 +2695,8 @@ function updateUIWithUser(username, balance) {
   const s3bu = document.getElementById('s3-back-username');
   if (s3bu) s3bu.textContent = '@' + username + '.pi';
   // Generar QR real del usuario para pantalla Recibir
-  const qrData = `fylox://pay?to=@${username}&name=${encodeURIComponent(username)}`;
+  // QR universal — funciona con Fylox, Pi Browser, o cualquier cámara
+  const qrData = `https://minepi.com/app/fylox-protocol?pay=@${username}`;
   generateQR('qr-receive-img', qrData, 180);
 }
 
@@ -2800,7 +2801,7 @@ async function piLogin() {
     // Demo mode — navegador normal, no Pi Browser
     console.log('[Fylox] Demo mode login');
     updateUIWithUser('joaquin_vera', 100.00);
-    goTo('s5');
+    goTo('s5'); if (window._pendingPayTo) { setTimeout(() => goTo('s11q'), 600); window._pendingPayTo = null; }
     return;
   }
 
@@ -2845,6 +2846,7 @@ async function piLogin() {
     const balance = await fetchBalance();
     updateUIWithUser(auth.user.username, balance);
     goTo('s5');
+    if (window._pendingPayTo) { setTimeout(() => goTo('s11q'), 600); window._pendingPayTo = null; }
 
   } catch (err) {
     console.error('[Fylox] Error de autenticacion:', err.message);
@@ -2862,7 +2864,16 @@ async function piLogin() {
 // ═══════════════════════════════════════════════════
 window.onload = async function() {
 
-  // 0. INTRO SCREEN
+  // 0. INTERCEPTAR ?pay= — QR universal de otro Pioneer
+  const urlParams = new URLSearchParams(window.location.search);
+  const payTo = urlParams.get('pay');
+  if (payTo) {
+    window.SEND_TO = payTo;
+    const mEl = document.getElementById('s11q-merchant-name');
+    if (mEl) mEl.textContent = payTo;
+    // Navegar directo a pago después del login
+    window._pendingPayTo = payTo;
+  }
   const introEl = document.getElementById('s_intro');
   const introLogo = document.getElementById('intro-logo');
   const introText = document.getElementById('intro-text');
