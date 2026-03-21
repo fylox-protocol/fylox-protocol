@@ -64,7 +64,29 @@ function goTo(id) {
     if (el8) el8.textContent = (window.SEND_AMT || '0') + ' π sent to ' + (window.SEND_TO || '@Pioneer');
   }
 
-  if (id === 's9' || id === 's16') {
+  if (id === 's10') {
+    const video = document.getElementById('qr-video');
+    if (video && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => {
+          video.srcObject = stream;
+          video.play();
+          video.dataset.stream = 'active';
+        })
+        .catch(err => {
+          console.warn('[Fylox] Cámara no disponible:', err.message);
+        });
+    }
+  }
+
+  // Detener cámara al salir de s10
+  if (curr && curr.id === 's10') {
+    const video = document.getElementById('qr-video');
+    if (video && video.srcObject) {
+      video.srcObject.getTracks().forEach(t => t.stop());
+      video.srcObject = null;
+    }
+  }
     const wb = document.getElementById('wallet-balance');
     if (wb) {
       const target = parseFloat(wb.dataset.value || '100') || 100;
