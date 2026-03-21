@@ -2260,7 +2260,7 @@ function goTo(id) {
                 window.SEND_AMT = amount;
                 kval = amount !== '0' ? amount : '0';
                 // Actualizar UI de s11q
-                const mEl = document.querySelector('#s11q [data-i18n="merchantName"]');
+                const mEl = document.getElementById('s11q-merchant-name');
                 if (mEl) mEl.textContent = merchant;
                 const aEl = document.getElementById('sa');
                 if (aEl) aEl.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>';
@@ -2305,12 +2305,24 @@ if (id === 's9') {
     }
   }
 
-  // Generar QR del comercio al entrar a s14
+  // Generar QR dinámico del comercio al entrar a s14
   if (id === 's14') {
-    const merchantName = 'La Pizzería';
-    const merchantPi   = '@lapizzeria';
-    const qrData = `fylox://pay?to=${merchantPi}&name=${encodeURIComponent(merchantName)}`;
+    const name  = window._currentMerchant   || 'Merchant';
+    const pi    = window._currentMerchantPi  || '@merchant';
+    const icon  = window._currentMerchantIcon || '🏪';
+    // Actualizar UI de s14 con el comercio seleccionado
+    const nameEl = document.querySelector('#s14 .fd-800');
+    const iconEl = document.querySelector('#s14 .font-size-52');
+    // Buscar por contenido más robusto
+    document.querySelectorAll('#s14 .sc [style*="font-size:52px"]').forEach(el => el.textContent = icon);
+    document.querySelectorAll('#s14 .sc [style*="font-size:22px"]').forEach(el => el.textContent = name);
+    // Generar QR real del comercio
+    const qrData = `fylox://pay?to=${pi}&name=${encodeURIComponent(name)}`;
     generateQR('qr-merchant-img', qrData, 160);
+    // Precargar comercio en pantalla de pago
+    window.SEND_TO = pi;
+    const mEl = document.getElementById('s11q-merchant-name');
+    if (mEl) mEl.textContent = name;
   }
 
   if (id === 's16') {
@@ -2351,7 +2363,15 @@ if (id === 's9') {
 
 document.addEventListener('click', function(e) {
   const el = e.target.closest('[data-go]');
-  if (el) { e.preventDefault(); goTo(el.dataset.go); }
+  if (!el) return;
+  e.preventDefault();
+  // Si el click es en un comercio que va a s14, guardar sus datos
+  if (el.dataset.go === 's14' && el.dataset.merchant) {
+    window._currentMerchant     = el.dataset.merchant;
+    window._currentMerchantPi   = el.dataset.merchantPi;
+    window._currentMerchantIcon = el.dataset.merchantIcon || '🏪';
+  }
+  goTo(el.dataset.go);
 });
 
 document.addEventListener('click', function(e) {
