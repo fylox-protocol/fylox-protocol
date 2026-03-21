@@ -2208,19 +2208,78 @@ function goTo(id) {
       video.srcObject.getTracks().forEach(t => t.stop());
       video.srcObject = null;
     }
+    if (window._qrScanLoop) {
+      cancelAnimationFrame(window._qrScanLoop);
+      window._qrScanLoop = null;
+    }
   }
 
-  // Activar cámara al entrar a s10
+  // Activar cámara y escaneo QR al entrar a s10
   if (id === 's10') {
-    const video = document.getElementById('qr-video');
-    if (video && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    const video  = document.getElementById('qr-video');
+    const canvas = document.getElementById('qr-canvas');
+    const status = document.getElementById('qr-status');
+    if (video && canvas && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then(stream => {
           video.srcObject = stream;
           video.play();
+          const ctx = canvas.getContext('2d');
+          let detected = false;
+          function scanFrame() {
+            if (detected) return;
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+              canvas.width  = video.videoWidth;
+              canvas.height = video.videoHeight;
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: 'dontInvert',
+              });
+              if (code) {
+                detected = true;
+                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                // Parsear el QR — formato esperado: fylox://pay?to=@merchant&amount=5.00
+                // o cualquier string — lo mandamos a s11q con los datos
+                const raw = code.data;
+                let merchant = 'Merchant Name';
+                let amount   = '0';
+                try {
+                  if (raw.startsWith('fylox://')) {
+                    const url    = new URL(raw.replace('fylox://', 'https://x/'));
+                    merchant     = url.searchParams.get('to')     || merchant;
+                    amount       = url.searchParams.get('amount') || amount;
+                  } else {
+                    merchant = raw.slice(0, 30);
+                  }
+                } catch(e) {
+                  merchant = raw.slice(0, 30);
+                }
+                // Precarga los datos en la pantalla de pago manual
+                window.SEND_TO  = merchant;
+                window.SEND_AMT = amount;
+                kval = amount !== '0' ? amount : '0';
+                // Actualizar UI de s11q
+                const mEl = document.querySelector('#s11q [data-i18n="merchantName"]');
+                if (mEl) mEl.textContent = merchant;
+                const aEl = document.getElementById('sa');
+                if (aEl) aEl.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>';
+                // Parar cámara y navegar
+                video.srcObject.getTracks().forEach(t => t.stop());
+                video.srcObject = null;
+                goTo('s11q');
+                return;
+              }
+            }
+            window._qrScanLoop = requestAnimationFrame(scanFrame);
+          }
+          video.addEventListener('loadeddata', () => {
+            window._qrScanLoop = requestAnimationFrame(scanFrame);
+          });
         })
         .catch(err => {
           console.warn('[Fylox] Cámara no disponible:', err.message);
+          if (status) status.innerHTML = '<span style="color:#ff6b81">Cámara no disponible</span>';
         });
     }
   }
