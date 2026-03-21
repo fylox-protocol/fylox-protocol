@@ -2305,6 +2305,14 @@ if (id === 's9') {
     }
   }
 
+  // Generar QR del comercio al entrar a s14
+  if (id === 's14') {
+    const merchantName = 'La Pizzería';
+    const merchantPi   = '@lapizzeria';
+    const qrData = `fylox://pay?to=${merchantPi}&name=${encodeURIComponent(merchantName)}`;
+    generateQR('qr-merchant-img', qrData, 160);
+  }
+
   if (id === 's16') {
     const wb = document.getElementById('wallet-balance');
     if (wb) {
@@ -2624,6 +2632,24 @@ function showToast(data) {
 //  USER DATA
 // ═══════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════
+//  QR GENERATOR
+// ═══════════════════════════════════════════════════
+
+function generateQR(elementId, data, size) {
+  const el = document.getElementById(elementId);
+  if (!el || typeof QRCode === 'undefined') return;
+  el.innerHTML = '';
+  new QRCode(el, {
+    text: data,
+    width: size || 180,
+    height: size || 180,
+    colorDark: '#060608',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+}
+
 function updateUIWithUser(username, balance) {
   window._fyloxBalance = balance;
   window._fyloxUsername = username;
@@ -2639,19 +2665,18 @@ function updateUIWithUser(username, balance) {
   const hu = document.getElementById('home-username');
   if (hu) hu.textContent = '@' + username;
   const wb = document.getElementById('wallet-balance');
-  if (wb) {
-    // Solo guardamos el valor — la animación lo muestra al abrir Wallet (s9)
-    wb.dataset.value = balance;
-  }
+  if (wb) wb.dataset.value = balance;
   const pu = document.getElementById('profile-username');
   if (pu) pu.textContent = '@' + username;
   const ra = document.getElementById('receive-address');
   if (ra) ra.textContent = '@' + username + ' · ' + piid;
-  // Update s3 card username
   const s3u = document.getElementById('s3-username');
   if (s3u) s3u.textContent = '@' + username + '.pi';
   const s3bu = document.getElementById('s3-back-username');
   if (s3bu) s3bu.textContent = '@' + username + '.pi';
+  // Generar QR real del usuario para pantalla Recibir
+  const qrData = `fylox://pay?to=@${username}&name=${encodeURIComponent(username)}`;
+  generateQR('qr-receive-img', qrData, 180);
 }
 
 async function authenticateWithBackend(piAccessToken, walletAddress) {
