@@ -2306,6 +2306,13 @@ if (id === 's9') {
   }
 
   // Generar QR dinámico del comercio al entrar a s14
+  // Reset keypad al entrar a s11q
+  if (id === 's11q') {
+    kval = '0';
+    const saEl = document.getElementById('sa');
+    if (saEl) saEl.innerHTML = '0.00 <span style="font-size:26px;color:var(--c)">π</span>';
+  }
+
   if (id === 's14') {
     const name  = window._currentMerchant   || 'Merchant';
     const pi    = window._currentMerchantPi  || '@merchant';
@@ -2380,8 +2387,9 @@ document.addEventListener('click', function(e) {
     if (k === 'x') { kval = kval.length > 1 ? kval.slice(0,-1) : '0'; }
     else if (k === '.') { if (!kval.includes('.')) kval += '.'; }
     else { kval = kval === '0' ? k : kval + k; if (kval.length > 9) kval = kval.slice(0,-1); }
-    const el = document.getElementById('sa');
-    if (el) { window.KVAL = kval; window.SEND_AMT = kval; el.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>'; }
+    // Actualizar el display de la pantalla activa
+    const activeSa = document.querySelector('.scr.show #sa') || document.querySelector('.scr.show #sa-send');
+    if (activeSa) { window.KVAL = kval; window.SEND_AMT = kval; activeSa.innerHTML = kval + ' <span style="font-size:26px;color:var(--c)">π</span>'; }
   }
 });
 
