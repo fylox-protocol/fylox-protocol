@@ -207,7 +207,13 @@ if (id === 's9') {
       requestAnimationFrame(animate);
     }
   }
-  
+
+  // Cargar comercios desde API al entrar a s13
+  if (id === 's13') loadMerchants();
+
+  // Cargar historial real al entrar a s18
+  if (id === 's18') loadTransactions();
+
   const bnav = document.querySelector('.bnav');
   const navScreens = ['s5','s9','s10','s11','s12','s14','s15','s16','s17','s18','s19','s20','s21','s22','s23','s24'];
   if (bnav) bnav.style.display = navScreens.includes(id) ? 'flex' : 'none';
@@ -535,3 +541,147 @@ function generateQR(elementId, data, size) {
   });
 }
 
+// ── TRANSACTIONS — Historial real desde API ─────────────────────────────────
+
+let _txFilter = 'all';
+let _txData   = [];
+
+async function loadTransactions() {
+  const list = document.getElementById('tx-list');
+  if (!list) return;
+
+  list.innerHTML = `
+    <div style="padding:24px;text-align:center;color:var(--t2);font-size:13px">
+      <div style="width:24px;height:24px;border:2px solid var(--c);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px"></div>
+      Cargando actividad...
+    </div>`;
+
+  try {
+    const data = await apiCall('GET', '/user/transactions?limit=50');
+    _txData = data.transactions || [];
+    renderTransactions(_txFilter);
+
+    // Actualizar total enviado en s17 si existe
+    const txCountEl = document.querySelector('#s17 [data-tx-count]');
+    if (txCountEl) txCountEl.textContent = data.total || 0;
+
+  } catch (err) {
+    console.warn('[Fylox] No se pudo cargar historial:', err.message);
+    list.innerHTML = `<div style="padding:24px;text-align:center;color:var(--t2);font-size:13px">No se pudo cargar el historial.<br>Intentá de nuevo.</div>`;
+  }
+}
+
+function renderTransactions(filter) {
+  _txFilter = filter;
+  const list = document.getElementById('tx-list');
+  if (!list) return;
+
+  let txs = [..._txData];
+  if (filter === 'sent')     txs = txs.filter(t => t.type === 'sent');
+  if (filter === 'received') txs = txs.filter(t => t.type === 'received');
+
+  if (txs.length === 0) {
+    list.innerHTML = `<div style="padding:32px;text-align:center;color:var(--t2);font-size:13px">
+      No hay transacciones aún.<br>
+      <span style="font-size:11px;color:var(--t3)">Tus pagos aparecerán aquí.</span>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = txs.map(tx => {
+    const isSent   = tx.type === 'sent';
+    const color    = isSent ? 'var(--red)' : 'var(--grn)';
+    const bgColor  = isSent ? 'rgba(255,70,70,.07)' : 'rgba(0,224,144,.07)';
+    const sign     = isSent ? '−' : '+';
+    const label    = isSent
+      ? (tx.toName || tx.toAddress || 'Pago enviado')
+      : ('De ' + tx.fromUsername);
+    const date     = new Date(tx.createdAt).toLocaleDateString('es-AR', {
+      day: 'numeric', month: 'short'
+    });
+    const arrow = isSent
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+
+    return `<div class="tx">
+      <div class="ti" style="background:${bgColor};color:${color}">${arrow}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${label}</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:1px">${date}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:${color};font-family:var(--fd)">${sign}${tx.amount} π</div>
+    </div>`;
+  }).join('');
+}
+
+function filterTxLive(el, type) {
+  document.querySelectorAll('#s18 .fpill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderTransactions(type);
+}
+
+// ── MERCHANTS — Carga dinámica desde API ────────────────────────────────────
+
+const CATEGORY_I18N = {
+  food:        'foodRestaurant',
+  coffee:      'coffeeShop',
+  pharmacy:    'pharmacy',
+  electronics: 'electronics',
+  retail:      'retailStore',
+  services:    'services',
+  transport:   'transit',
+  other:       'merchants',
+};
+
+async function loadMerchants() {
+  const list = document.getElementById('merchant-list');
+  if (!list) return;
+
+  list.innerHTML = `
+    <div style="padding:20px;text-align:center;color:var(--t2);font-size:13px">
+      <div style="width:24px;height:24px;border:2px solid var(--c);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px"></div>
+      Cargando comercios...
+    </div>`;
+
+  try {
+    const data = await apiCall('GET', '/merchants');
+    renderMerchants(data.merchants || []);
+  } catch (err) {
+    console.warn('[Fylox] No se pudieron cargar comercios:', err.message);
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--t2);font-size:13px">No se pudieron cargar los comercios.</div>';
+  }
+}
+
+function renderMerchants(merchants) {
+  const list = document.getElementById('merchant-list');
+  if (!list) return;
+
+  if (merchants.length === 0) {
+    list.innerHTML = `<div style="padding:32px;text-align:center;color:var(--t2);font-size:13px">No hay comercios registrados aún.<br>¡Sé el primero!</div>`;
+    return;
+  }
+
+  const t = typeof LANGS !== 'undefined' && LANGS[currentLang] ? LANGS[currentLang] : {};
+
+  list.innerHTML = merchants.map(m => {
+    const catKey   = CATEGORY_I18N[m.category] || 'merchants';
+    const catLabel = t[catKey] || m.category;
+    const tagClass = m.status === 'open' ? 'tag-g' : m.status === 'busy' ? 'tag-y' : 'tag-r';
+    const tagKey   = m.status === 'open' ? 'openLabel' : m.status === 'busy' ? 'busyLabel' : 'closedLabel';
+    const tagLabel = t[tagKey] || m.status;
+    const verified = m.verified ? ' ✓' : '';
+    const dist     = m.distance && m.distance !== 'Nuevo' ? `${m.distance} · ` : '';
+
+    return `<div class="row" data-go="s14"
+      data-merchant="${m.name}"
+      data-merchant-pi="${m.piAddress}"
+      data-merchant-icon="${m.icon}">
+      <div class="ti" style="background:rgba(0,212,232,.08)">${m.icon}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600">${m.name}${verified}</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:2px">${dist}${catLabel}</div>
+      </div>
+      <div class="tag ${tagClass}">${tagLabel}</div>
+    </div>`;
+  }).join('');
+}
