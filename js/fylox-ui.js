@@ -214,6 +214,9 @@ if (id === 's9') {
   // Cargar historial real al entrar a s18
   if (id === 's18') loadTransactions();
 
+  // Cargar perfil real al entrar a s17
+  if (id === 's17') loadUserProfile();
+
   const bnav = document.querySelector('.bnav');
   const navScreens = ['s5','s9','s10','s11','s12','s14','s15','s16','s17','s18','s19','s20','s21','s22','s23','s24'];
   if (bnav) bnav.style.display = navScreens.includes(id) ? 'flex' : 'none';
