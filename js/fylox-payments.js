@@ -28,6 +28,45 @@ function updateUIWithUser(username, balance) {
   generateQR('qr-receive-img', qrData, 180);
 }
 
+// ═══════════════════════════════════════════════════
+//  PROFILE — Carga datos reales desde /user/me
+//  Popula la pantalla s17 con datos reales del backend
+// ═══════════════════════════════════════════════════
+async function loadUserProfile() {
+  try {
+    const data = await apiCall('GET', '/user/me');
+
+    // Avatar: inicial del username real
+    const avatarEl = document.getElementById('profile-avatar-initial');
+    if (avatarEl) avatarEl.textContent = (data.username || 'P')[0].toUpperCase();
+
+    // Tx count
+    const txCountEl = document.getElementById('profile-tx-count');
+    if (txCountEl) txCountEl.textContent = data.txCount || 0;
+
+    // Total earned (oracle + agora rewards)
+    const earnedEl = document.getElementById('profile-earned');
+    if (earnedEl) earnedEl.textContent = (data.totalEarned || 0).toFixed(1) + ' π';
+
+    // NEXUS score: calculado a partir de txCount + totalEarned (proxy hasta tener endpoint dedicado)
+    const nexusEl = document.getElementById('profile-nexus-score');
+    if (nexusEl) {
+      const score = Math.min(999, Math.round(50 + (data.txCount || 0) * 8 + (data.totalEarned || 0) * 1.5));
+      nexusEl.textContent = score;
+      // Actualizar el stroke-dashoffset del arco SVG proporcionalmente (314 = circunferencia completa)
+      const arcEl = nexusEl.closest('svg')?.querySelector('circle:nth-child(2)');
+      if (arcEl) {
+        const offset = Math.round(314 - (score / 999) * 314);
+        arcEl.setAttribute('stroke-dashoffset', offset);
+      }
+    }
+
+    console.log('[Fylox] Perfil cargado:', data.username, '— Tx:', data.txCount, '— Earned:', data.totalEarned);
+  } catch (err) {
+    console.warn('[Fylox] No se pudo cargar perfil:', err.message);
+  }
+}
+
 async function authenticateWithBackend(piAccessToken, walletAddress) {
   try {
     const data = await apiCall('POST', '/auth/pi', {
