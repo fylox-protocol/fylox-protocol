@@ -688,3 +688,62 @@ function renderMerchants(merchants) {
     </div>`;
   }).join('');
 }
+
+// ═══════════════════════════════════════════════════
+//  DATA SYNC - Conexión Real con MongoDB
+// ═══════════════════════════════════════════════════
+
+async function refreshUserData() {
+    try {
+        const data = await FyloxAPI.getProfile();
+        const { username, balance } = data.user;
+
+        // Actualizar Balance en Home (s5), Wallet y barra de navegación
+        const elements = ['home-balance', 'wallet-balance', 'nav-balance'];
+        elements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = balance.toFixed(2);
+        });
+
+        // Actualizar el nombre del Pioneer en el Home
+        const userEl = document.getElementById('home-username');
+        if (userEl) userEl.textContent = username;
+
+        console.log('[Fylox] Datos sincronizados para:', username);
+    } catch (err) {
+        console.error('Error al sincronizar datos:', err);
+    }
+}
+
+async function loadActivity() {
+    const container = document.getElementById('activity-list');
+    if (!container) return;
+
+    try {
+        const txs = await FyloxAPI.getActivity();
+        
+        if (!txs || txs.length === 0) {
+            container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--t2)">Sin actividad reciente</div>';
+            return;
+        }
+
+        container.innerHTML = txs.map(tx => `
+            <div class="row" style="display:flex; align-items:center; margin-bottom:15px;">
+                <div class="icon-circle" style="background:var(--b2);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:12px">
+                    <span style="color:var(--c)">${tx.type === 'send' ? '↑' : '↓'}</span>
+                </div>
+                <div class="col" style="flex:1">
+                    <div class="t1" style="font-weight:600">${tx.type === 'send' ? 'Enviado' : 'Recibido'}</div>
+                    <div class="t2" style="font-size:12px;color:var(--t2)">${new Date(tx.createdAt).toLocaleDateString()}</div>
+                </div>
+                <div class="val" style="font-weight:700; color:${tx.type === 'send' ? '#ff4d4d' : '#00e676'}">
+                    ${tx.type === 'send' ? '-' : '+'}${tx.amount} π
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--t2)">Error al cargar transacciones</div>';
+    }
+}
+
+
