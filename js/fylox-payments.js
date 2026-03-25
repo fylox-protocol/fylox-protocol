@@ -22,46 +22,32 @@ function updateUIWithUser(username, balance) {
   if (s3u) s3u.textContent = '@' + username + '.pi';
   const s3bu = document.getElementById('s3-back-username');
   if (s3bu) s3bu.textContent = '@' + username + '.pi';
-  // Generar QR real del usuario para pantalla Recibir
-  // QR universal — funciona con Fylox, Pi Browser, o cualquier cámara
   const qrData = `https://minepi.com/app/fylox-protocol?pay=@${username}`;
   generateQR('qr-receive-img', qrData, 180);
 }
 
 // ═══════════════════════════════════════════════════
-//  PROFILE — Carga datos reales desde /user/me
-//  Popula la pantalla s17 con datos reales del backend
+//  PROFILE
 // ═══════════════════════════════════════════════════
 async function loadUserProfile() {
   try {
     const data = await apiCall('GET', '/user/me');
-
-    // Avatar: inicial del username real
     const avatarEl = document.getElementById('profile-avatar-initial');
     if (avatarEl) avatarEl.textContent = (data.username || 'P')[0].toUpperCase();
-
-    // Tx count
     const txCountEl = document.getElementById('profile-tx-count');
     if (txCountEl) txCountEl.textContent = data.txCount || 0;
-
-    // Total earned (oracle + agora rewards)
     const earnedEl = document.getElementById('profile-earned');
     if (earnedEl) earnedEl.textContent = (data.totalEarned || 0).toFixed(1) + ' π';
-
-    // NEXUS score: calculado a partir de txCount + totalEarned (proxy hasta tener endpoint dedicado)
     const nexusEl = document.getElementById('profile-nexus-score');
     if (nexusEl) {
       const score = Math.min(999, Math.round(50 + (data.txCount || 0) * 8 + (data.totalEarned || 0) * 1.5));
       nexusEl.textContent = score;
-      // Actualizar el stroke-dashoffset del arco SVG proporcionalmente (314 = circunferencia completa)
       const arcEl = nexusEl.closest('svg')?.querySelector('circle:nth-child(2)');
       if (arcEl) {
         const offset = Math.round(314 - (score / 999) * 314);
         arcEl.setAttribute('stroke-dashoffset', offset);
       }
     }
-
-    console.log('[Fylox] Perfil cargado:', data.username, '— Tx:', data.txCount, '— Earned:', data.totalEarned);
   } catch (err) {
     console.warn('[Fylox] No se pudo cargar perfil:', err.message);
   }
@@ -91,8 +77,81 @@ async function fetchBalance() {
   }
 }
 
+// ═══════════════════════════════════════════════════
+//  POLLING DE SALDO Y NOTIFICACIONES EN TIEMPO REAL
+//  Revisa cada 30s si llegaron pi nuevos
+// ═══════════════════════════════════════════════════
+let _lastKnownBalance  = null;
+let _lastKnownTxDate   = null;
+let _balancePollTimer  = null;
+
+function startBalancePolling() {
+  if (_balancePollTimer) return; // ya corriendo
+  _balancePollTimer = setInterval(async () => {
+    if (!getToken()) return; // no autenticado
+
+    try {
+      // 1. Verificar nuevas transacciones desde la última conocida
+      const sinceParam = _lastKnownTxDate
+        ? '&since=' + encodeURIComponent(_lastKnownTxDate)
+        : '';
+      const txData = await apiCall('GET', '/user/transactions?limit=5' + sinceParam);
+      const newTxs = txData.transactions || [];
+
+      if (newTxs.length > 0 && _lastKnownTxDate !== null) {
+        // Hay transacciones nuevas desde el último check
+        newTxs.forEach(tx => {
+          if (tx.type === 'received') {
+            FyloxNotification.show({
+              icon: '📥',
+              title: '+' + tx.amount + ' π recibido',
+              sub: 'De ' + (tx.fromUsername || 'Pioneer'),
+              amt: '+' + tx.amount + ' π',
+              sound: true,
+            });
+          } else if (tx.type === 'reward') {
+            const source = tx.rewardSource === 'oracle' ? 'Oracle' : 'Agora';
+            FyloxNotification.show({
+              icon: tx.rewardSource === 'oracle' ? '🌊' : '🏛️',
+              title: '+' + tx.amount + ' π ganado',
+              sub: 'Recompensa ' + source,
+              amt: '+' + tx.amount + ' π',
+              sound: true,
+            });
+          }
+        });
+
+        // Actualizar fecha de la tx más reciente
+        _lastKnownTxDate = newTxs[0].createdAt;
+
+        // Actualizar saldo en pantalla
+        const newBalance = await fetchBalance();
+        if (newBalance !== _lastKnownBalance) {
+          _lastKnownBalance = newBalance;
+          updateUIWithUser(window._fyloxUsername || 'Pioneer', newBalance);
+        }
+      } else if (_lastKnownTxDate === null && newTxs.length > 0) {
+        // Primera vez — solo guardar referencia, no notificar
+        _lastKnownTxDate = newTxs[0].createdAt;
+      } else if (_lastKnownTxDate === null) {
+        _lastKnownTxDate = new Date().toISOString();
+      }
+
+    } catch (err) {
+      console.warn('[Fylox] Polling error:', err.message);
+    }
+  }, 30000); // cada 30 segundos
+  console.log('[Fylox] Balance polling iniciado ✓');
+}
+
+function stopBalancePolling() {
+  if (_balancePollTimer) {
+    clearInterval(_balancePollTimer);
+    _balancePollTimer = null;
+  }
+}
+
 function fyloxSendPayment() {
-  // Leer monto desde SEND_AMT (seteado por s11q) o desde s7total (seteado por s6)
   const rawAmt = window.SEND_AMT || document.getElementById('s7total')?.textContent.replace('π','').trim() || '0';
   const amt = parseFloat(rawAmt) || 0;
   const to = window.SEND_TO || '@Pioneer';
@@ -111,11 +170,9 @@ function fyloxSendPayment() {
     onReadyForServerApproval: async function(paymentId) {
       try {
         await apiCall('POST', '/payments/approve', { paymentId });
-        console.log('[Fylox] Pago aprobado');
       } catch (err) {
-        // "ya aprobado" no es un error real — el pago puede continuar
         if (err.message && err.message.includes('ya aprobado')) {
-          console.warn('[Fylox] Pago ya aprobado previamente — continuando');
+          console.warn('[Fylox] Pago ya aprobado — continuando');
         } else {
           console.error('[Fylox] Error aprobando pago:', err.message);
         }
@@ -128,6 +185,7 @@ function fyloxSendPayment() {
         if (el) el.textContent = amt + ' π sent to ' + to;
         goTo('s8');
         const newBalance = await fetchBalance();
+        _lastKnownBalance = newBalance;
         updateUIWithUser(window._fyloxUsername || 'Pioneer', newBalance);
       } catch (err) {
         console.error('[Fylox] Error completando pago:', err.message);
@@ -142,10 +200,8 @@ function fyloxSendPayment() {
   });
 }
 
-
 // ═══════════════════════════════════════════════════
-//  PI LOGIN — Called by "Continue with Pi Network" btn
-//  Handles both Pi Browser (real auth) and demo mode
+//  PI LOGIN
 // ═══════════════════════════════════════════════════
 async function piLogin() {
   const btn = document.getElementById('pi-login-btn');
@@ -155,23 +211,22 @@ async function piLogin() {
   }
 
   if (!window.Pi) {
-    // Demo mode — navegador normal, no Pi Browser
     console.log('[Fylox] Demo mode login');
     updateUIWithUser('joaquin_vera', 100.00);
-    goTo('s5'); if (window._pendingPayTo) { setTimeout(() => goTo('s11q'), 600); window._pendingPayTo = null; }
+    _lastKnownBalance = 100.00;
+    goTo('s5');
+    if (window._pendingPayTo) { setTimeout(() => goTo('s11q'), 600); window._pendingPayTo = null; }
     return;
   }
 
   try {
     const isSandbox = new URLSearchParams(window.location.search).get('sandbox') === '1';
     Pi.init({ version: '2.0', sandbox: isSandbox });
-    console.log('[Fylox] Modo:', isSandbox ? 'Sandbox ✓' : 'Mainnet ✓');
 
     const auth = await Pi.authenticate(
       ['payments', 'username', 'wallet_address'],
       async function onIncompletePayment(incompletePayment) {
         if (!incompletePayment) return;
-        console.log('[Fylox] Pago incompleto detectado:', incompletePayment.identifier);
         try {
           await apiCall('POST', '/payments/complete', {
             paymentId: incompletePayment.identifier,
@@ -186,22 +241,25 @@ async function piLogin() {
     window._fyloxUsername = auth.user.username;
     window._fyloxWallet   = auth.user.wallet_address || null;
 
-    // Si el SDK no devolvió wallet_address, la pedimos directamente
     if (!window._fyloxWallet && window.Pi.Wallet) {
       try {
         const walletData = await Pi.Wallet.getUserMigratedWalletAddresses();
         if (walletData?.wallets?.length > 0) {
           window._fyloxWallet = walletData.wallets[0].publicKey;
-          console.log('[Fylox] Wallet obtenida via Wallet API:', window._fyloxWallet);
         }
       } catch (wErr) {
-        console.warn('[Fylox] No se pudo obtener wallet via API:', wErr.message);
+        console.warn('[Fylox] No se pudo obtener wallet:', wErr.message);
       }
     }
 
     await authenticateWithBackend(auth.accessToken, window._fyloxWallet);
     const balance = await fetchBalance();
+    _lastKnownBalance = balance;
     updateUIWithUser(auth.user.username, balance);
+
+    // Iniciar polling de saldo y notificaciones
+    startBalancePolling();
+
     goTo('s5');
     if (window._pendingPayTo) { setTimeout(() => goTo('s11q'), 600); window._pendingPayTo = null; }
 
@@ -215,7 +273,3 @@ async function piLogin() {
     }
   }
 }
-
-// ═══════════════════════════════════════════════════
-//  INIT — Auto-detect language, no interruptions
-// ═══════════════════════════════════════════════════
