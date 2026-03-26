@@ -144,7 +144,7 @@ function goTo(id) {
 if (id === 's9') {
     const wb = document.getElementById('wallet-balance');
     if (wb) {
-      const target = parseFloat(wb.dataset.value || '100') || 100;
+      const target = parseFloat(wb.dataset.value) || window._fyloxBalance || 0;
       wb.dataset.value = target;
       let start = 0;
       const duration = 1200;
@@ -192,7 +192,7 @@ if (id === 's9') {
   if (id === 's16') {
     const wb = document.getElementById('wallet-balance');
     if (wb) {
-      const target = parseFloat(wb.dataset.value || '100') || 100;
+      const target = parseFloat(wb.dataset.value) || window._fyloxBalance || 0;
       const duration = 1800;
       let startTime = null;
       const easeOutExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
