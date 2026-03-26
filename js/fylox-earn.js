@@ -160,6 +160,44 @@ async function startOracleTask(taskId) {
   }
 }
 
+// ── Foto seleccionada por el Pioneer ─────────────────────────────────────────
+let _oraclePhotoFile = null;
+let _oraclePhotoUrl  = null;
+
+function oracleSelectPhoto() {
+  const input = document.getElementById('oracle-photo-input');
+  if (input) input.click();
+}
+
+function oraclePhotoChanged(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+
+  // Validar tamaño máximo 8MB
+  if (file.size > 8 * 1024 * 1024) {
+    alert('La imagen no puede superar 8MB.');
+    return;
+  }
+
+  _oraclePhotoFile = file;
+  _oraclePhotoUrl  = null;
+
+  // Preview inmediato
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const preview = document.getElementById('oracle-photo-preview');
+    const placeholder = document.getElementById('oracle-photo-placeholder');
+    if (preview) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    }
+    if (placeholder) placeholder.style.display = 'none';
+    const label = document.getElementById('oracle-photo-label');
+    if (label) label.textContent = '📷 Photo attached — tap to change';
+  };
+  reader.readAsDataURL(file);
+}
+
 async function submitOracleTask() {
   if (!_activeTaskId) return;
 
@@ -174,35 +212,57 @@ async function submitOracleTask() {
 
   if (btn) {
     btn.disabled = true;
-    btn.textContent = 'Submitting…';
+    btn.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;gap:8px"><span style="width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite"></span>Submitting…</span>';
   }
 
   try {
-    const result = await apiCall('POST', `/oracle/tasks/${_activeTaskId}/submit`, { answer });
+    // Subir foto si hay una seleccionada
+    let photoUrl = null;
+    if (_oraclePhotoFile) {
+      if (btn) btn.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;gap:8px"><span style="width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite"></span>Uploading photo…</span>';
+      photoUrl = await uploadImage(_oraclePhotoFile);
+      _oraclePhotoUrl = photoUrl;
+    }
 
-    // Update balance
+    const result = await apiCall('POST', `/oracle/tasks/${_activeTaskId}/submit`, {
+      answer,
+      photoUrl: photoUrl || null,
+    });
+
+    // Limpiar foto para próxima tarea
+    _oraclePhotoFile = null;
+    _oraclePhotoUrl  = null;
+
+    // Actualizar saldo
     const newBalance = await fetchBalance();
     updateUIWithUser(window._fyloxUsername || 'Pioneer', newBalance);
 
-    // Show success screen
+    // Notificación si hay recompensa inmediata
+    if (result.consensusReached && typeof FyloxNotification !== 'undefined') {
+      FyloxNotification.show({
+        icon: '🌊',
+        title: '+' + result.reward + ' π ganado',
+        sub: 'Recompensa Oracle acreditada',
+        amt: '+' + result.reward + ' π',
+        sound: true,
+        type: 'reward',
+      });
+    }
+
     const msgEl = document.getElementById('oracle-success-msg');
     if (msgEl) msgEl.textContent = result.message;
     goTo('s22c');
 
-    // Reload tasks in background
     setTimeout(loadOracleTasks, 1000);
 
   } catch (err) {
     console.error('[Oracle] Submit error:', err.message);
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Submit verification →';
+      btn.innerHTML = 'Submit verification →';
       btn.style.background = 'rgba(255,77,106,.2)';
       btn.style.color = '#FF4D6A';
-      setTimeout(() => {
-        btn.style.background = '';
-        btn.style.color = '';
-      }, 2000);
+      setTimeout(() => { btn.style.background = ''; btn.style.color = ''; }, 2000);
     }
   }
 }
