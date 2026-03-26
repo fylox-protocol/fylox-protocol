@@ -29,13 +29,13 @@ const FyloxMap = (() => {
 
   // ── Capas de mapa ─────────────────────────────────
   function _streetTileLayer() {
-    // CartoDB Dark Matter — mapa oscuro sin API key
+    // OpenStreetMap estándar — máxima compatibilidad, funciona en Pi Browser
     return L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20,
+        attribution: '© OpenStreetMap contributors',
+        subdomains: 'abc',
+        maxZoom: 19,
       }
     );
   }
@@ -54,8 +54,8 @@ const FyloxMap = (() => {
   // Etiquetas de calles sobre el satelite (para ver nombres)
   function _satelliteLabelLayer() {
     return L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
-      { subdomains: 'abcd', maxZoom: 20, opacity: 0.8 }
+      'https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png',
+      { maxZoom: 20, opacity: 0.7 }
     );
   }
 
@@ -200,7 +200,10 @@ const FyloxMap = (() => {
     _satelliteLayer = _satelliteTileLayer();
 
     // Forzar recálculo de tamaño — crítico cuando el contenedor estaba oculto
+    // Múltiples intentos de invalidateSize para garantizar render
     setTimeout(() => _map.invalidateSize(), 100);
+    setTimeout(() => _map.invalidateSize(), 400);
+    setTimeout(() => _map.invalidateSize(), 800);
 
     // Punto del Pioneer
     _userMarker = L.marker([lat, lng], { icon: _userIcon(), zIndexOffset: 999 }).addTo(_map);
