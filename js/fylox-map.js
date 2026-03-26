@@ -199,6 +199,9 @@ const FyloxMap = (() => {
     _streetLayer = _streetTileLayer().addTo(_map);
     _satelliteLayer = _satelliteTileLayer();
 
+    // Forzar recálculo de tamaño — crítico cuando el contenedor estaba oculto
+    setTimeout(() => _map.invalidateSize(), 100);
+
     // Punto del Pioneer
     _userMarker = L.marker([lat, lng], { icon: _userIcon(), zIndexOffset: 999 }).addTo(_map);
 
@@ -511,15 +514,24 @@ goTo = function(id) {
   _origGoToMap(id);
 
   if (id === 's13') {
-    setTimeout(() => FyloxMap.loadMerchantsWithLocation(), 150);
+    // Esperar 2 frames para que el display:flex sea efectivo
+    // y el contenedor tenga dimensiones reales antes de init Leaflet
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        FyloxMap.loadMerchantsWithLocation();
+      });
+    });
   }
+
   if (id === 's-register-merchant') {
-    setTimeout(() => {
-      const c = FyloxMap.getUserCoords();
-      FyloxMap.initRegisterMap(
-        c.lat || -34.6037,
-        c.lng || -58.3816
-      );
-    }, 200);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const c = FyloxMap.getUserCoords();
+        FyloxMap.initRegisterMap(
+          c.lat || -34.6037,
+          c.lng || -58.3816
+        );
+      });
+    });
   }
 };
