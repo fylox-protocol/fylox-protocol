@@ -89,7 +89,7 @@ async function apiCall(method, path, body, _isRetry = false) {
 
 // Upload de imagen a Cloudinary (sin pasar por nuestro backend)
 async function uploadImage(file) {
-  const CLOUD_NAME   = 'fylox';
+  const CLOUD_NAME   = 'djjcwluuo';
   const UPLOAD_PRESET = 'oracle_tasks';
 
   const formData = new FormData();
