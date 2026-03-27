@@ -1,21 +1,52 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX MAP ENGINE v3 — Canvas nativo
-//  Sin dependencias externas, funciona en Pi Browser
-//  - Mapa de fondo con gradiente dark
+//  FYLOX MAP ENGINE v4 — Leaflet.js + OpenStreetMap
+//  Tiles reales de OSM, funciona en Pi Browser
+//  - Mapa real con OpenStreetMap
 //  - Punto azul pulsante del Pioneer
 //  - Pines de comercios con distancia real
-//  - Toggle satelite via iframe de OpenStreetMap
 //  - Geolocalización real
 // ═══════════════════════════════════════════════════
 
+// Inyectar Leaflet CSS + JS si no están presentes
+(function _loadLeaflet(cb) {
+  if (window.L) { cb(); return; }
+
+  const link = document.createElement('link');
+  link.rel  = 'stylesheet';
+  link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+  document.head.appendChild(link);
+
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  script.onload = cb;
+  document.head.appendChild(script);
+})(_onLeafletReady);
+
+// Guardamos las funciones que dependen de L para ejecutar después de que cargue
+const _pendingLeafletInits = [];
+function _onLeafletReady() {
+  _leafletReady = true;
+  _pendingLeafletInits.forEach(fn => fn());
+  _pendingLeafletInits.length = 0;
+}
+let _leafletReady = false;
+
+function _whenLeaflet(fn) {
+  if (_leafletReady || window.L) { fn(); }
+  else { _pendingLeafletInits.push(fn); }
+}
+
 const FyloxMap = (() => {
 
-  let _userLat        = null;
-  let _userLng        = null;
-  let _registerLat    = null;
-  let _registerLng    = null;
-  let _pulseAnim      = null;
-  let _pulsePhase     = 0;
+  let _userLat       = null;
+  let _userLng       = null;
+  let _registerLat   = null;
+  let _registerLng   = null;
+  let _mainMap       = null;   // instancia Leaflet del mapa principal
+  let _registerMap   = null;   // instancia Leaflet del mapa de registro
+  let _userMarker    = null;   // marcador del Pioneer
+  let _merchantMarkers = [];   // marcadores de comercios
+  let _registerMarker  = null; // marcador arrastrable en registro
 
   // ── Haversine ─────────────────────────────────────
   function _haversineKm(lat1, lng1, lat2, lng2) {
@@ -29,261 +60,282 @@ const FyloxMap = (() => {
 
   function _formatDist(km) {
     if (km < 0.05) return 'Aquí';
-    if (km < 1)    return Math.round(km*1000) + 'm';
+    if (km < 1)    return Math.round(km * 1000) + 'm';
     if (km < 10)   return km.toFixed(1) + 'km';
     return Math.round(km) + 'km';
   }
 
-  // ── Proyección lat/lng → píxeles en el canvas ─────
-  // Mercator simple centrada en la posición del usuario
-  function _project(lat, lng, centerLat, centerLng, scale, W, H) {
-    const x = W/2 + (lng - centerLng) * scale;
-    const y = H/2 - (lat - centerLat) * scale * 1.3;
-    return { x, y };
+  // ── Ícono del Pioneer (punto azul pulsante via CSS) ─
+  function _userIcon() {
+    return L.divIcon({
+      className: '',
+      html: `
+        <div style="position:relative;width:36px;height:36px">
+          <div style="
+            position:absolute;inset:0;border-radius:50%;
+            background:rgba(0,212,232,0.25);
+            animation:fyloxPulse 1.8s ease-out infinite;
+          "></div>
+          <div style="
+            position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+            width:16px;height:16px;border-radius:50%;
+            background:#00D4E8;border:2.5px solid #fff;
+            box-shadow:0 0 10px rgba(0,212,232,0.7);
+          "></div>
+          <div style="
+            position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+            font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
+            text-shadow:0 1px 3px #000;
+          ">Vos</div>
+        </div>`,
+      iconSize:   [36, 54],
+      iconAnchor: [18, 18],
+    });
   }
 
-  // ── Dibujar el mapa en canvas ─────────────────────
-  function _drawMap(canvas, merchants) {
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width;
-    const H = canvas.height;
-    const scale = 4000; // píxeles por grado (~1km ≈ 111px a escala 1)
-
-    ctx.clearRect(0, 0, W, H);
-
-    // Fondo
-    const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
-    bg.addColorStop(0,   '#0F1022');
-    bg.addColorStop(0.6, '#0A0B14');
-    bg.addColorStop(1,   '#060608');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // Grid de calles simulado
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < W; i += 40) {
-      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
-    }
-    for (let j = 0; j < H; j += 40) {
-      ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(W, j); ctx.stroke();
-    }
-
-    // Calles principales simuladas
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 2;
-    [H*0.3, H*0.5, H*0.7].forEach(y => {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  // ── Ícono de comercio ─────────────────────────────
+  function _merchantIcon(merchant) {
+    const isOpen  = merchant.status === 'open';
+    const color   = isOpen ? '#00D4E8' : '#666';
+    const bg      = isOpen ? 'rgba(0,212,232,0.18)' : 'rgba(100,100,100,0.18)';
+    const dist    = merchant.distanceText || '';
+    return L.divIcon({
+      className: '',
+      html: `
+        <div style="position:relative;text-align:center">
+          <div style="
+            width:32px;height:32px;border-radius:50%;
+            background:${bg};border:2px solid ${color};
+            display:flex;align-items:center;justify-content:center;
+            font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,0.4);
+          ">${merchant.icon || '🏪'}</div>
+          ${dist ? `<div style="
+            margin-top:2px;font-size:9px;font-weight:700;
+            color:${color};text-shadow:0 1px 2px #000;white-space:nowrap;
+          ">${dist}</div>` : ''}
+        </div>`,
+      iconSize:   [32, dist ? 50 : 36],
+      iconAnchor: [16, 16],
     });
-    [W*0.25, W*0.5, W*0.75].forEach(x => {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+
+  // ── Ícono del pin de registro ─────────────────────
+  function _registerIcon() {
+    return L.divIcon({
+      className: '',
+      html: `
+        <div style="text-align:center">
+          <div style="font-size:28px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">📍</div>
+          <div style="font-size:10px;font-weight:700;color:#8B5CF6;
+            text-shadow:0 1px 2px #000;white-space:nowrap;margin-top:2px">Tu comercio</div>
+        </div>`,
+      iconSize:   [40, 50],
+      iconAnchor: [12, 28],
     });
+  }
 
-    const cLat = _userLat || -34.6037;
-    const cLng = _userLng || -58.3816;
+  // ── Inyectar CSS de animación pulse ───────────────
+  function _injectCSS() {
+    if (document.getElementById('fylox-map-css')) return;
+    const style = document.createElement('style');
+    style.id = 'fylox-map-css';
+    style.textContent = `
+      @keyframes fyloxPulse {
+        0%   { transform:scale(1);   opacity:.8; }
+        70%  { transform:scale(2.2); opacity:0;  }
+        100% { transform:scale(1);   opacity:0;  }
+      }
+      .leaflet-container {
+        background: #0A0B14 !important;
+        border-radius: 16px;
+        font-family: inherit;
+      }
+      .fylox-popup .leaflet-popup-content-wrapper {
+        background: rgba(13,14,21,0.95);
+        border: 1px solid rgba(0,212,232,0.3);
+        border-radius: 12px;
+        color: #fff;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      }
+      .fylox-popup .leaflet-popup-tip {
+        background: rgba(13,14,21,0.95);
+      }
+      .fylox-popup .leaflet-popup-close-button {
+        color: rgba(255,255,255,0.5) !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
-    // Comercios
+  // ── Inicializar mapa principal ────────────────────
+  function initMainMap(lat, lng, merchants) {
+    _injectCSS();
+    _whenLeaflet(() => _initMainMapLeaflet(lat, lng, merchants));
+  }
+
+  function _initMainMapLeaflet(lat, lng, merchants) {
+    const container = document.getElementById('fylox-map-container');
+    if (!container) return;
+
+    container.style.height  = '260px';
+    container.style.borderRadius = '16px';
+    container.style.overflow = 'hidden';
+    container.style.position = 'relative';
+    container.innerHTML = '';
+
+    // Destruir mapa anterior si existe
+    if (_mainMap) { _mainMap.remove(); _mainMap = null; }
+    _merchantMarkers = [];
+
+    // Crear mapa Leaflet
+    _mainMap = L.map(container, {
+      zoomControl:        true,
+      attributionControl: false,
+      tap:                true,
+    }).setView([lat, lng], 16);
+
+    // Tiles OSM con estilo oscuro (CartoDB Dark Matter)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(_mainMap);
+
+    // Atribución mínima
+    L.control.attribution({ prefix: false })
+      .addAttribution('© <a href="https://www.openstreetmap.org/copyright" style="color:#00D4E8">OSM</a>')
+      .addTo(_mainMap);
+
+    // Marcador del Pioneer
+    _userMarker = L.marker([lat, lng], { icon: _userIcon(), zIndexOffset: 1000 })
+      .addTo(_mainMap);
+
+    // Marcadores de comercios
     if (merchants && merchants.length > 0) {
       merchants.forEach(m => {
         if (!m.location?.coordinates) return;
-        const [lng, lat] = m.location.coordinates;
-        if (lat === 0 && lng === 0) return;
+        const [mLng, mLat] = m.location.coordinates;
+        if (mLat === 0 && mLng === 0) return;
 
-        const p = _project(lat, lng, cLat, cLng, scale, W, H);
-        if (p.x < -20 || p.x > W+20 || p.y < -20 || p.y > H+20) return;
+        const marker = L.marker([mLat, mLng], { icon: _merchantIcon(m) })
+          .addTo(_mainMap);
 
-        const isOpen  = m.status === 'open';
-        const color   = isOpen ? '#00D4E8' : '#666';
-        const bgColor = isOpen ? 'rgba(0,212,232,0.15)' : 'rgba(100,100,100,0.15)';
+        const isOpen = m.status === 'open';
+        const sc     = isOpen ? '#00E090' : m.status === 'busy' ? '#FFB700' : '#FF4D6A';
+        const sl     = isOpen ? 'Abierto'  : m.status === 'busy' ? 'Ocupado' : 'Cerrado';
 
-        // Sombra del pin
-        ctx.beginPath();
-        ctx.arc(p.x, p.y + 2, 10, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.fill();
+        marker.bindPopup(`
+          <div style="min-width:140px">
+            <div style="font-size:22px;margin-bottom:4px">${m.icon || '🏪'}</div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:2px">${m.name}</div>
+            <div style="font-size:11px;color:${sc};font-weight:600;margin-bottom:6px">${sl}</div>
+            ${m.distanceText ? `<div style="font-size:11px;color:#00D4E8;font-weight:700;margin-bottom:8px">📍 ${m.distanceText}</div>` : ''}
+            <button onclick="FyloxMap._selectFromMap('${m._id}')"
+              style="width:100%;padding:8px;border:none;border-radius:8px;
+                background:linear-gradient(135deg,#00D4E8,#00AACC);
+                color:#000;font-weight:700;font-size:12px;cursor:pointer">
+              Pagar aquí →
+            </button>
+          </div>`, { className: 'fylox-popup' });
 
-        // Pin fondo
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 14, 0, Math.PI*2);
-        ctx.fillStyle = bgColor;
-        ctx.fill();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Emoji del comercio
-        ctx.font = '13px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(m.icon || '🏪', p.x, p.y);
-
-        // Distancia
-        if (_userLat && m.distanceText) {
-          ctx.font = 'bold 9px Inter, Arial';
-          ctx.fillStyle = color;
-          ctx.textAlign = 'center';
-          ctx.fillText(m.distanceText, p.x, p.y + 22);
-        }
+        _merchantMarkers.push(marker);
       });
     }
-
-    // Círculo de radio del usuario
-    ctx.beginPath();
-    ctx.arc(W/2, H/2, 60, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(0,212,232,0.05)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0,212,232,0.15)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Punto del usuario (animado externamente)
-    const pulse = Math.abs(Math.sin(_pulsePhase)) * 0.4 + 0.6;
-
-    // Aro exterior pulsante
-    ctx.beginPath();
-    ctx.arc(W/2, H/2, 14 + (1-pulse)*6, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(0,212,232,${0.15 * pulse})`;
-    ctx.fill();
-
-    // Aro medio
-    ctx.beginPath();
-    ctx.arc(W/2, H/2, 10, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(0,212,232,0.25)';
-    ctx.fill();
-
-    // Punto central
-    ctx.beginPath();
-    ctx.arc(W/2, H/2, 7, 0, Math.PI*2);
-    ctx.fillStyle = '#00D4E8';
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Label "Vos"
-    ctx.font = 'bold 10px Inter, Arial';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.fillText('Vos', W/2, H/2 - 22);
-
-    // Brújula
-    ctx.font = '14px Arial';
-    ctx.fillText('🧭', W - 22, 22);
   }
 
-  // ── Inicializar canvas map ────────────────────────
-  function initMainMap(lat, lng, merchants) {
-    const container = document.getElementById('fylox-map-container');
+  // Llamado desde el botón del popup
+  function _selectFromMap(id) {
+    const m = window._merchantsData?.find(x => x._id === id);
+    if (!m) return;
+    window._currentMerchant     = m.name;
+    window._currentMerchantPi   = m.piAddress;
+    window._currentMerchantIcon = m.icon;
+    goTo('s14');
+  }
+
+  // ── Mapa de registro con pin arrastrable ──────────
+  function initRegisterMap(lat, lng) {
+    _injectCSS();
+    _whenLeaflet(() => _initRegisterMapLeaflet(lat, lng));
+  }
+
+  function _initRegisterMapLeaflet(lat, lng) {
+    const container = document.getElementById('fylox-register-map');
     if (!container) return;
 
+    container.style.height  = '220px';
+    container.style.borderRadius = '16px';
+    container.style.overflow = 'hidden';
     container.innerHTML = '';
 
-    const canvas = document.createElement('canvas');
-    // offsetWidth es 0 si el contenedor estaba oculto — usar app width como fallback
-    const appEl = document.getElementById('app');
-    const W = container.offsetWidth || appEl?.offsetWidth || window.innerWidth || 360;
-    canvas.width  = W;
-    canvas.height = 220;
-    container.style.height = '220px';
-    canvas.style.cssText = 'width:100%;height:100%;border-radius:16px;display:block;cursor:grab;';
-    container.appendChild(canvas);
+    if (_registerMap) { _registerMap.remove(); _registerMap = null; }
 
-    // Botón toggle vista satelite
-    const toggleBtn = document.createElement('button');
-    toggleBtn.id        = 'map-layer-toggle';
-    toggleBtn.innerHTML = '🛰️ Satelite';
-    toggleBtn.style.cssText = `
-      position:absolute;top:10px;right:10px;z-index:10;
-      background:rgba(13,14,21,.9);border:1px solid rgba(0,212,232,.3);
-      border-radius:10px;padding:5px 10px;font-size:11px;font-weight:600;
-      color:rgba(255,255,255,.8);cursor:pointer;backdrop-filter:blur(8px);
+    _registerLat = lat;
+    _registerLng = lng;
+
+    _registerMap = L.map(container, {
+      zoomControl:        true,
+      attributionControl: false,
+      tap:                true,
+    }).setView([lat, lng], 17);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(_registerMap);
+
+    // Pin arrastrable
+    _registerMarker = L.marker([lat, lng], {
+      icon:      _registerIcon(),
+      draggable: true,
+    }).addTo(_registerMap);
+
+    _registerMarker.on('dragend', async () => {
+      const pos = _registerMarker.getLatLng();
+      _registerLat = pos.lat;
+      _registerLng = pos.lng;
+      await _reverseGeocode(_registerLat, _registerLng);
+      if (navigator.vibrate) navigator.vibrate(30);
+    });
+
+    // También permite tap para mover el pin
+    _registerMap.on('click', async (e) => {
+      _registerLat = e.latlng.lat;
+      _registerLng = e.latlng.lng;
+      _registerMarker.setLatLng(e.latlng);
+      await _reverseGeocode(_registerLat, _registerLng);
+      if (navigator.vibrate) navigator.vibrate(30);
+    });
+
+    // Nota de instrucción
+    const note = document.createElement('div');
+    note.style.cssText = `
+      position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+      background:rgba(13,14,21,0.85);border:1px solid rgba(139,92,246,0.4);
+      border-radius:8px;padding:5px 12px;font-size:10px;color:rgba(255,255,255,0.6);
+      pointer-events:none;z-index:1000;white-space:nowrap;backdrop-filter:blur(6px);
     `;
-    toggleBtn.onclick = () => _toggleSatellite(lat, lng, canvas, toggleBtn);
-    container.appendChild(toggleBtn);
-
-    // Animación de pulso
-    if (_pulseAnim) cancelAnimationFrame(_pulseAnim);
-    function animate() {
-      _pulsePhase += 0.05;
-      _drawMap(canvas, merchants || []);
-      _pulseAnim = requestAnimationFrame(animate);
-    }
-    animate();
-
-    // Touch para ver comercio cercano al tap
-    canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const tx = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const ty = (e.clientY - rect.top)  * (canvas.height / rect.height);
-      _onMapTap(tx, ty, canvas, merchants || []);
-    });
+    note.textContent = 'Tocá o arrastrá el pin para mover';
+    container.appendChild(note);
   }
 
-  // ── Toggle a vista satelite (iframe OSM) ──────────
-  let _satelliteMode = false;
-  function _toggleSatellite(lat, lng, canvas, btn) {
-    _satelliteMode = !_satelliteMode;
-    const container = document.getElementById('fylox-map-container');
-    if (!container) return;
-
-    if (_satelliteMode) {
-      // Mostrar iframe de OpenStreetMap
-      if (_pulseAnim) cancelAnimationFrame(_pulseAnim);
-      canvas.style.display = 'none';
-      const iframe = document.createElement('iframe');
-      iframe.id = 'sat-iframe';
-      iframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.005},${lat-0.004},${lng+0.005},${lat+0.004}&layer=hot&marker=${lat},${lng}`;
-      iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:16px;display:block;';
-      iframe.setAttribute('loading', 'lazy');
-      container.insertBefore(iframe, btn);
-      btn.innerHTML = '🗺️ Mapa';
-      btn.style.borderColor = 'rgba(0,212,232,.6)';
-      btn.style.color = '#00D4E8';
-    } else {
-      // Volver al canvas
-      const iframe = document.getElementById('sat-iframe');
-      if (iframe) iframe.remove();
-      canvas.style.display = 'block';
-      btn.innerHTML = '🛰️ Satelite';
-      btn.style.borderColor = 'rgba(0,212,232,.3)';
-      btn.style.color = 'rgba(255,255,255,.8)';
-      // Reiniciar animación
-      function animate() {
-        _pulsePhase += 0.05;
-        _drawMap(canvas, window._merchantsData || []);
-        _pulseAnim = requestAnimationFrame(animate);
-      }
-      animate();
-    }
-    if (navigator.vibrate) navigator.vibrate(20);
-  }
-
-  // ── Tap en el mapa → seleccionar comercio cercano ─
-  function _onMapTap(tx, ty, canvas, merchants) {
-    const W = canvas.width;
-    const H = canvas.height;
-    const scale = 4000;
-    const cLat = _userLat || -34.6037;
-    const cLng = _userLng || -58.3816;
-
-    let closest = null;
-    let minDist = 30; // px
-
-    merchants.forEach(m => {
-      if (!m.location?.coordinates) return;
-      const [lng, lat] = m.location.coordinates;
-      if (lat === 0 && lng === 0) return;
-      const p = _project(lat, lng, cLat, cLng, scale, W, H);
-      const d = Math.sqrt((p.x - tx)**2 + (p.y - ty)**2);
-      if (d < minDist) { minDist = d; closest = m; }
-    });
-
-    if (closest) {
-      window._currentMerchant     = closest.name;
-      window._currentMerchantPi   = closest.piAddress;
-      window._currentMerchantIcon = closest.icon;
-      goTo('s14');
-    }
+  // ── Reverse geocoding con Nominatim ───────────────
+  async function _reverseGeocode(lat, lng) {
+    try {
+      const r = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+        { headers: { 'Accept-Language': 'es', 'User-Agent': 'Fylox/1.0' } }
+      );
+      const d = await r.json();
+      const a = d.address || {};
+      const addrEl    = document.getElementById('register-address');
+      const cityEl    = document.getElementById('register-city');
+      const countryEl = document.getElementById('register-country');
+      const street    = [a.road, a.house_number].filter(Boolean).join(' ');
+      if (addrEl)    addrEl.value    = street || d.display_name?.split(',')[0] || '';
+      if (cityEl)    cityEl.value    = a.city || a.town || a.village || '';
+      if (countryEl) countryEl.value = a.country || '';
+    } catch (e) { console.warn('[Map] Geocoding:', e.message); }
   }
 
   // ── Geolocalización ───────────────────────────────
@@ -296,99 +348,11 @@ const FyloxMap = (() => {
         onSuccess?.(_userLat, _userLng, pos.coords.accuracy);
       },
       err => {
-        const m = { 1:'Permiso denegado.', 2:'GPS no disponible.', 3:'Tiempo agotado.' };
+        const m = { 1: 'Permiso denegado.', 2: 'GPS no disponible.', 3: 'Tiempo agotado.' };
         onError?.(m[err.code] || 'Error de ubicación');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
     );
-  }
-
-  // ── Mapa de registro — canvas con pin arrastrable ─
-  function initRegisterMap(lat, lng) {
-    const container = document.getElementById('fylox-register-map');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const canvas = document.createElement('canvas');
-    // offsetWidth es 0 si el contenedor estaba oculto — usar app width como fallback
-    const appEl = document.getElementById('app');
-    const W = container.offsetWidth || appEl?.offsetWidth || window.innerWidth || 360;
-    canvas.width  = W;
-    canvas.height = 220;
-    container.style.height = '220px';
-    canvas.style.cssText = 'width:100%;height:100%;border-radius:16px;display:block;cursor:crosshair;';
-    container.appendChild(canvas);
-
-    _registerLat = lat;
-    _registerLng = lng;
-
-    function draw() {
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height;
-      const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
-      bg.addColorStop(0, '#0F1022'); bg.addColorStop(1, '#060608');
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
-      for (let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
-      for (let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
-
-      // Cruz central
-      ctx.strokeStyle = 'rgba(139,92,246,0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
-      ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Pin del comercio
-      ctx.beginPath(); ctx.arc(W/2, H/2, 16, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(139,92,246,0.2)'; ctx.fill();
-      ctx.strokeStyle = '#8B5CF6'; ctx.lineWidth = 2.5; ctx.stroke();
-      ctx.font = '16px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('📍', W/2, H/2);
-
-      ctx.font = 'bold 11px Inter, Arial'; ctx.fillStyle = '#8B5CF6';
-      ctx.fillText('Tu comercio', W/2, H/2 + 28);
-      ctx.font = '10px Inter, Arial'; ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.fillText('Tocá para mover el pin', W/2, H - 14);
-    }
-
-    draw();
-
-    // Tap mueve el pin y hace reverse geocoding
-    canvas.addEventListener('click', async (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const tx = (e.clientX - rect.left) / rect.width;
-      const ty = (e.clientY - rect.top)  / rect.height;
-      const scale = 4000;
-      const W = canvas.width, H = canvas.height;
-      // Convertir píxeles relativos a delta lat/lng
-      const deltaLng = (tx - 0.5) * (W / scale);
-      const deltaLat = -(ty - 0.5) * (H / scale / 1.3);
-      _registerLat = lat + deltaLat;
-      _registerLng = lng + deltaLng;
-      draw();
-      await _reverseGeocode(_registerLat, _registerLng);
-      if (navigator.vibrate) navigator.vibrate(30);
-    });
-  }
-
-  // ── Reverse geocoding con Nominatim ───────────────
-  async function _reverseGeocode(lat, lng) {
-    try {
-      const r = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
-        { headers: { 'Accept-Language':'es','User-Agent':'Fylox/1.0' } }
-      );
-      const d = await r.json();
-      const a = d.address || {};
-      const addrEl    = document.getElementById('register-address');
-      const cityEl    = document.getElementById('register-city');
-      const countryEl = document.getElementById('register-country');
-      const street    = [a.road, a.house_number].filter(Boolean).join(' ');
-      if (addrEl)    addrEl.value    = street || d.display_name?.split(',')[0] || '';
-      if (cityEl)    cityEl.value    = a.city || a.town || a.village || '';
-      if (countryEl) countryEl.value = a.country || '';
-    } catch(e) { console.warn('[Map] Geocoding:', e.message); }
   }
 
   // ── Cargar comercios con geo ──────────────────────
@@ -398,7 +362,8 @@ const FyloxMap = (() => {
 
     if (listEl) listEl.innerHTML = `
       <div style="padding:32px;text-align:center;color:var(--t2);font-size:13px">
-        <div style="width:24px;height:24px;border:2px solid var(--c);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px"></div>
+        <div style="width:24px;height:24px;border:2px solid var(--c);border-top-color:transparent;
+          border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px"></div>
         Obteniendo ubicación…
       </div>`;
 
@@ -408,18 +373,25 @@ const FyloxMap = (() => {
           statusEl.innerHTML = `📍 ±${Math.round(accuracy)}m`;
           statusEl.style.color = '#00E090';
         }
-
         try {
           const data = await apiCall('GET', `/merchants?lat=${lat}&lng=${lng}&radius=50`);
           window._merchantsData = data.merchants || [];
+          // Calcular distancias
+          window._merchantsData.forEach(m => {
+            if (m.location?.coordinates) {
+              const [mLng, mLat] = m.location.coordinates;
+              const km = _haversineKm(lat, lng, mLat, mLng);
+              m.distanceKm   = km;
+              m.distanceText = _formatDist(km);
+            }
+          });
           renderMerchantsWithDistance(window._merchantsData);
-          // Inicializar canvas con comercios
           requestAnimationFrame(() => initMainMap(lat, lng, window._merchantsData));
 
           const counterEl = document.getElementById('nearby-count');
           if (counterEl && data.total > 0)
             counterEl.textContent = `${data.total} comercios Pi cerca tuyo`;
-        } catch(err) {
+        } catch (err) {
           initMainMap(lat, lng, []);
           if (listEl) listEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--t2);font-size:13px">No se pudieron cargar los comercios.</div>`;
         }
@@ -431,7 +403,7 @@ const FyloxMap = (() => {
           window._merchantsData = data.merchants || [];
           renderMerchantsWithDistance(window._merchantsData);
           initMainMap(-34.6037, -58.3816, window._merchantsData);
-        } catch(err) {
+        } catch (err) {
           initMainMap(-34.6037, -58.3816, []);
           if (listEl) listEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--t2);font-size:13px">No se pudieron cargar los comercios.</div>`;
         }
@@ -439,7 +411,7 @@ const FyloxMap = (() => {
     );
   }
 
-  // ── Render lista ──────────────────────────────────
+  // ── Render lista de comercios ─────────────────────
   function renderMerchantsWithDistance(merchants) {
     const list = document.getElementById('merchant-list');
     if (!list) return;
@@ -469,7 +441,7 @@ const FyloxMap = (() => {
         <div class="ti" style="background:rgba(0,212,232,.08);font-size:22px">${m.icon}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:600">${m.name}${ver}</div>
-          <div style="font-size:11px;color:var(--t2);margin-top:2px">${CAT[m.category]||m.category}${city}</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px">${CAT[m.category] || m.category}${city}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
           <div style="padding:3px 8px;border-radius:8px;background:${sb};font-size:10px;font-weight:700;color:${sc}">${sl}</div>
@@ -497,8 +469,17 @@ const FyloxMap = (() => {
   function getRegisterCoords() { return { lat: _registerLat, lng: _registerLng }; }
   function getUserCoords()      { return { lat: _userLat,     lng: _userLng };     }
 
-  return { loadMerchantsWithLocation, initRegisterMap, renderMerchantsWithDistance,
-           selectMerchant, onMerchantRowClick, getUserCoords, getRegisterCoords };
+  return {
+    loadMerchantsWithLocation,
+    initMainMap,
+    initRegisterMap,
+    renderMerchantsWithDistance,
+    selectMerchant,
+    onMerchantRowClick,
+    getUserCoords,
+    getRegisterCoords,
+    _selectFromMap,
+  };
 })();
 
 // ── Hook goTo ─────────────────────────────────────
