@@ -274,3 +274,63 @@ async function piLogin() {
   }
 }
 
+
+// RETIRO A2U //
+
+async function withdrawToWallet() {
+  const balance = window._fyloxBalance || 0;
+  if (balance <= 0) {
+    alert('No tienes saldo disponible para retirar.');
+    return;
+  }
+
+  const walletAddress = window._fyloxWallet || null;
+  if (!walletAddress) {
+    alert('No se encontró tu dirección de billetera Pi.');
+    return;
+  }
+
+  if (!window.Pi) {
+    // Demo mode
+    alert(`Retiro de ${balance.toFixed(2)} π a ${walletAddress} (modo demo).`);
+    return;
+  }
+
+  Pi.createPayment(
+    {
+      amount: balance,
+      memo: 'Retiro a billetera Pi',
+      metadata: { type: 'withdraw', walletAddress },
+    },
+    {
+      onReadyForServerApproval: async function (paymentId) {
+        try {
+          await apiCall('POST', '/payments/approve', { paymentId });
+        } catch (err) {
+          if (err.message && err.message.includes('ya aprobado')) {
+            console.warn('[Fylox] Retiro ya aprobado — continuando');
+          } else {
+            console.error('[Fylox] Error aprobando retiro:', err.message);
+          }
+        }
+      },
+      onReadyForServerCompletion: async function (paymentId, txid) {
+        try {
+          await apiCall('POST', '/payments/complete', { paymentId, txid });
+          alert(`✅ ${balance.toFixed(2)} π retirado exitosamente a tu billetera.`);
+          const newBalance = await fetchBalance();
+          _lastKnownBalance = newBalance;
+          updateUIWithUser(window._fyloxUsername || 'Pioneer', newBalance);
+        } catch (err) {
+          console.error('[Fylox] Error completando retiro:', err.message);
+        }
+      },
+      onCancel: function (paymentId) {
+        console.log('[Fylox] Retiro cancelado:', paymentId);
+      },
+      onError: function (error) {
+        console.error('[Fylox] Error Pi SDK en retiro:', error);
+      },
+    }
+  );
+  
