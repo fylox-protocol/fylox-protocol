@@ -1998,5 +1998,19 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<div id="ai-fab" onclick="abrirPanelIA()" style="position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #0A0F1E, #111827); border: 2px solid var(--c); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0, 212, 232, 0.4); cursor: pointer; z-index: 9999; transition: transform 0.2s;">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+  </svg>
+</div>
+
+<script>
+  function abrirPanelIA() {
+    alert("✨ Conserje IA (Claude): '¡Hola! En el próximo paso construiremos mi panel de chat.'");
+  }
+</script>
+
+  
 </body>
 </html>
