@@ -2089,19 +2089,36 @@ if ('serviceWorker' in navigator) {
     });
   }
 
-
   // ========================================== //
-  // ENVIAR MENSAJE Y MOSTRAR RESPUESTA         //
+  // 1. FUNCIÓN DE VOZ (Cuerdas Vocales)        //
   // ========================================== //
-  const btnSend = document.getElementById('ai-send-btn');
-  const chatBox = document.getElementById('ai-chat-box');
+  function hablarFyl(texto) {
+    // Quitamos asteriscos y símbolos que Gemini usa para negrita
+    const textoLimpio = texto.replace(/\*/g, '');
+    
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(textoLimpio);
 
-  function enviarMensaje() {
+    utterance.lang = 'es-AR'; // Voz en español
+    utterance.rate = 1.0;     // Velocidad normal
+    utterance.pitch = 1.0;    // Tono normal
+    utterance.volume = 1.0;   // Volumen al máximo
+
+    // Cancelamos cualquier voz anterior para que no se pisen
+    synth.cancel();
+    synth.speak(utterance);
+  }
+
+  
+    // ========================================== //
+  // 2. ENVIAR MENSAJE AL BACKEND REAL (Render) //
+  // ========================================== //
+  async function enviarMensaje() {
     if(!inputChat) return;
     const texto = inputChat.value.trim();
     if (!texto) return; 
 
-    // Dibujar burbuja del mensaje del usuario
+    // Dibujar burbuja del Pioneer (Usuario)
     const userMsg = document.createElement('div');
     userMsg.style.cssText = 'background: var(--c); color: #000; padding: 12px 16px; border-radius: 16px; border-bottom-right-radius: 4px; font-size: 14px; max-width: 85%; align-self: flex-end; line-height: 1.5; font-weight: 600; margin-top: 8px;';
     userMsg.textContent = texto;
@@ -2110,34 +2127,46 @@ if ('serviceWorker' in navigator) {
     inputChat.value = '';
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // Dibujar burbuja temporal de "Fyl está escribiendo..."
+    // Dibujar indicador "Fyl está pensando..."
     const fylTyping = document.createElement('div');
     fylTyping.id = 'fyl-typing';
     fylTyping.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: rgba(255,255,255,0.5); font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; font-style: italic; margin-top: 8px;';
-    fylTyping.textContent = 'Fyl está escribiendo...';
+    fylTyping.textContent = 'Fyl está pensando...';
     chatBox.appendChild(fylTyping);
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // Simular respuesta de la IA (Hasta conectar con Render/Claude)
-    setTimeout(() => {
+    try {
+      // Conexión con tu servidor en Render
+      const response = await fetch('https://fylox-backend.onrender.com/api/fyl/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: texto })
+      });
+
+      const data = await response.json();
+      
       const typingIndicator = document.getElementById('fyl-typing');
       if (typingIndicator) typingIndicator.remove();
 
+      const respuestaFinal = data.reply || "Perdón, tuve un problema al procesar eso.";
+
+      // ¡ORDEN DE HABLAR! 🎤
+      hablarFyl(respuestaFinal);
+
+      // Dibujar respuesta de Fyl
       const fylMsg = document.createElement('div');
       fylMsg.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: #fff; font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; margin-top: 8px;';
-      fylMsg.innerHTML = '¡Mensaje recibido! Mi cerebro (Claude) todavía no está conectado al servidor, pero te escuché decir: <br><br><b>"' + texto + '"</b>';
+      fylMsg.innerHTML = respuestaFinal.replace(/\n/g, '<br>');
       chatBox.appendChild(fylMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
-    }, 1500);
+
+    } catch (error) {
+      console.error('Error:', error);
+      if (document.getElementById('fyl-typing')) document.getElementById('fyl-typing').remove();
+      alert('Fyl no pudo conectar con el servidor. Revisá que Render esté encendido.');
+    }
   }
 
-  // Activar envío al tocar la flecha (➤) o apretar Enter
-  if (btnSend) btnSend.addEventListener('click', enviarMensaje);
-  if (inputChat) {
-    inputChat.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') enviarMensaje();
-    });
-  }
 </script>
 
 
