@@ -2074,7 +2074,57 @@ if ('serviceWorker' in navigator) {
       alert('Tu navegador no soporta el reconocimiento de voz nativo.');
     });
   }
-  
+
+  // 4. LÓGICA DE ENVÍO DE MENSAJES (El botón ➤)
+  const btnSend = document.getElementById('ai-send-btn');
+  const chatBox = document.getElementById('ai-chat-box');
+
+  function enviarMensaje() {
+    const texto = inputChat.value.trim();
+    if (!texto) return; // Si no hay texto, no hace nada
+
+    // 1. Dibujar la burbuja del Pioneer (Usuario)
+    const userMsg = document.createElement('div');
+    userMsg.style.cssText = 'background: var(--c); color: #000; padding: 12px 16px; border-radius: 16px; border-bottom-right-radius: 4px; font-size: 14px; max-width: 85%; align-self: flex-end; line-height: 1.5; font-weight: 600; margin-top: 8px;';
+    userMsg.textContent = texto;
+    chatBox.appendChild(userMsg);
+
+    // Limpiar la barra y bajar el scroll
+    inputChat.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 2. Dibujar la burbuja de "Fyl está pensando..."
+    const fylTyping = document.createElement('div');
+    fylTyping.id = 'fyl-typing';
+    fylTyping.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: rgba(255,255,255,0.5); font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; font-style: italic; margin-top: 8px;';
+    fylTyping.textContent = 'Fyl está escribiendo...';
+    chatBox.appendChild(fylTyping);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 3. Simulación temporal (Hasta que conectemos a Claude)
+    setTimeout(() => {
+      // Borramos el mensaje de "escribiendo..."
+      const typingIndicator = document.getElementById('fyl-typing');
+      if (typingIndicator) typingIndicator.remove();
+
+      // Creamos la burbuja de respuesta de Fyl
+      const fylMsg = document.createElement('div');
+      fylMsg.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: #fff; font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; margin-top: 8px;';
+      fylMsg.innerHTML = '¡Mensaje recibido! Mi cerebro (Claude) todavía no está conectado al servidor, pero te escuché decir: <br><br><b>"' + texto + '"</b>';
+      chatBox.appendChild(fylMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }, 1500);
+  }
+
+  // Escuchar el clic en el botón ➤
+  btnSend.addEventListener('click', enviarMensaje);
+
+  // Escuchar la tecla "Enter" del teclado del celular
+  inputChat.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') enviarMensaje();
+  });
 </script>
+
+  
 </body>
 </html>
