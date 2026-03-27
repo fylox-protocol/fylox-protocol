@@ -179,8 +179,12 @@ const FyloxMap = (() => {
     container.innerHTML = '';
 
     const canvas = document.createElement('canvas');
-    canvas.width  = container.offsetWidth  || 340;
-    canvas.height = container.offsetHeight || 220;
+    // offsetWidth es 0 si el contenedor estaba oculto — usar app width como fallback
+    const appEl = document.getElementById('app');
+    const W = container.offsetWidth || appEl?.offsetWidth || window.innerWidth || 360;
+    canvas.width  = W;
+    canvas.height = 220;
+    container.style.height = '220px';
     canvas.style.cssText = 'width:100%;height:100%;border-radius:16px;display:block;cursor:grab;';
     container.appendChild(canvas);
 
@@ -306,8 +310,12 @@ const FyloxMap = (() => {
     container.innerHTML = '';
 
     const canvas = document.createElement('canvas');
-    canvas.width  = container.offsetWidth  || 340;
-    canvas.height = container.offsetHeight || 220;
+    // offsetWidth es 0 si el contenedor estaba oculto — usar app width como fallback
+    const appEl = document.getElementById('app');
+    const W = container.offsetWidth || appEl?.offsetWidth || window.innerWidth || 360;
+    canvas.width  = W;
+    canvas.height = 220;
+    container.style.height = '220px';
     canvas.style.cssText = 'width:100%;height:100%;border-radius:16px;display:block;cursor:crosshair;';
     container.appendChild(canvas);
 
