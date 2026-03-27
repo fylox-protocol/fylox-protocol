@@ -2167,6 +2167,19 @@ if ('serviceWorker' in navigator) {
     }
   }
 
+    // --- ESTO ES LO QUE ACTIVA EL BOTÓN ---
+  const btnSend = document.getElementById('ai-send-btn');
+  if (btnSend) {
+    btnSend.addEventListener('click', enviarMensaje);
+  }
+
+  // --- ESTO ES PARA QUE FUNCIONE EL "ENTER" ---
+  if (inputChat) {
+    inputChat.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') enviarMensaje();
+    });
+  }
+
 </script>
 
 
