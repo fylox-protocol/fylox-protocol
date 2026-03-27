@@ -2068,51 +2068,27 @@ if ('serviceWorker' in navigator) {
   };
 
   // ========================================== //
-  // ENCENDER MICRÓFONO Y ESCUCHAR VOZ          //
+  // 3. MICRÓFONO (Redirección a teclado nativo)//
   // ========================================== //
   const btnMic = document.getElementById('ai-mic-btn');
   const inputChat = document.getElementById('ai-input');
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if (SpeechRecognition && btnMic && inputChat) {
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.lang = 'es-AR'; 
-    recognition.interimResults = false;
-
-    // Al tocar el micrófono
+  if (btnMic && inputChat) {
     btnMic.addEventListener('click', () => {
-      recognition.start();
-      btnMic.style.background = 'rgba(255, 50, 50, 0.2)'; // Luz roja
-      btnMic.innerHTML = '🔴';
-      inputChat.placeholder = 'Escuchando a @' + (window._fyloxUsername || 'Pioneer') + '...';
-    });
-
-    // Al detectar palabras
-    recognition.onresult = (event) => {
-      inputChat.value = event.results[0][0].transcript; 
-    };
-
-    // Al terminar de hablar
-    recognition.onend = () => {
-      btnMic.style.background = 'rgba(0,212,232,0.1)'; 
-      btnMic.innerHTML = '🎤';
-      inputChat.placeholder = 'Escribí o hablá...';
-    };
-
-    // Si falla el micrófono
-    recognition.onerror = (event) => {
-      console.error("[Fyl] Error de voz: ", event.error);
-      btnMic.style.background = 'rgba(0,212,232,0.1)';
-      btnMic.innerHTML = '🎤';
-      inputChat.placeholder = 'No te escuché bien. Intentá de nuevo.';
-    };
-  } else if (btnMic) {
-    btnMic.addEventListener('click', () => {
-      alert('Tu navegador no soporta el reconocimiento de voz nativo.');
+      // 1. Abre el teclado del celular automáticamente
+      inputChat.focus();
+      
+      // 2. Le avisa al Pioneer qué hacer
+      const placeholderOriginal = inputChat.placeholder;
+      inputChat.placeholder = 'Usá el 🎤 de tu teclado...';
+      
+      // 3. Vuelve a la normalidad en 3 segundos
+      setTimeout(() => {
+        inputChat.placeholder = placeholderOriginal;
+      }, 3000);
     });
   }
+
 
   // ========================================== //
   // ENVIAR MENSAJE Y MOSTRAR RESPUESTA         //
