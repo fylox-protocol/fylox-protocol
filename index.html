@@ -1999,8 +1999,48 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-  <script>
-  // 1. Abrir y Cerrar Panel IA
+  
+  <div id="ai-fab" onclick="abrirPanelIA()" style="position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #0A0F1E, #111827); border: 2px solid var(--c); border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0, 212, 232, 0.4); cursor: pointer; z-index: 9999; transition: transform 0.2s, opacity 0.3s;">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+  </svg>
+</div>
+
+<div id="ai-panel" style="position: fixed; bottom: -100%; left: 0; width: 100%; height: 75vh; background: linear-gradient(180deg, #111827 0%, #0A0F1E 100%); z-index: 10000; border-top-left-radius: 28px; border-top-right-radius: 28px; box-shadow: 0 -10px 40px rgba(0, 212, 232, 0.2); transition: bottom 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; border-top: 1px solid rgba(0,212,232,0.3);">
+  
+  <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--c); display: flex; align-items: center; justify-content: center; color: #000; font-size: 18px;">🤖</div>
+      <div>
+        <div style="font-weight: 700; font-size: 16px; color: #fff;">Fyl</div>
+        <div style="font-size: 12px; color: var(--c); font-weight: 500;">Conserje Fylox</div>
+      </div>
+    </div>
+    <button onclick="cerrarPanelIA()" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 28px; cursor: pointer; padding: 0 10px;">&times;</button>
+  </div>
+
+  <div id="ai-chat-box" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: #fff; font-size: 14px; max-width: 85%; line-height: 1.5;">
+      ¡Hola! Soy Fyl, tu conserje financiero personal. Podés pedirme que envíe Pi a un amigo, revise tu saldo o te explique cómo funciona la red. ¿En qué te ayudo hoy?
+    </div>
+  </div>
+
+  <div style="padding: 16px 20px 30px 20px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.2);">
+    <button id="ai-mic-btn" style="width: 48px; height: 48px; border-radius: 50%; border: none; background: rgba(0,212,232,0.1); color: var(--c); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 20px;">
+       🎤
+    </button>
+    <input type="text" id="ai-input" placeholder="Escribí o hablá..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 14px 20px; color: #fff; font-family: inherit; font-size: 14px; outline: none;">
+    <button id="ai-send-btn" style="width: 48px; height: 48px; border-radius: 50%; border: none; background: var(--c); color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 18px;">
+       ➤
+    </button>
+  </div>
+</div>
+
+<script>
+  
+  // ========================================== //
+  // ABRIR Y CERRAR PANEL DE IA                 //
+  // ========================================== //
   function abrirPanelIA() {
     document.getElementById('ai-panel').style.bottom = '0';
   }
@@ -2008,92 +2048,93 @@ if ('serviceWorker' in navigator) {
     document.getElementById('ai-panel').style.bottom = '-100%';
   }
 
-  // 2. Control de visibilidad del botón según la pantalla
+  // ========================================== //
+  // MOSTRAR U OCULTAR BOTÓN SEGÚN PANTALLA     //
+  // ========================================== //
   const _origGoToIA = window.goTo;
   window.goTo = function(id) {
-    if (_origGoToIA) _origGoToIA(id); // Ejecuta la navegación normal
+    if (_origGoToIA) _origGoToIA(id); 
     
     const fab = document.getElementById('ai-fab');
     if (fab) {
-      // Pantallas donde NO debe aparecer el botón
+      // Si el usuario está en Login (s0 a s4), escondemos a Fyl
       const pantallasOcultas = ['s0', 's1', 's2', 's3', 's4'];
-      
       if (pantallasOcultas.includes(id)) {
         fab.style.display = 'none';
       } else {
-        // En s5 o superior, mostramos el botón
         fab.style.display = 'flex';
       }
     }
   };
 
-  // 3. DARLE OÍDOS A FYL (Web Speech API)
+  // ========================================== //
+  // ENCENDER MICRÓFONO Y ESCUCHAR VOZ          //
+  // ========================================== //
   const btnMic = document.getElementById('ai-mic-btn');
   const inputChat = document.getElementById('ai-input');
 
-  // Buscamos el motor de voz del celular
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  if (SpeechRecognition) {
+  if (SpeechRecognition && btnMic && inputChat) {
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
-    recognition.lang = 'es-AR'; // Español
+    recognition.lang = 'es-AR'; 
     recognition.interimResults = false;
 
-    // Cuando el Pioneer toca el micrófono
+    // Al tocar el micrófono
     btnMic.addEventListener('click', () => {
       recognition.start();
-      btnMic.style.background = 'rgba(255, 50, 50, 0.2)'; // Fyl enciende la luz roja
+      btnMic.style.background = 'rgba(255, 50, 50, 0.2)'; // Luz roja
       btnMic.innerHTML = '🔴';
       inputChat.placeholder = 'Escuchando a @' + (window._fyloxUsername || 'Pioneer') + '...';
     });
 
-    // Cuando Fyl entiende lo que dijiste
+    // Al detectar palabras
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      inputChat.value = transcript; // Escribe el texto en la barra
+      inputChat.value = event.results[0][0].transcript; 
     };
 
-    // Cuando termina de escuchar (por silencio o porque terminó la frase)
+    // Al terminar de hablar
     recognition.onend = () => {
-      btnMic.style.background = 'rgba(0,212,232,0.1)'; // Vuelve a la normalidad
+      btnMic.style.background = 'rgba(0,212,232,0.1)'; 
       btnMic.innerHTML = '🎤';
       inputChat.placeholder = 'Escribí o hablá...';
     };
 
-    // Si hay un error de conexión
+    // Si falla el micrófono
     recognition.onerror = (event) => {
       console.error("[Fyl] Error de voz: ", event.error);
       btnMic.style.background = 'rgba(0,212,232,0.1)';
       btnMic.innerHTML = '🎤';
       inputChat.placeholder = 'No te escuché bien. Intentá de nuevo.';
     };
-  } else {
-    // Si el celular es muy viejo y no tiene motor de voz
+  } else if (btnMic) {
     btnMic.addEventListener('click', () => {
       alert('Tu navegador no soporta el reconocimiento de voz nativo.');
     });
   }
 
-  // 4. LÓGICA DE ENVÍO DE MENSAJES (El botón ➤)
+  // ========================================== //
+  // ENVIAR MENSAJE Y MOSTRAR RESPUESTA         //
+  // ========================================== //
   const btnSend = document.getElementById('ai-send-btn');
   const chatBox = document.getElementById('ai-chat-box');
 
   function enviarMensaje() {
+    if(!inputChat) return;
     const texto = inputChat.value.trim();
-    if (!texto) return; // Si no hay texto, no hace nada
+    if (!texto) return; 
 
-    // 1. Dibujar la burbuja del Pioneer (Usuario)
+    // Dibujar burbuja del mensaje del usuario
     const userMsg = document.createElement('div');
     userMsg.style.cssText = 'background: var(--c); color: #000; padding: 12px 16px; border-radius: 16px; border-bottom-right-radius: 4px; font-size: 14px; max-width: 85%; align-self: flex-end; line-height: 1.5; font-weight: 600; margin-top: 8px;';
     userMsg.textContent = texto;
     chatBox.appendChild(userMsg);
 
-    // Limpiar la barra y bajar el scroll
     inputChat.value = '';
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // 2. Dibujar la burbuja de "Fyl está pensando..."
+    // Dibujar burbuja temporal de "Fyl está escribiendo..."
     const fylTyping = document.createElement('div');
     fylTyping.id = 'fyl-typing';
     fylTyping.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: rgba(255,255,255,0.5); font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; font-style: italic; margin-top: 8px;';
@@ -2101,13 +2142,11 @@ if ('serviceWorker' in navigator) {
     chatBox.appendChild(fylTyping);
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // 3. Simulación temporal (Hasta que conectemos a Claude)
+    // Simular respuesta de la IA (Hasta conectar con Render/Claude)
     setTimeout(() => {
-      // Borramos el mensaje de "escribiendo..."
       const typingIndicator = document.getElementById('fyl-typing');
       if (typingIndicator) typingIndicator.remove();
 
-      // Creamos la burbuja de respuesta de Fyl
       const fylMsg = document.createElement('div');
       fylMsg.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: #fff; font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; margin-top: 8px;';
       fylMsg.innerHTML = '¡Mensaje recibido! Mi cerebro (Claude) todavía no está conectado al servidor, pero te escuché decir: <br><br><b>"' + texto + '"</b>';
@@ -2116,14 +2155,15 @@ if ('serviceWorker' in navigator) {
     }, 1500);
   }
 
-  // Escuchar el clic en el botón ➤
-  btnSend.addEventListener('click', enviarMensaje);
-
-  // Escuchar la tecla "Enter" del teclado del celular
-  inputChat.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') enviarMensaje();
-  });
+  // Activar envío al tocar la flecha (➤) o apretar Enter
+  if (btnSend) btnSend.addEventListener('click', enviarMensaje);
+  if (inputChat) {
+    inputChat.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') enviarMensaje();
+    });
+  }
 </script>
+
 
   
 </body>
