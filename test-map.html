@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fylox Map Test</title>
+<style>
+  body { background:#060608; color:#fff; font-family:Arial; padding:16px; margin:0; }
+  .ok  { color:#00E090; font-weight:bold; }
+  .err { color:#FF4D6A; font-weight:bold; }
+  .box { background:#0D0E15; border:1px solid #222; border-radius:12px; padding:14px; margin-bottom:12px; }
+  #canvas-test { width:100%; height:200px; border-radius:12px; display:block; }
+  button { background:#00D4E8; color:#000; border:none; border-radius:8px; padding:10px 20px; font-weight:bold; font-size:14px; cursor:pointer; width:100%; margin-top:8px; }
+</style>
+</head>
+<body>
+<h2 style="color:#00D4E8;margin-bottom:16px">🔍 Fylox Map Diagnostics</h2>
+
+<div class="box">
+  <b>1. Canvas API</b><br>
+  <span id="r1">Verificando…</span>
+</div>
+
+<div class="box">
+  <b>2. Geolocalización</b><br>
+  <span id="r2">Verificando…</span><br>
+  <small id="r2b" style="color:rgba(255,255,255,.5)"></small>
+</div>
+
+<div class="box">
+  <b>3. Canvas dibujado</b><br>
+  <canvas id="canvas-test"></canvas>
+</div>
+
+<div class="box">
+  <b>4. Red — OpenStreetMap tiles</b><br>
+  <span id="r4">Verificando…</span>
+</div>
+
+<div class="box">
+  <b>5. Nominatim geocoding</b><br>
+  <span id="r5">Verificando…</span>
+</div>
+
+<div class="box">
+  <b>6. Fetch a backend Fylox</b><br>
+  <span id="r6">Verificando…</span>
+</div>
+
+<button onclick="location.reload()">🔄 Repetir test</button>
+
+<script>
+// Test 1: Canvas
+try {
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d');
+  ctx.fillRect(0,0,1,1);
+  document.getElementById('r1').innerHTML = '<span class="ok">✓ Canvas funciona</span>';
+} catch(e) {
+  document.getElementById('r1').innerHTML = '<span class="err">✗ ' + e.message + '</span>';
+}
+
+// Test 2: Geolocalización
+if (!navigator.geolocation) {
+  document.getElementById('r2').innerHTML = '<span class="err">✗ No disponible en este browser</span>';
+} else {
+  document.getElementById('r2').innerHTML = 'Pidiendo permiso…';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('r2').innerHTML = '<span class="ok">✓ Lat: ' + pos.coords.latitude.toFixed(5) + ' Lng: ' + pos.coords.longitude.toFixed(5) + '</span>';
+      document.getElementById('r2b').textContent = 'Precisión: ±' + Math.round(pos.coords.accuracy) + 'm';
+    },
+    err => {
+      const msgs = {1:'Permiso denegado',2:'GPS no disponible',3:'Timeout'};
+      document.getElementById('r2').innerHTML = '<span class="err">✗ ' + (msgs[err.code]||err.message) + '</span>';
+    },
+    { enableHighAccuracy:true, timeout:8000 }
+  );
+}
+
+// Test 3: Canvas dibujado
+try {
+  const canvas = document.getElementById('canvas-test');
+  canvas.width  = canvas.offsetWidth  || 340;
+  canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  // Fondo
+  const bg = ctx.createRadialGradient(canvas.width/2, 100, 0, canvas.width/2, 100, 200);
+  bg.addColorStop(0, '#0F1022');
+  bg.addColorStop(1, '#060608');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  for(let i=0;i<canvas.width;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,200);ctx.stroke();}
+  for(let j=0;j<200;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(canvas.width,j);ctx.stroke();}
+  // Punto usuario
+  ctx.beginPath();
+  ctx.arc(canvas.width/2, 100, 10, 0, Math.PI*2);
+  ctx.fillStyle = '#00D4E8';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Texto
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('✓ Canvas funcionando', canvas.width/2, 160);
+} catch(e) {
+  document.getElementById('canvas-test').style.background = '#FF4D6A22';
+  document.getElementById('canvas-test').insertAdjacentHTML('afterend','<span class="err">✗ '+e.message+'</span>');
+}
+
+// Test 4: OSM tiles
+const img = new Image();
+img.onload  = () => { document.getElementById('r4').innerHTML = '<span class="ok">✓ Tiles OSM cargan correctamente</span>'; };
+img.onerror = () => { document.getElementById('r4').innerHTML = '<span class="err">✗ No se pueden cargar tiles — posible bloqueo de red o CSP</span>'; };
+img.src = 'https://tile.openstreetmap.org/15/16367/12557.png?' + Date.now();
+
+// Test 5: Nominatim
+fetch('https://nominatim.openstreetmap.org/reverse?lat=-34.6037&lon=-58.3816&format=json', {
+  headers: {'User-Agent':'Fylox/1.0'}
+})
+.then(r => r.json())
+.then(d => {
+  document.getElementById('r5').innerHTML = '<span class="ok">✓ ' + (d.display_name?.split(',').slice(0,2).join(',') || 'OK') + '</span>';
+})
+.catch(e => {
+  document.getElementById('r5').innerHTML = '<span class="err">✗ ' + e.message + '</span>';
+});
+
+// Test 6: Backend Fylox
+fetch('https://fylox-backend.onrender.com/health')
+.then(r => r.json())
+.then(d => {
+  document.getElementById('r6').innerHTML = '<span class="ok">✓ Backend OK — ' + d.status + '</span>';
+})
+.catch(e => {
+  document.getElementById('r6').innerHTML = '<span class="err">✗ ' + e.message + '</span>';
+});
+</script>
+</body>
+</html>
