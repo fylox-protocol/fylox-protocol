@@ -2038,83 +2038,36 @@ if ('serviceWorker' in navigator) {
 
 <script>
   
+    // ========================================== //
+  // 1. VARIABLES GLOBALES (Los "Cables")       //
   // ========================================== //
-  // ABRIR Y CERRAR PANEL DE IA                 //
-  // ========================================== //
-  function abrirPanelIA() {
-    document.getElementById('ai-panel').style.bottom = '0';
-  }
-  function cerrarPanelIA() {
-    document.getElementById('ai-panel').style.bottom = '-100%';
-  }
-
-  // ========================================== //
-  // MOSTRAR U OCULTAR BOTÓN SEGÚN PANTALLA     //
-  // ========================================== //
-  const _origGoToIA = window.goTo;
-  window.goTo = function(id) {
-    if (_origGoToIA) _origGoToIA(id); 
-    
-    const fab = document.getElementById('ai-fab');
-    if (fab) {
-      // Si el usuario está en Login (s0 a s4), escondemos a Fyl
-      const pantallasOcultas = ['s0', 's1', 's2', 's3', 's4'];
-      if (pantallasOcultas.includes(id)) {
-        fab.style.display = 'none';
-      } else {
-        fab.style.display = 'flex';
-      }
-    }
-  };
-
-  // ========================================== //
-  // 3. MICRÓFONO (Redirección a teclado nativo)//
-  // ========================================== //
-  const btnMic = document.getElementById('ai-mic-btn');
+  const chatBox   = document.getElementById('ai-chat-box');
   const inputChat = document.getElementById('ai-input');
-
-  if (btnMic && inputChat) {
-    btnMic.addEventListener('click', () => {
-      // 1. Abre el teclado del celular automáticamente
-      inputChat.focus();
-      
-      // 2. Le avisa al Pioneer qué hacer
-      const placeholderOriginal = inputChat.placeholder;
-      inputChat.placeholder = 'Usá el 🎤 de tu teclado...';
-      
-      // 3. Vuelve a la normalidad en 3 segundos
-      setTimeout(() => {
-        inputChat.placeholder = placeholderOriginal;
-      }, 3000);
-    });
-  }
+  const btnSend   = document.getElementById('ai-send-btn');
+  const btnMic    = document.getElementById('ai-mic-btn');
 
   // ========================================== //
-  // 1. FUNCIÓN DE VOZ (Cuerdas Vocales)        //
+  // 2. FUNCIÓN DE VOZ (Cuerdas Vocales)        //
   // ========================================== //
   function hablarFyl(texto) {
-    // Quitamos asteriscos y símbolos que Gemini usa para negrita
     const textoLimpio = texto.replace(/\*/g, '');
-    
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(textoLimpio);
 
-    utterance.lang = 'es-AR'; // Voz en español
-    utterance.rate = 1.0;     // Velocidad normal
-    utterance.pitch = 1.0;    // Tono normal
-    utterance.volume = 1.0;   // Volumen al máximo
+    utterance.lang = 'es-AR'; 
+    utterance.rate = 1.0;     
+    utterance.pitch = 1.0;    
+    utterance.volume = 1.0;   
 
-    // Cancelamos cualquier voz anterior para que no se pisen
-    synth.cancel();
+    synth.cancel(); 
     synth.speak(utterance);
   }
 
-  
-    // ========================================== //
-  // 2. ENVIAR MENSAJE AL BACKEND REAL (Render) //
+  // ========================================== //
+  // 3. ENVIAR MENSAJE AL BACKEND REAL (Render) //
   // ========================================== //
   async function enviarMensaje() {
-    if(!inputChat) return;
+    if(!inputChat || !chatBox) return;
     const texto = inputChat.value.trim();
     if (!texto) return; 
 
@@ -2136,7 +2089,6 @@ if ('serviceWorker' in navigator) {
     chatBox.scrollTop = chatBox.scrollHeight;
 
     try {
-      // Conexión con tu servidor en Render
       const response = await fetch('https://fylox-backend.onrender.com/api/fyl/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2144,7 +2096,6 @@ if ('serviceWorker' in navigator) {
       });
 
       const data = await response.json();
-      
       const typingIndicator = document.getElementById('fyl-typing');
       if (typingIndicator) typingIndicator.remove();
 
@@ -2162,21 +2113,34 @@ if ('serviceWorker' in navigator) {
 
     } catch (error) {
       console.error('Error:', error);
-      if (document.getElementById('fyl-typing')) document.getElementById('fyl-typing').remove();
-      alert('Fyl no pudo conectar con el servidor. Revisá que Render esté encendido.');
+      const typingIndicator = document.getElementById('fyl-typing');
+      if (typingIndicator) typingIndicator.remove();
+      alert('Fyl no pudo conectar con el servidor.');
     }
   }
 
-    // --- ESTO ES LO QUE ACTIVA EL BOTÓN ---
-  const btnSend = document.getElementById('ai-send-btn');
+  // ========================================== //
+  // 4. MICRÓFONO Y DISPARADORES                //
+  // ========================================== //
+  if (btnMic && inputChat) {
+    btnMic.addEventListener('click', () => {
+      inputChat.focus();
+      const placeholderOriginal = inputChat.placeholder;
+      inputChat.placeholder = 'Usá el 🎤 de tu teclado...';
+      setTimeout(() => { inputChat.placeholder = placeholderOriginal; }, 3000);
+    });
+  }
+
   if (btnSend) {
     btnSend.addEventListener('click', enviarMensaje);
   }
 
-  // --- ESTO ES PARA QUE FUNCIONE EL "ENTER" ---
   if (inputChat) {
     inputChat.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') enviarMensaje();
+      if (e.key === 'Enter') {
+        e.preventDefault(); // Evita el salto de línea al enviar
+        enviarMensaje();
+      }
     });
   }
 
