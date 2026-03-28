@@ -36,11 +36,45 @@ function goTo(id) {
   const curr = document.querySelector('.scr.show');
   const next = document.getElementById(id);
   if (!next || !curr || curr === next) return;
+
+  // 1. Cambia de pantalla con animación
   curr.classList.remove('show');
-  next.classList.add('show','enter');
-  next.addEventListener('animationend', () => next.classList.remove('enter'), {once:true});
+  next.classList.add('show', 'enter');
+  next.addEventListener('animationend', () => next.classList.remove('enter'), { once: true });
+
+  // 2. ── LÓGICA DEL BOTÓN DE IA (FYL) ──
+  const fab = document.getElementById('ai-fab');
+  if (fab) {
+    // Definimos en qué pantallas NO debe aparecer
+    const pantallasProhibidas = ['s0', 's1', 's2', 's3', 's4'];
+    
+    // Si la pantalla actual está en la lista de prohibidas, ocultamos.
+    // Si no está (s5, s6, etc.), mostramos.
+    if (pantallasProhibidas.includes(id)) {
+      fab.style.display = 'none';
+    } else {
+      fab.style.display = 'flex';
+    }
+  }
+
+  // 3. Resetear scroll interno si existe
   const sc = next.querySelector('.sc');
   if (sc) sc.scrollTop = 0;
+
+  // 4. Actualiza la navegación de abajo (Tabs)
+  const nav = document.getElementById('bottom-nav');
+  const tabs = ['s1', 's2', 's3', 's4', 's5'];
+  if (nav) {
+    nav.style.display = tabs.includes(id) ? 'flex' : 'none';
+    
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+    const activeTab = document.querySelector(`.tab[onclick*="${id}"]`);
+    if (activeTab) activeTab.classList.add('on');
+  }
+
+  window.scrollTo(0, 0);
+}
+
 
   if (id === 's7') {
     const amt = kval !== '0' ? kval : '0.00';
