@@ -43,19 +43,11 @@ function goTo(id) {
   next.addEventListener('animationend', () => next.classList.remove('enter'), { once: true });
 
   // 2. ── LÓGICA DEL BOTÓN DE IA (FYL) ──
-  const fab = document.getElementById('ai-fab');
-  if (fab) {
-    // Definimos en qué pantallas NO debe aparecer
-    const pantallasProhibidas = ['s0', 's1', 's2', 's3', 's4'];
-    
-    // Si la pantalla actual está en la lista de prohibidas, ocultamos.
-    // Si no está (s5, s6, etc.), mostramos.
-    if (pantallasProhibidas.includes(id)) {
-      fab.style.display = 'none';
-    } else {
-      fab.style.display = 'flex';
-    }
-  }
+  const pantallasProhibidas = ['s0', 's1', 's2', 's3', 's4'];
+  setTimeout(() => {
+    const fab = document.getElementById('ai-fab');
+    if (fab) fab.style.display = pantallasProhibidas.includes(id) ? 'none' : 'flex';
+  }, 0);
 
   // 3. Resetear scroll interno si existe
   const sc = next.querySelector('.sc');
