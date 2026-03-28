@@ -73,8 +73,6 @@ function goTo(id) {
   }
 
   window.scrollTo(0, 0);
-}
-
 
   if (id === 's7') {
     const amt = kval !== '0' ? kval : '0.00';
