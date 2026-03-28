@@ -279,96 +279,129 @@ async function piLogin() {
 //  RETIRO A BILLETERA Pi (A2U)
 // ═══════════════════════════════════════════════════
 
+
+// ═══════════════════════════════════════════════════
+//  RETIRO A BILLETERA Pi (A2U)
+// ═══════════════════════════════════════════════════
+
 async function withdrawToWallet() {
-  const balance = window._fyloxBalance || 0;
+  const balance  = window._fyloxBalance  || 0;
+  const username = window._fyloxUsername || 'Pioneer';
 
   if (balance <= 0) {
-    alert('No tenés saldo disponible para retirar.');
+    _withdrawShowMsg('s16-withdraw-msg', '⚠️ No tenés saldo disponible para retirar.', 'warn');
+    return;
+  }
+  if (balance < 0.01) {
+    _withdrawShowMsg('s16-withdraw-msg', '⚠️ El monto mínimo de retiro es 0.01 π', 'warn');
     return;
   }
 
-  const walletAddress = window._fyloxWallet || null;
-  if (!walletAddress) {
-    alert('No se encontró tu dirección de billetera Pi. Reconectate.');
-    return;
-  }
-
-  // Bloquear el botón mientras procesa
   const btns = document.querySelectorAll('[onclick="withdrawToWallet()"]');
-  btns.forEach(b => { b.disabled = true; b.textContent = 'Procesando...'; });
+  btns.forEach(b => { b.disabled = true; b.innerHTML = '<span style="opacity:.7">⏳ Procesando...</span>'; });
 
   if (!window.Pi) {
-    // Demo mode
-    btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
-    alert(`[Demo] Retiro de ${balance.toFixed(2)} π a ${walletAddress}`);
+    _withdrawShowMsg('s16-withdraw-msg',
+      `✅ [Demo] Se retiraría ${balance.toFixed(2)} π a @${username}.pi`, 'ok');
+    btns.forEach(b => { b.disabled = false; b.innerHTML = 'Retirar a mi Billetera'; });
     return;
   }
 
-  Pi.createPayment(
-    {
-      amount: balance,
-      memo: 'Retiro Fylox → billetera Pi',
-      metadata: { type: 'withdraw', walletAddress },
-    },
-    {
-      onReadyForServerApproval: async function(paymentId) {
-        try {
-          await apiCall('POST', '/payments/approve', { paymentId });
-        } catch (err) {
-          if (err.message && err.message.includes('ya aprobado')) {
-            console.warn('[Fylox] Retiro ya aprobado — continuando');
-          } else {
-            console.error('[Fylox] Error aprobando retiro:', err.message);
+  try {
+    Pi.createPayment(
+      {
+        amount:   balance,
+        memo:     `Retiro Fylox → @${username}.pi`,
+        metadata: {
+          type:          'withdraw',
+          walletAddress: window._fyloxWallet || username + '.pi',
+        },
+      },
+      {
+        onReadyForServerApproval: async function(paymentId) {
+          try {
+            await apiCall('POST', '/payments/approve', { paymentId });
+          } catch (err) {
+            if (!err.message?.includes('ya aprobado')) {
+              console.error('[Fylox] Error aprobando retiro:', err.message);
+            }
           }
-        }
-      },
+        },
 
-      onReadyForServerCompletion: async function(paymentId, txid) {
-        try {
-          // ✅ Llama al endpoint correcto con el amount
-          await apiCall('POST', '/payments/withdraw', {
-            paymentId,
-            txid,
-            amount: balance,
-          });
+        onReadyForServerCompletion: async function(paymentId, txid) {
+          try {
+            await apiCall('POST', '/payments/withdraw', { paymentId, txid, amount: balance });
 
-          // Actualizar UI
-          const newBalance = await fetchBalance();
-          _lastKnownBalance = newBalance;
-          updateUIWithUser(window._fyloxUsername || 'Pioneer', newBalance);
+            const newBalance = await fetchBalance();
+            _lastKnownBalance = newBalance;
+            updateUIWithUser(username, newBalance);
 
-          // Notificación
-          if (typeof FyloxNotification !== 'undefined') {
-            FyloxNotification.show({
-              icon: '💸',
-              title: 'Retiro exitoso',
-              sub: `${balance.toFixed(2)} π enviados a tu billetera`,
-              amt: '−' + balance.toFixed(2) + ' π',
-              sound: true,
-            });
-          } else {
-            alert(`✅ ${balance.toFixed(2)} π retirados a tu billetera Pi.`);
+            _withdrawShowMsg('s16-withdraw-msg',
+              `✅ ${balance.toFixed(2)} π enviados a tu billetera Pi.`, 'ok');
+
+            if (typeof FyloxNotification !== 'undefined') {
+              FyloxNotification.show({
+                icon:  '💸',
+                title: 'Retiro exitoso',
+                sub:   `${balance.toFixed(2)} π → @${username}.pi`,
+                amt:   '-' + balance.toFixed(2) + ' π',
+                sound: true,
+              });
+            }
+
+            setTimeout(() => goTo('s5'), 2000);
+
+          } catch (err) {
+            console.error('[Fylox] Error completando retiro:', err.message);
+            _withdrawShowMsg('s16-withdraw-msg',
+              '❌ Error al confirmar el retiro. Contactá soporte.', 'error');
+          } finally {
+            btns.forEach(b => { b.disabled = false; b.innerHTML = 'Retirar a mi Billetera'; });
           }
+        },
 
-          goTo('s5');
-        } catch (err) {
-          console.error('[Fylox] Error completando retiro:', err.message);
-          alert('❌ Error al procesar el retiro. Intentá de nuevo.');
-        } finally {
-          btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
-        }
-      },
+        onCancel: function(paymentId) {
+          console.log('[Fylox] Retiro cancelado:', paymentId);
+          _withdrawShowMsg('s16-withdraw-msg', 'Retiro cancelado.', 'warn');
+          btns.forEach(b => { b.disabled = false; b.innerHTML = 'Retirar a mi Billetera'; });
+        },
 
-      onCancel: function(paymentId) {
-        console.log('[Fylox] Retiro cancelado:', paymentId);
-        btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
-      },
+        onError: function(error, payment) {
+          console.error('[Fylox] Error Pi SDK retiro:', error, payment);
+          const msg = error?.message || String(error);
+          if (msg.includes('not supported') || msg.includes('A2U')) {
+            _withdrawShowMsg('s16-withdraw-msg',
+              '⚠️ Los retiros A2U requieren aprobación de Pi Network. Contactá soporte.', 'warn');
+          } else {
+            _withdrawShowMsg('s16-withdraw-msg', '❌ Error Pi Network: ' + msg, 'error');
+          }
+          btns.forEach(b => { b.disabled = false; b.innerHTML = 'Retirar a mi Billetera'; });
+        },
+      }
+    );
+  } catch (err) {
+    console.error('[Fylox] createPayment excepcion:', err.message);
+    _withdrawShowMsg('s16-withdraw-msg', '❌ No se pudo iniciar el retiro: ' + err.message, 'error');
+    btns.forEach(b => { b.disabled = false; b.innerHTML = 'Retirar a mi Billetera'; });
+  }
+}
 
-      onError: function(error) {
-        console.error('[Fylox] Error Pi SDK en retiro:', error);
-        btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
-        alert('❌ Error en Pi Network. Intentá de nuevo.');
-      },
-    }
-  );
+// Muestra mensaje debajo del botón de retiro
+function _withdrawShowMsg(elId, texto, tipo) {
+  let el = document.getElementById(elId);
+  if (!el) {
+    el = document.createElement('div');
+    el.id = elId;
+    const btn = document.querySelector('[onclick="withdrawToWallet()"]');
+    if (btn && btn.parentNode) btn.parentNode.insertBefore(el, btn.nextSibling);
+  }
+  const estilos = {
+    ok:    'background:rgba(0,224,144,.12);color:#00E090;border:1px solid rgba(0,224,144,.25)',
+    warn:  'background:rgba(255,183,0,.12);color:#FFB700;border:1px solid rgba(255,183,0,.25)',
+    error: 'background:rgba(255,70,70,.12);color:#FF4646;border:1px solid rgba(255,70,70,.25)',
+  };
+  el.style.cssText = 'font-size:13px;text-align:center;padding:10px 14px;border-radius:12px;margin-top:8px;margin-bottom:8px;' + (estilos[tipo] || estilos.warn);
+  el.textContent = texto;
+  el.style.display = 'block';
+  if (tipo !== 'ok') setTimeout(() => { if (el) el.style.display = 'none'; }, 6000);
 }
