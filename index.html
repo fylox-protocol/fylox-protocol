@@ -1998,61 +1998,44 @@ if ('serviceWorker' in navigator) {
   });
 }
 <script>
-    // 1. FUNCIONES DE INTERFAZ (Abrir/Cerrar)
-  function abrirPanelIA() {
-    const panel = document.getElementById('ai-panel');
-    const fab = document.getElementById('ai-fab');
-    if (panel && fab) {
-      panel.style.bottom = '0';
-      fab.style.opacity = '0';
-      setTimeout(() => { fab.style.display = 'none'; }, 300);
-    }
-  }
-
-  function cerrarPanelIA() {
-    const panel = document.getElementById('ai-panel');
-    const fab = document.getElementById('ai-fab');
-    if (panel && fab) {
-      panel.style.bottom = '-100%';
-      fab.style.display = 'flex';
-      setTimeout(() => { fab.style.opacity = '1'; }, 10);
-    }
-  }
-
-  // 2. VARIABLES DE CHAT
+  
+  // 1. CONECTAMOS LOS BOTONES
   const chatBox   = document.getElementById('ai-chat-box');
   const inputChat = document.getElementById('ai-input');
   const btnSend   = document.getElementById('ai-send-btn');
-  const btnMic    = document.getElementById('ai-mic-btn');
 
-  // 3. VOZ DE FYL
+  // 2. FUNCIONES PARA ABRIR Y CERRAR EL PANEL
+  function abrirPanelIA() {
+    document.getElementById('ai-panel').style.bottom = '0';
+    document.getElementById('ai-fab').style.display = 'none';
+  }
+
+  function cerrarPanelIA() {
+    document.getElementById('ai-panel').style.bottom = '-100%';
+    document.getElementById('ai-fab').style.display = 'flex';
+  }
+
+  // 3. LA VOZ DE FYL
   function hablarFyl(texto) {
-    const textoLimpio = texto.replace(/\*/g, '');
     const synth = window.speechSynthesis;
-    const utterance = new SpeechSynthesisUtterance(textoLimpio);
-    utterance.lang = 'es-AR';
+    const utterance = new SpeechSynthesisUtterance(texto.replace(/\*/g, ''));
+    utterance.lang = 'es-AR'; // Voz argentina
     synth.cancel();
     synth.speak(utterance);
   }
 
-  // 4. ENVIAR MENSAJE
+  // 4. MANDAR MENSAJE A RENDER
   async function enviarMensaje() {
-    if(!inputChat || !chatBox) return;
     const texto = inputChat.value.trim();
     if (!texto) return;
 
+    // Dibujamos tu mensaje
     const userMsg = document.createElement('div');
     userMsg.style.cssText = 'background:var(--c);color:#000;padding:12px 16px;border-radius:16px;border-bottom-right-radius:4px;font-size:14px;max-width:85%;align-self:flex-end;font-weight:600;margin-top:8px;';
     userMsg.textContent = texto;
     chatBox.appendChild(userMsg);
     inputChat.value = '';
     chatBox.scrollTop = chatBox.scrollHeight;
-
-    const fylTyping = document.createElement('div');
-    fylTyping.id = 'fyl-typing';
-    fylTyping.style.cssText = 'background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:16px;color:rgba(255,255,255,0.5);font-size:14px;align-self:flex-start;font-style:italic;margin-top:8px;';
-    fylTyping.textContent = 'Fyl está pensando...';
-    chatBox.appendChild(fylTyping);
 
     try {
       const res = await fetch('https://fylox-backend.onrender.com/api/fyl/chat', {
@@ -2061,32 +2044,24 @@ if ('serviceWorker' in navigator) {
         body: JSON.stringify({ message: texto })
       });
       const data = await res.json();
-      document.getElementById('fyl-typing').remove();
+      const respuesta = data.reply || "Perdón, tuve un problema.";
 
-      const respuesta = data.reply || "No pude conectar ahora.";
-      hablarFyl(respuesta);
+      hablarFyl(respuesta); // Fyl habla
 
       const fylMsg = document.createElement('div');
-      fylMsg.style.cssText = 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:16px;border-radius:16px;border-bottom-left-radius:4px;color:#fff;font-size:14px;max-width:85%;margin-top:8px;';
+      fylMsg.style.cssText = 'background:rgba(255,255,255,0.05);padding:16px;border-radius:16px;color:#fff;font-size:14px;max-width:85%;margin-top:8px;';
       fylMsg.innerHTML = respuesta.replace(/\n/g, '<br>');
       chatBox.appendChild(fylMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
+
     } catch (e) {
-      if(document.getElementById('fyl-typing')) document.getElementById('fyl-typing').remove();
-      alert('Fyl está fuera de línea.');
+      alert('Fyl no pudo conectar con el servidor.');
     }
   }
 
-  // 5. EVENTOS
+  // 5. ACTIVAR EL BOTÓN DE ENVIAR
   if(btnSend) btnSend.onclick = enviarMensaje;
-  if(btnMic) {
-    btnMic.onclick = () => {
-      inputChat.focus();
-      const old = inputChat.placeholder;
-      inputChat.placeholder = 'Usá el 🎤 de tu teclado...';
-      setTimeout(() => inputChat.placeholder = old, 3000);
-    };
-  }
+
 </script>
 
 </body>
