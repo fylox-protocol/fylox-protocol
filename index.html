@@ -1907,6 +1907,9 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 </div>
    <div class="bnav"><div class="bi" data-go="s5"><div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="nl" data-i18n="home">Home</div></div><div class="bi" data-go="s16"><div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="nl" data-i18n="wallet">Wallet</div></div><div class="bi" data-go="s21"><div class="ni ni-earn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="nl nl-earn" data-i18n="earn">Earn</div></div><div class="bi" data-go="s17"><div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="nl" data-i18n="profile">Profile</div></div>  </div>
 </div>
+<!-- ═══════════════════════════════ FAB FYL IA ═══════════════════════════════ -->
+<button id="ai-fab" onclick="abrirPanelIA()" style="position:fixed;bottom:88px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--c),var(--c2));border:none;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,212,232,.45);z-index:1000;font-size:22px;" title="Fyl IA">🤖</button>
+
 <script src="js/fylox-storage.js"></script>
 <script src="js/fylox-api.js"></script>
 <script src="js/fylox-langs.js"></script>
@@ -1998,29 +2001,11 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-<!-- ═══════════════════════════════════════════════ -->
-<!--  BOTÓN FLOTANTE FYL IA                         -->
-<!-- ═══════════════════════════════════════════════ -->
-<button id="ai-fab" onclick="abrirPanelIA()" style="
-  position:fixed;bottom:88px;right:18px;
-  width:52px;height:52px;border-radius:50%;
-  background:linear-gradient(135deg,var(--c),var(--c2));
-  border:none;cursor:pointer;display:none;
-  align-items:center;justify-content:center;
-  box-shadow:0 4px 24px rgba(0,212,232,.45);
-  z-index:1000;font-size:22px;
-" title="Fyl IA">🤖</button>
 
 <!-- ═══════════════════════════════════════════════ -->
 <!--  PANEL FYL IA                                  -->
 <!-- ═══════════════════════════════════════════════ -->
-<div id="ai-panel" style="
-  position:fixed;bottom:-100%;left:0;right:0;height:82vh;
-  background:var(--bg2);border-top:1px solid var(--b);
-  border-radius:24px 24px 0 0;z-index:2000;
-  display:flex;flex-direction:column;
-  transition:bottom .35s cubic-bezier(.22,1,.36,1);
-">
+<div id="ai-panel" style="position:fixed;bottom:-100%;left:0;right:0;height:82vh;background:var(--bg2);border-top:1px solid var(--b);border-radius:24px 24px 0 0;z-index:2000;display:flex;flex-direction:column;transition:bottom .35s cubic-bezier(.22,1,.36,1);">
   <div style="display:flex;justify-content:center;padding:10px 0 0">
     <div style="width:36px;height:4px;border-radius:2px;background:var(--b)"></div>
   </div>
@@ -2073,10 +2058,7 @@ if ('serviceWorker' in navigator) {
     if (window._fylMicActive) pararMic();
   }
 
-  // ── VOZ 100% GRATIS — Web Speech API con mejor voz disponible ──────────────
-  let _vocesListas = false;
-  let _mejorVoz   = null;
-
+  let _vocesListas = false, _mejorVoz = null;
   function cargarMejorVoz() {
     if (_vocesListas) return;
     const voces = window.speechSynthesis.getVoices();
@@ -2087,9 +2069,7 @@ if ('serviceWorker' in navigator) {
       voces.find(v => v.name.includes('Google') && v.lang.startsWith('es')) ||
       voces.find(v => v.lang === 'es-US') ||
       voces.find(v => v.lang === 'es-AR') ||
-      voces.find(v => v.lang === 'es-ES') ||
-      voces.find(v => v.lang.startsWith('es')) ||
-      null;
+      voces.find(v => v.lang.startsWith('es')) || null;
     _vocesListas = true;
   }
   window.speechSynthesis.onvoiceschanged = cargarMejorVoz;
@@ -2100,8 +2080,6 @@ if ('serviceWorker' in navigator) {
     const limpio = texto.replace(/\*\*/g,'').replace(/\*/g,'').replace(/#{1,6}\s/g,'').replace(/`/g,'').replace(/<[^>]*>/g,'');
     window.speechSynthesis.cancel();
     const label = document.getElementById('ai-status-label');
-
-    // Dividir en frases para que no se corte en mobile
     const frases = limpio.match(/[^.!?]+[.!?]*/g) || [limpio];
     let i = 0;
     function hablarFrase() {
@@ -2111,22 +2089,17 @@ if ('serviceWorker' in navigator) {
       const u = new SpeechSynthesisUtterance(frase);
       if (!_vocesListas) cargarMejorVoz();
       if (_mejorVoz) u.voice = _mejorVoz;
-      u.lang   = 'es-AR';
-      u.rate   = 1.0;
-      u.pitch  = 0.9;
-      u.volume = 1.0;
+      u.lang = 'es-AR'; u.rate = 1.0; u.pitch = 0.9; u.volume = 1.0;
       if (i === 0 && label) label.innerHTML = '🔊 Hablando...';
-      u.onend  = () => { i++; hablarFrase(); };
+      u.onend = () => { i++; hablarFrase(); };
       u.onerror = () => { i++; hablarFrase(); };
       window.speechSynthesis.speak(u);
     }
     hablarFrase();
   }
 
-  // ── MICRÓFONO ───────────────────────────────────────────────────────────────
   window._fylMicActive = false;
   let _recognition = null;
-
   function activarMic() {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) { agregarMensajeFyl('Usá Chrome para el micrófono 🙏'); return; }
@@ -2144,13 +2117,11 @@ if ('serviceWorker' in navigator) {
     _recognition.start();
     _recognition.onresult = (e) => {
       if (inputChat) inputChat.value = e.results[0][0].transcript;
-      pararMic();
-      enviarMensaje();
+      pararMic(); enviarMensaje();
     };
     _recognition.onerror = () => pararMic();
     _recognition.onend   = () => { if (window._fylMicActive) pararMic(); };
   }
-
   function pararMic() {
     window._fylMicActive = false;
     if (_recognition) { try { _recognition.stop(); } catch(e){} }
@@ -2177,14 +2148,12 @@ if ('serviceWorker' in navigator) {
     if (!inputChat || !chatBox) return;
     const texto = inputChat.value.trim();
     if (!texto) return;
-
     const userMsg = document.createElement('div');
     userMsg.style.cssText = 'background:linear-gradient(135deg,var(--c),var(--c2));color:#000;padding:12px 16px;border-radius:18px;border-bottom-right-radius:4px;font-size:14px;max-width:82%;align-self:flex-end;font-weight:600;margin-top:4px;margin-left:auto;line-height:1.5;';
     userMsg.textContent = texto;
     chatBox.appendChild(userMsg);
     inputChat.value = '';
     chatBox.scrollTop = chatBox.scrollHeight;
-
     const typing = document.createElement('div');
     typing.id = 'fyl-typing';
     typing.style.cssText = 'display:flex;align-items:flex-end;gap:8px;margin-top:4px';
@@ -2194,13 +2163,11 @@ if ('serviceWorker' in navigator) {
     `;
     chatBox.appendChild(typing);
     chatBox.scrollTop = chatBox.scrollHeight;
-
     let dots = 1;
     const dotsTimer = setInterval(() => {
       const el = document.getElementById('fyl-dots');
       if (el) { dots = dots >= 3 ? 1 : dots+1; el.textContent = '.'.repeat(dots); }
     }, 400);
-
     try {
       const res = await fetch('https://fylox-backend.onrender.com/api/fyl/chat', {
         method: 'POST',
