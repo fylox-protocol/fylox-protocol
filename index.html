@@ -1998,9 +1998,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 <script>
-  // ========================================== //
-  // 1. FUNCIONES DE INTERFAZ (Abrir/Cerrar)    //
-  // ========================================== //
+    // 1. FUNCIONES DE INTERFAZ (Abrir/Cerrar)
   function abrirPanelIA() {
     const panel = document.getElementById('ai-panel');
     const fab = document.getElementById('ai-fab');
@@ -2021,189 +2019,75 @@ if ('serviceWorker' in navigator) {
     }
   }
 
-  // ========================================== //
-  // 2. VARIABLES GLOBALES (Los "Cables")       //
-  // ========================================== //
+  // 2. VARIABLES DE CHAT
   const chatBox   = document.getElementById('ai-chat-box');
   const inputChat = document.getElementById('ai-input');
   const btnSend   = document.getElementById('ai-send-btn');
   const btnMic    = document.getElementById('ai-mic-btn');
 
-  // ========================================== //
-  // 3. FUNCIÓN DE VOZ (Cuerdas Vocales)        //
-  // ========================================== //
+  // 3. VOZ DE FYL
   function hablarFyl(texto) {
     const textoLimpio = texto.replace(/\*/g, '');
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(textoLimpio);
-
-    utterance.lang = 'es-AR'; 
-    utterance.rate = 1.0;     
-    utterance.pitch = 1.0;    
-    utterance.volume = 1.0;   
-
-    synth.cancel(); 
+    utterance.lang = 'es-AR';
+    synth.cancel();
     synth.speak(utterance);
   }
 
-  // ========================================== //
-  // 4. ENVIAR MENSAJE AL BACKEND REAL (Render) //
-  // ========================================== //
+  // 4. ENVIAR MENSAJE
   async function enviarMensaje() {
     if(!inputChat || !chatBox) return;
     const texto = inputChat.value.trim();
-    if (!texto) return; 
+    if (!texto) return;
 
     const userMsg = document.createElement('div');
-    userMsg.style.cssText = 'background: var(--c); color: #000; padding: 12px 16px; border-radius: 16px; border-bottom-right-radius: 4px; font-size: 14px; max-width: 85%; align-self: flex-end; line-height: 1.5; font-weight: 600; margin-top: 8px;';
+    userMsg.style.cssText = 'background:var(--c);color:#000;padding:12px 16px;border-radius:16px;border-bottom-right-radius:4px;font-size:14px;max-width:85%;align-self:flex-end;font-weight:600;margin-top:8px;';
     userMsg.textContent = texto;
     chatBox.appendChild(userMsg);
-
     inputChat.value = '';
     chatBox.scrollTop = chatBox.scrollHeight;
 
     const fylTyping = document.createElement('div');
     fylTyping.id = 'fyl-typing';
-    fylTyping.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: rgba(255,255,255,0.5); font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; font-style: italic; margin-top: 8px;';
+    fylTyping.style.cssText = 'background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:16px;color:rgba(255,255,255,0.5);font-size:14px;align-self:flex-start;font-style:italic;margin-top:8px;';
     fylTyping.textContent = 'Fyl está pensando...';
     chatBox.appendChild(fylTyping);
-    chatBox.scrollTop = chatBox.scrollHeight;
 
     try {
-      const response = await fetch('https://fylox-backend.onrender.com/api/fyl/chat', {
+      const res = await fetch('https://fylox-backend.onrender.com/api/fyl/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: texto })
       });
+      const data = await res.json();
+      document.getElementById('fyl-typing').remove();
 
-      const data = await response.json();
-      const typingIndicator = document.getElementById('fyl-typing');
-      if (typingIndicator) typingIndicator.remove();
-
-      const respuestaFinal = data.reply || "Perdón, tuve un problema al procesar eso.";
-      hablarFyl(respuestaFinal);
+      const respuesta = data.reply || "No pude conectar ahora.";
+      hablarFyl(respuesta);
 
       const fylMsg = document.createElement('div');
-      fylMsg.style.cssText = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 16px; border-bottom-left-radius: 4px; color: #fff; font-size: 14px; max-width: 85%; line-height: 1.5; align-self: flex-start; margin-top: 8px;';
-      fylMsg.innerHTML = respuestaFinal.replace(/\n/g, '<br>');
+      fylMsg.style.cssText = 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:16px;border-radius:16px;border-bottom-left-radius:4px;color:#fff;font-size:14px;max-width:85%;margin-top:8px;';
+      fylMsg.innerHTML = respuesta.replace(/\n/g, '<br>');
       chatBox.appendChild(fylMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
-
-    } catch (error) {
-      console.error('Error:', error);
-      const typingIndicator = document.getElementById('fyl-typing');
-      if (typingIndicator) typingIndicator.remove();
-      alert('No pude conectar con el servidor.');
+    } catch (e) {
+      if(document.getElementById('fyl-typing')) document.getElementById('fyl-typing').remove();
+      alert('Fyl está fuera de línea.');
     }
   }
 
-  // ========================================== //
-  // 5. DISPARADORES Y ACTIVACIÓN               //
-  // ========================================== //
-  if (btnMic) {
+  // 5. EVENTOS
+  if(btnSend) btnSend.onclick = enviarMensaje;
+  if(btnMic) {
     btnMic.onclick = () => {
       inputChat.focus();
-      const placeholderOriginal = inputChat.placeholder;
+      const old = inputChat.placeholder;
       inputChat.placeholder = 'Usá el 🎤 de tu teclado...';
-      setTimeout(() => { inputChat.placeholder = placeholderOriginal; }, 3000);
+      setTimeout(() => inputChat.placeholder = old, 3000);
     };
   }
-
-  if (btnSend) btnSend.onclick = enviarMensaje;
-
-  if (inputChat) {
-    inputChat.onkeypress = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        enviarMensaje();
-      }
-    };
-  }
-
-  // Mostrar el botón flotante al cargar la página
-  window.addEventListener('load', () => {
-    const fab = document.getElementById('ai-fab');
-    if (fab) fab.style.display = 'flex';
-  });
 </script>
-
-
-  
-
-<!-- ══════════════════════════════════ -->
-<!--  BOTÓN FLOTANTE IA (FAB)          -->
-<!-- ══════════════════════════════════ -->
-<button id="ai-fab" onclick="abrirPanelIA()" style="
-  position: fixed;
-  bottom: 90px;
-  right: 20px;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--c), var(--c2));
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(0,212,232,.4);
-  z-index: 1000;
-  transition: opacity .3s;
-  font-size: 22px;
-">🤖</button>
-
-<!-- ══════════════════════════════════ -->
-<!--  PANEL IA (Drawer desde abajo)    -->
-<!-- ══════════════════════════════════ -->
-<div id="ai-panel" style="
-  position: fixed;
-  bottom: -100%;
-  left: 0; right: 0;
-  height: 80vh;
-  background: var(--bg2);
-  border-top: 1px solid var(--b);
-  border-radius: 24px 24px 0 0;
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  transition: bottom .35s cubic-bezier(.22,1,.36,1);
-  padding: 0;
-">
-  <!-- Header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--b);">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--c),var(--c2));display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
-      <div>
-        <div style="font-weight:700;font-size:15px;">Fyl IA</div>
-        <div style="font-size:11px;color:var(--t3);">Asistente Fylox</div>
-      </div>
-    </div>
-    <button onclick="cerrarPanelIA()" style="background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer;padding:4px;">✕</button>
-  </div>
-
-  <!-- Chat -->
-  <div id="ai-chat-box" style="
-    flex:1;
-    overflow-y:auto;
-    padding:16px 20px;
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-  ">
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px 16px;border-radius:16px;border-bottom-left-radius:4px;color:#fff;font-size:14px;max-width:85%;line-height:1.5;align-self:flex-start;">
-      ¡Hola! Soy <strong>Fyl</strong>, tu asistente de Fylox. ¿En qué te puedo ayudar hoy? 🚀
-    </div>
-  </div>
-
-  <!-- Input -->
-  <div style="padding:12px 16px 24px;display:flex;gap:8px;align-items:center;border-top:1px solid var(--b);">
-    <input id="ai-input" type="text" placeholder="Escribe tu mensaje..."
-      onkeydown="if(event.key==='Enter') enviarMensaje()"
-      style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:24px;padding:12px 16px;font-size:14px;color:var(--t2);font-family:var(--fn);outline:none;">
-    <button id="ai-mic-btn" onclick="activarMic()" style="width:42px;height:42px;border-radius:50%;background:var(--bg3);border:1px solid var(--b);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">🎙️</button>
-    <button id="ai-send-btn" onclick="enviarMensaje()" style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--c),var(--c2));border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">➤</button>
-  </div>
-</div>
 
 </body>
 </html>
