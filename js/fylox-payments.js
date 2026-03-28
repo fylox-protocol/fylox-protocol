@@ -275,35 +275,43 @@ async function piLogin() {
 }
 
 
-// RETIRO A2U //
+// ═══════════════════════════════════════════════════
+//  RETIRO A BILLETERA Pi (A2U)
+// ═══════════════════════════════════════════════════
 
 async function withdrawToWallet() {
   const balance = window._fyloxBalance || 0;
+
   if (balance <= 0) {
-    alert('No tienes saldo disponible para retirar.');
+    alert('No tenés saldo disponible para retirar.');
     return;
   }
 
   const walletAddress = window._fyloxWallet || null;
   if (!walletAddress) {
-    alert('No se encontró tu dirección de billetera Pi.');
+    alert('No se encontró tu dirección de billetera Pi. Reconectate.');
     return;
   }
 
+  // Bloquear el botón mientras procesa
+  const btns = document.querySelectorAll('[onclick="withdrawToWallet()"]');
+  btns.forEach(b => { b.disabled = true; b.textContent = 'Procesando...'; });
+
   if (!window.Pi) {
     // Demo mode
-    alert(`Retiro de ${balance.toFixed(2)} π a ${walletAddress} (modo demo).`);
+    btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
+    alert(`[Demo] Retiro de ${balance.toFixed(2)} π a ${walletAddress}`);
     return;
   }
 
   Pi.createPayment(
     {
       amount: balance,
-      memo: 'Retiro a billetera Pi',
+      memo: 'Retiro Fylox → billetera Pi',
       metadata: { type: 'withdraw', walletAddress },
     },
     {
-      onReadyForServerApproval: async function (paymentId) {
+      onReadyForServerApproval: async function(paymentId) {
         try {
           await apiCall('POST', '/payments/approve', { paymentId });
         } catch (err) {
@@ -314,23 +322,53 @@ async function withdrawToWallet() {
           }
         }
       },
-      onReadyForServerCompletion: async function (paymentId, txid) {
+
+      onReadyForServerCompletion: async function(paymentId, txid) {
         try {
-          await apiCall('POST', '/payments/complete', { paymentId, txid });
-          alert(`✅ ${balance.toFixed(2)} π retirado exitosamente a tu billetera.`);
+          // ✅ Llama al endpoint correcto con el amount
+          await apiCall('POST', '/payments/withdraw', {
+            paymentId,
+            txid,
+            amount: balance,
+          });
+
+          // Actualizar UI
           const newBalance = await fetchBalance();
           _lastKnownBalance = newBalance;
           updateUIWithUser(window._fyloxUsername || 'Pioneer', newBalance);
+
+          // Notificación
+          if (typeof FyloxNotification !== 'undefined') {
+            FyloxNotification.show({
+              icon: '💸',
+              title: 'Retiro exitoso',
+              sub: `${balance.toFixed(2)} π enviados a tu billetera`,
+              amt: '−' + balance.toFixed(2) + ' π',
+              sound: true,
+            });
+          } else {
+            alert(`✅ ${balance.toFixed(2)} π retirados a tu billetera Pi.`);
+          }
+
+          goTo('s5');
         } catch (err) {
           console.error('[Fylox] Error completando retiro:', err.message);
+          alert('❌ Error al procesar el retiro. Intentá de nuevo.');
+        } finally {
+          btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
         }
       },
-      onCancel: function (paymentId) {
+
+      onCancel: function(paymentId) {
         console.log('[Fylox] Retiro cancelado:', paymentId);
+        btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
       },
-      onError: function (error) {
+
+      onError: function(error) {
         console.error('[Fylox] Error Pi SDK en retiro:', error);
+        btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
+        alert('❌ Error en Pi Network. Intentá de nuevo.');
       },
     }
   );
-  
+}
