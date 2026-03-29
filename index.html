@@ -1606,10 +1606,10 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   <div class="tnav">
     <div class="bk" data-go="s5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div>
     <div class="ttitle" data-i18n="notifications">Notifications</div>
-    <div onclick="limpiarNotificaciones()" style="font-size:12px;color:var(--c);font-weight:600;cursor:pointer" data-i18n="clearAll">Clear all</div>
+    <div onclick="clearNotifications()" style="font-size:12px;color:var(--c);font-weight:600;cursor:pointer" data-i18n="clearAll">Clear all</div>
   </div>
   <div class="sc">
-    <div id="lista-notificaciones" style="transition: opacity 0.3s ease;">
+    <div id="notifications-list" style="transition: opacity 0.3s ease;">
       <div class="row mb8" style="border-color:rgba(0,224,144,.2)">
         <div class="ti" style="background:rgba(0,224,144,.1);color:var(--grn)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div style="flex:1"><div style="font-size:13px;font-weight:600" data-i18n="paymentConfirmedTitle">Payment confirmed</div><div style="font-size:11px;color:var(--t2)"><span data-i18n="paymentConfirmedNote">Utility Bill 8.5 π · 2 hours ago</span></div></div>
