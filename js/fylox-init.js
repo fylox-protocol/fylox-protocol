@@ -99,7 +99,7 @@ window.onload = async function() {
     if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
   } else {
     console.log('[Fylox] Demo mode');
-    updateUIWithUser('joaquin_vera', 100.00);
+    updateUIWithUser(window._fyloxUsername || 'Pioneer', 0.00);
   }
 
 };
