@@ -462,3 +462,140 @@ goTo = function(id) {
   if (id === 's22') loadOracleTasks();
   if (id === 's24') loadAgoraProposals();
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  S21 EARN DASHBOARD — carga todo desde la API al abrir
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadEarnDashboard() {
+  // Mostrar ceros mientras carga
+  _earnSetLoading(true);
+
+  try {
+    // Llamadas en paralelo para velocidad
+    const [statsData, txData, oracleData, agoraData] = await Promise.allSettled([
+      apiCall('GET', '/user/earn-stats'),
+      apiCall('GET', '/user/transactions?limit=10&type=reward'),
+      apiCall('GET', '/oracle/tasks'),
+      apiCall('GET', '/agora/proposals'),
+    ]);
+
+    // ── 1. Stats del usuario (monthly total, nexus score, marketplace)
+    if (statsData.status === 'fulfilled') {
+      const s = statsData.value;
+
+      // Total mensual
+      const totalEl = document.getElementById('earn-monthly-total');
+      if (totalEl) totalEl.innerHTML = `${(s.monthlyEarned || 0).toFixed(2)} <span style="font-size:22px;opacity:.7">π</span>`;
+
+      // USD
+      const usdEl = document.getElementById('earn-monthly-usd');
+      if (usdEl) usdEl.textContent = `≈ $${((s.monthlyEarned || 0) * (piPrice || 0.34)).toFixed(2)} USD`;
+
+      // Nexus
+      const nexusEl    = document.getElementById('earn-nexus-score');
+      const nexusLabel = document.getElementById('earn-nexus-label');
+      const score      = s.nexusScore || 0;
+      if (nexusEl) nexusEl.innerHTML = `${score} <span style="font-size:12px;font-weight:600;opacity:.7">pts</span>`;
+      if (nexusLabel) {
+        const label = score >= 800 ? 'Score: Excellent' : score >= 600 ? 'Score: Good' : score >= 400 ? 'Score: Fair' : 'Score: New';
+        nexusLabel.textContent = label;
+      }
+
+      // Marketplace
+      const mktEl    = document.getElementById('earn-marketplace-amount');
+      const mktSales = document.getElementById('earn-marketplace-sales');
+      if (mktEl) mktEl.textContent = `${(s.marketplaceEarned || 0).toFixed(1)} π`;
+      if (mktSales) mktSales.textContent = `${s.salesCount || 0} sales`;
+    }
+
+    // ── 2. Oracle — suma de recompensas disponibles + cantidad de tareas
+    if (oracleData.status === 'fulfilled') {
+      const tasks       = oracleData.value.tasks || [];
+      const activeTasks = tasks.filter(t => !t.alreadySubmitted);
+      const oracleTotal = activeTasks.reduce((sum, t) => sum + (t.reward || 0), 0);
+
+      const oracleEl    = document.getElementById('earn-oracle-amount');
+      const oracleCount = document.getElementById('earn-oracle-tasks');
+      if (oracleEl) oracleEl.textContent = `${oracleTotal} π`;
+      if (oracleCount) oracleCount.textContent = `${activeTasks.length} task${activeTasks.length !== 1 ? 's' : ''} available`;
+    } else {
+      const oracleEl = document.getElementById('earn-oracle-amount');
+      if (oracleEl) oracleEl.textContent = '— π';
+    }
+
+    // ── 3. Agora — recompensas disponibles + votos abiertos
+    if (agoraData.status === 'fulfilled') {
+      const proposals    = agoraData.value.proposals || [];
+      const openProposals = proposals.filter(p => !p.alreadyVoted);
+      const agoraTotal   = openProposals.reduce((sum, p) => sum + (p.reward || 0), 0);
+
+      const agoraEl    = document.getElementById('earn-agora-amount');
+      const agoraCount = document.getElementById('earn-agora-votes');
+      if (agoraEl) agoraEl.textContent = `${agoraTotal} π`;
+      if (agoraCount) agoraCount.textContent = `${openProposals.length} vote${openProposals.length !== 1 ? 's' : ''} open`;
+    } else {
+      const agoraEl = document.getElementById('earn-agora-amount');
+      if (agoraEl) agoraEl.textContent = '— π';
+    }
+
+    // ── 4. Historial reciente de rewards
+    if (txData.status === 'fulfilled') {
+      const txs = (txData.value.transactions || []).filter(t =>
+        t.type === 'reward' || t.type === 'oracle' || t.type === 'agora'
+      );
+      renderEarnHistory(txs);
+    }
+
+  } catch (err) {
+    console.warn('[Earn] Error cargando dashboard:', err.message);
+  }
+
+  _earnSetLoading(false);
+}
+
+function _earnSetLoading(loading) {
+  if (loading) {
+    const totalEl = document.getElementById('earn-monthly-total');
+    if (totalEl) totalEl.innerHTML = '<span style="opacity:.4;font-size:28px">Cargando…</span>';
+  }
+}
+
+function renderEarnHistory(txs) {
+  const list = document.getElementById('earn-recent-list');
+  if (!list) return;
+
+  if (!txs || txs.length === 0) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--t3);font-size:13px">Sin actividad reciente.</div>';
+    return;
+  }
+
+  const icons  = { oracle: '🔭', agora: '🏛️', reward: '⚡' };
+  const colors = { oracle: 'var(--c)', agora: 'var(--grn)', reward: 'var(--ylw)' };
+  const bgs    = { oracle: 'rgba(0,212,232,.1)', agora: 'rgba(0,224,144,.1)', reward: 'rgba(255,183,0,.1)' };
+
+  list.innerHTML = txs.slice(0, 6).map(tx => {
+    const type  = tx.type || 'reward';
+    const icon  = icons[type]  || '⚡';
+    const color = colors[type] || 'var(--ylw)';
+    const bg    = bgs[type]    || 'rgba(255,183,0,.1)';
+    const label = tx.toName || tx.rewardSource || type.toUpperCase();
+    const date  = new Date(tx.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+
+    return `<div class="tx">
+      <div class="ti" style="background:${bg};color:${color}">${icon}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${label}</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:1px">${date}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:${color};font-family:var(--fd)">+${tx.amount} π</div>
+    </div>`;
+  }).join('');
+}
+
+// Hook into goTo — sobreescribir el wrapper existente
+const _origGoToEarn = goTo;
+goTo = function(id) {
+  _origGoToEarn(id);
+  if (id === 's21') loadEarnDashboard();
+};
