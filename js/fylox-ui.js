@@ -720,25 +720,27 @@ function renderMerchants(merchants) {
   }).join('');
 }
 
-function limpiarNotificaciones() {
-  const lista = document.getElementById('lista-notificaciones');
-  if (!lista) return;
+window.clearNotifications = function() {
+  const list = document.getElementById('notifications-list');
+  
+  if (!list) return;
 
   // 1. Desvanecemos la lista suavemente
-  lista.style.opacity = '0';
+  list.style.opacity = '0';
 
-  // 2. Esperamos un tercio de segundo y cambiamos el contenido por un mensaje lindo
+  // 2. Esperamos y cambiamos el contenido
   setTimeout(() => {
-    lista.innerHTML = `
+    list.innerHTML = `
       <div style="text-align: center; padding: 60px 20px; color: var(--t3);">
         <div style="font-size: 50px; margin-bottom: 12px;">📭</div>
-        <div style="font-weight: 600; font-size: 18px; color: var(--t1); margin-bottom: 6px;">Todo al día</div>
-        <div style="font-size: 14px;">No tenés notificaciones nuevas.</div>
+        <div style="font-weight: 600; font-size: 18px; color: var(--t1); margin-bottom: 6px;">All caught up</div>
+        <div style="font-size: 14px;">No new notifications.</div>
       </div>
     `;
     
-    // 3. Volvemos a hacer visible el contenedor con el nuevo mensaje
-    lista.style.opacity = '1';
+    // 3. Volvemos a hacer visible
+    list.style.opacity = '1';
   }, 300);
-}
+};
+
 
