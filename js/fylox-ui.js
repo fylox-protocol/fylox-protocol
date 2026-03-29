@@ -719,3 +719,26 @@ function renderMerchants(merchants) {
     </div>`;
   }).join('');
 }
+
+function limpiarNotificaciones() {
+  const lista = document.getElementById('lista-notificaciones');
+  if (!lista) return;
+
+  // 1. Desvanecemos la lista suavemente
+  lista.style.opacity = '0';
+
+  // 2. Esperamos un tercio de segundo y cambiamos el contenido por un mensaje lindo
+  setTimeout(() => {
+    lista.innerHTML = `
+      <div style="text-align: center; padding: 60px 20px; color: var(--t3);">
+        <div style="font-size: 50px; margin-bottom: 12px;">📭</div>
+        <div style="font-weight: 600; font-size: 18px; color: var(--t1); margin-bottom: 6px;">Todo al día</div>
+        <div style="font-size: 14px;">No tenés notificaciones nuevas.</div>
+      </div>
+    `;
+    
+    // 3. Volvemos a hacer visible el contenedor con el nuevo mensaje
+    lista.style.opacity = '1';
+  }, 300);
+}
+
