@@ -1603,20 +1603,26 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 <div class="scr" id="s19">
   <div class="grid"></div>
   <div class="sbar"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div></div>
-  <div class="tnav"><div class="bk" data-go="s5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div><div class="ttitle" data-i18n="notifications">Notifications</div><div style="font-size:12px;color:var(--c);font-weight:600;cursor:pointer" data-i18n="clearAll">Clear all</div></div>
+  <div class="tnav">
+    <div class="bk" data-go="s5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div>
+    <div class="ttitle" data-i18n="notifications">Notifications</div>
+    <div onclick="limpiarNotificaciones()" style="font-size:12px;color:var(--c);font-weight:600;cursor:pointer" data-i18n="clearAll">Clear all</div>
+  </div>
   <div class="sc">
-    <div class="row mb8" style="border-color:rgba(0,224,144,.2)">
-      <div class="ti" style="background:rgba(0,224,144,.1);color:var(--grn)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:600" data-i18n="paymentConfirmedTitle">Payment confirmed</div><div style="font-size:11px;color:var(--t2)"><span data-i18n="paymentConfirmedNote">Utility Bill 8.5 π · 2 hours ago</span></div></div>
-    </div>
-    <div class="row mb8">
-      <div class="ti" style="background:rgba(0,212,232,.1);color:var(--c)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:600" data-i18n="youReceived">You received 25 π</div><div style="font-size:11px;color:var(--t2)"><span data-i18n="receivedNote">From @pioneer_user · Yesterday</span></div></div>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>
-    <div class="row">
-      <div class="ti" style="background:rgba(255,183,0,.1);color:var(--ylw)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:600"><span data-i18n="transitLowNote">Transit Card balance low</span></div><div style="font-size:11px;color:var(--t2)" data-i18n="topUpDaysAgo">Top up recommended · 2 days ago</div></div>
+    <div id="lista-notificaciones" style="transition: opacity 0.3s ease;">
+      <div class="row mb8" style="border-color:rgba(0,224,144,.2)">
+        <div class="ti" style="background:rgba(0,224,144,.1);color:var(--grn)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600" data-i18n="paymentConfirmedTitle">Payment confirmed</div><div style="font-size:11px;color:var(--t2)"><span data-i18n="paymentConfirmedNote">Utility Bill 8.5 π · 2 hours ago</span></div></div>
+      </div>
+      <div class="row mb8">
+        <div class="ti" style="background:rgba(0,212,232,.1);color:var(--c)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600" data-i18n="youReceived">You received 25 π</div><div style="font-size:11px;color:var(--t2)"><span data-i18n="receivedNote">From @pioneer_user · Yesterday</span></div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="row">
+        <div class="ti" style="background:rgba(255,183,0,.1);color:var(--ylw)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600"><span data-i18n="transitLowNote">Transit Card balance low</span></div><div style="font-size:11px;color:var(--t2)" data-i18n="topUpDaysAgo">Top up recommended · 2 days ago</div></div>
+      </div>
     </div>
   </div>
 </div>
