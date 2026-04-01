@@ -1,8 +1,10 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX API CLIENT — v2
+//  FYLOX API CLIENT — v3
+//  - URL centralizada y sin placeholders
 //  - JWT expirado → limpia sesión y vuelve al login
 //  - Retry automático en errores de red (1 vez)
 //  - Timeout de 15s por request
+//  - Upload via backend firmado (no credenciales en frontend)
 // ═══════════════════════════════════════════════════
 
 const FYLOX_API = 'https://fylox-backend.onrender.com/api';
@@ -10,19 +12,25 @@ const FYLOX_API = 'https://fylox-backend.onrender.com/api';
 let _fyloxToken = null;
 
 function getToken()   { return _fyloxToken; }
-function setToken(t)  { _fyloxToken = t; }
-function clearToken() { _fyloxToken = null; }
+function setToken(t)  { _fyloxToken = t; FyloxStorage.set('fylox_token', t); }
+function clearToken() { _fyloxToken = null; FyloxStorage.remove('fylox_token'); }
 
-// Manejo centralizado de sesión expirada
+// Restaurar token de sesión previa al cargar
+(function _restoreToken() {
+  try {
+    const saved = FyloxStorage.get('fylox_token');
+    if (saved) _fyloxToken = saved;
+  } catch(e) { /* silencio */ }
+})();
+
+// ── Manejo centralizado de sesión expirada ───────────────────────────────────
 function _handleSessionExpired() {
   clearToken();
-  stopBalancePolling?.();
+  if (typeof stopBalancePolling === 'function') stopBalancePolling();
 
-  // Limpiar UI
   const hb = document.getElementById('home-balance');
   if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
 
-  // Mostrar toast de aviso
   if (typeof FyloxNotification !== 'undefined') {
     FyloxNotification.show({
       icon: '🔒',
@@ -33,7 +41,6 @@ function _handleSessionExpired() {
     });
   }
 
-  // Volver al login después de 1.5s para que el Pioneer vea el toast
   setTimeout(() => {
     const loginBtn = document.getElementById('pi-login-btn');
     if (loginBtn) {
@@ -42,10 +49,11 @@ function _handleSessionExpired() {
       loginBtn.style.background = '';
       loginBtn.style.color = '';
     }
-    goTo?.('s0');
+    if (typeof goTo === 'function') goTo('s0');
   }, 1500);
 }
 
+// ── Cliente HTTP central ─────────────────────────────────────────────────────
 async function apiCall(method, path, body, _isRetry = false) {
   const headers = { 'Content-Type': 'application/json' };
   if (_fyloxToken) headers['Authorization'] = 'Bearer ' + _fyloxToken;
@@ -53,7 +61,6 @@ async function apiCall(method, path, body, _isRetry = false) {
   const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
 
-  // Timeout de 15 segundos
   const controller = new AbortController();
   const timeoutId  = setTimeout(() => controller.abort(), 15000);
   opts.signal = controller.signal;
@@ -63,7 +70,6 @@ async function apiCall(method, path, body, _isRetry = false) {
     clearTimeout(timeoutId);
     const data = await res.json();
 
-    // JWT expirado o inválido → volver al login
     if (res.status === 401) {
       _handleSessionExpired();
       throw new Error(data.error || 'Sesión expirada');
@@ -75,7 +81,6 @@ async function apiCall(method, path, body, _isRetry = false) {
   } catch (err) {
     clearTimeout(timeoutId);
 
-    // Retry automático en errores de red (solo una vez)
     if (!_isRetry && (err.name === 'TypeError' || err.name === 'AbortError')) {
       console.warn('[Fylox API] Red inestable, reintentando:', path);
       await new Promise(r => setTimeout(r, 2000));
@@ -87,22 +92,32 @@ async function apiCall(method, path, body, _isRetry = false) {
   }
 }
 
-// Upload de imagen a Cloudinary (sin pasar por nuestro backend)
+// ── Upload de imagen — firmado por el backend ────────────────────────────────
+//  El frontend NO tiene credenciales de Cloudinary.
+//  El backend genera una firma temporal y la devuelve.
+//  Docs: https://cloudinary.com/documentation/upload_images#generating_authentication_signatures
 async function uploadImage(file) {
-  const CLOUD_NAME   = 'djjcwluuo';
-  const UPLOAD_PRESET = 'oracle_tasks';
+  // 1. Pedir firma al backend (el backend tiene las credenciales)
+  const { signature, timestamp, cloudName, apiKey, folder } =
+    await apiCall('POST', '/uploads/sign', {
+      folder: 'oracle',
+      type:   'image',
+    });
 
+  // 2. Subir directamente a Cloudinary con la firma
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', UPLOAD_PRESET);
-  formData.append('folder', 'oracle');
+  formData.append('file',       file);
+  formData.append('signature',  signature);
+  formData.append('timestamp',  timestamp);
+  formData.append('api_key',    apiKey);
+  formData.append('folder',     folder);
 
   const controller = new AbortController();
   const timeoutId  = setTimeout(() => controller.abort(), 30000);
 
   try {
     const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
       { method: 'POST', body: formData, signal: controller.signal }
     );
     clearTimeout(timeoutId);
