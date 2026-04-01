@@ -1,146 +1,252 @@
-'use strict';
+// ═══════════════════════════════════════════════════
+//  FYLOX PAYMENTS — v2
+//  - Sin apiCall duplicado (usa fylox-api.js)
+//  - Sin alert() — usa FyloxNotification
+//  - Sin piPrice hardcodeado — usa getPiPrice()
+//  - Sin window.SEND_TO/AMT — usa PaymentState
+//  - Validación de monto antes de Pi.createPayment()
+//  - Manejo de pagos pendientes (incomplete payments)
+// ═══════════════════════════════════════════════════
 
-// ── 0. CONFIGURACIÓN Y UTILIDADES BASE ──────────────────────────────────────
-const piPrice = 40; // Precio de referencia para la UI (ajustalo si lo traes de una API)
+// ── Actualizar UI con datos del usuario ─────────────
+function updateUIWithUser(username, balance) {
+  window._fyloxBalance  = balance;
+  window._fyloxUsername = username;
 
-// Función central para hablar con tu Backend (Render)
-async function apiCall(method, endpoint, body = null) {
-  const token = localStorage.getItem('fylox_token'); // Asumo que guardás el JWT acá
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
+  const piid       = username + '.pi';
+  const balanceUSD = fmtUSD(balance);
+  const balanceFmt = fmtPi(balance);
+
+  const els = {
+    'home-balance':    `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`,
+    'home-ars':        balanceUSD,
+    'home-piid':       piid,
+    'home-username':   '@' + username,
+    'profile-username':'@' + username,
+    'receive-address': '@' + username + ' · ' + piid,
+    's3-username':     '@' + username + '.pi',
+    's3-back-username':'@' + username + '.pi',
   };
 
-  const config = { method, headers };
-  if (body) config.body = JSON.stringify(body);
+  Object.entries(els).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (id === 'home-balance') el.innerHTML = val;
+    else el.textContent = val;
+  });
 
-  // Asegurate de que esta URL base coincida con tu backend en desarrollo/producción
-  const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:3001' 
-    : 'https://TU_BACKEND_EN_RENDER.onrender.com'; // <-- CAMBIA ESTO AL SUBIR A PRODUCCIÓN
-
-  const response = await fetch(`${baseUrl}${endpoint}`, config);
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || 'Error en la petición al servidor');
-  }
-  return data;
-}
-
-// Función para pedirle el saldo real a la bóveda
-async function fetchBalance() {
-  try {
-    // Ajustá la ruta '/api/user/balance' a la ruta real de tu backend si es distinta
-    const res = await apiCall('GET', '/api/user/balance'); 
-    return res.balance || 0;
-  } catch (error) {
-    console.error('[Fylox] Error obteniendo saldo:', error);
-    return window._fyloxBalance || 0; // Fallback al último saldo conocido
-  }
-}
-
-// Tu función original de UI (Intacta para que no se rompa tu diseño)
-function updateUIWithUser(username, balance) {
-  window._fyloxBalance = balance;
-  window._fyloxUsername = username;
-  const piid = username + '.pi';
-  const balanceUSD = balance * piPrice;
-  const balanceFmt = balance.toFixed(2);
-  
-  const hb = document.getElementById('home-balance');
-  if (hb) hb.innerHTML = `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`;
-  const hars = document.getElementById('home-ars');
-  if (hars) hars.textContent = balanceUSD.toFixed(3);
-  const hpid = document.getElementById('home-piid');
-  if (hpid) hpid.textContent = piid;
-  const hu = document.getElementById('home-username');
-  if (hu) hu.textContent = '@' + username;
   const wb = document.getElementById('wallet-balance');
   if (wb) wb.dataset.value = balance;
-  const pu = document.getElementById('profile-username');
-  if (pu) pu.textContent = '@' + username;
-  const ra = document.getElementById('receive-address');
-  if (ra) ra.textContent = '@' + username + ' · ' + piid;
-  const s3u = document.getElementById('s3-username');
-  if (s3u) s3u.textContent = '@' + username + '.pi';
-  const s3bu = document.getElementById('s3-back-username');
-  if (s3bu) s3bu.textContent = '@' + username + '.pi';
 }
 
-
-// ── 1. FLUJO DE PAGO SEGURO (U2A: Del Pioneer a Fylox) ────────────────────────
-async function initiatePiPayment(amount, recipientUsername, memoText = 'Pago en Fylox') {
+// ── Obtener saldo desde el backend ──────────────────
+async function fetchBalance() {
   try {
-    console.log(`[Fylox] Iniciando pago de ${amount} Pi para @${recipientUsername}`);
+    const res = await apiCall('GET', '/user/balance');
+    return res.balance || 0;
+  } catch (err) {
+    console.error('[Fylox] Error obteniendo saldo:', err);
+    return window._fyloxBalance || 0;
+  }
+}
 
+// ── Cargar perfil completo ───────────────────────────
+async function loadUserProfile() {
+  try {
+    const data = await apiCall('GET', '/user/me');
+    if (data.username) updateUIWithUser(data.username, data.balance || 0);
+
+    // Stats de perfil
+    const earned = document.getElementById('profile-earned');
+    if (earned) earned.textContent = fmtPi(data.totalEarned || 0) + ' π';
+
+    const txCount = document.querySelector('#s17 [data-tx-count]');
+    if (txCount) txCount.textContent = data.txCount || 0;
+  } catch (err) {
+    console.warn('[Fylox] No se pudo cargar perfil:', err.message);
+  }
+}
+
+// ── 1. FLUJO DE PAGO (U2A: Pioneer → Fylox) ─────────
+async function initiatePiPayment(amount, recipientUsername, memoText = 'Pago en Fylox') {
+  const parsedAmount = parseFloat(amount);
+
+  // Validaciones antes de llamar al SDK
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Monto inválido',
+      sub: 'Ingresá un monto mayor a 0', amt: '', sound: false,
+    });
+    return;
+  }
+
+  if (!recipientUsername || recipientUsername.trim() === '') {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Destinatario inválido',
+      sub: 'No se especificó a quién enviar', amt: '', sound: false,
+    });
+    return;
+  }
+
+  const balance = window._fyloxBalance || 0;
+  if (parsedAmount > balance) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Saldo insuficiente',
+      sub: `Tenés ${fmtPi(balance)} π disponibles`, amt: '', sound: false,
+    });
+    return;
+  }
+
+  // Deshabilitar botón durante el proceso
+  const confirmBtn = document.querySelector('.scr.show .btn.bp');
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Procesando…';
+  }
+
+  try {
     Pi.createPayment({
-      amount: parseFloat(amount),
-      memo: memoText,
-      metadata: { to: recipientUsername } 
+      amount:   parsedAmount,
+      memo:     memoText,
+      metadata: { to: recipientUsername },
     }, {
       onReadyForServerApproval: async function(paymentId) {
-        console.log('[Fylox] Solicitando aprobación S2S...', paymentId);
         try {
-          await apiCall('POST', '/api/payments/approve', { paymentId });
+          await apiCall('POST', '/payments/approve', { paymentId });
         } catch (err) {
-          console.error('[Fylox] Aprobación rechazada:', err);
-          throw new Error('Aprobación S2S fallida');
+          console.error('[Fylox] Aprobación S2S fallida:', err);
+          // Registrar el paymentId pendiente para reintentar
+          FyloxStorage.set('fylox_pending_payment', paymentId);
+          throw err;
         }
       },
+
       onReadyForServerCompletion: async function(paymentId, txid) {
-        console.log('[Fylox] Solicitando completitud S2S...', paymentId, txid);
         try {
-          await apiCall('POST', '/api/payments/complete', { paymentId, txid });
+          await apiCall('POST', '/payments/complete', { paymentId, txid });
+
+          // Limpiar pago pendiente si existía
+          FyloxStorage.remove('fylox_pending_payment');
+
           const newBalance = await fetchBalance();
           updateUIWithUser(window._fyloxUsername, newBalance);
-          alert(`✅ Pago exitoso a @${recipientUsername}`);
+          PaymentState.clear();
+
+          FyloxNotification.show({
+            icon: '✅',
+            title: 'Pago enviado',
+            sub:   'a @' + recipientUsername,
+            amt:   '−' + fmtPi(parsedAmount) + ' π',
+            sound: true,
+            type:  'receive',
+          });
+
+          goTo('s8');
+
         } catch (err) {
-          console.error('[Fylox] Completitud fallida:', err);
-          throw new Error('Completitud S2S fallida');
+          console.error('[Fylox] Completitud S2S fallida:', err);
+          FyloxNotification.show({
+            icon: '❌', title: 'Error al completar',
+            sub: 'Contactá soporte con tu ID de pago', amt: '', sound: false,
+          });
         }
       },
+
       onCancel: function(paymentId) {
         console.log('[Fylox] Pago cancelado:', paymentId);
+        FyloxNotification.show({
+          icon: '↩️', title: 'Pago cancelado',
+          sub: 'No se realizó ningún cobro', amt: '', sound: false,
+        });
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Confirmar pago';
+        }
       },
+
       onError: function(error, payment) {
         console.error('[Fylox] Error Pi SDK:', error, payment);
-        alert('❌ Error al procesar el pago.');
-      }
+        FyloxNotification.show({
+          icon: '❌', title: 'Error en el pago',
+          sub: 'Intentá de nuevo en unos segundos', amt: '', sound: false,
+        });
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Confirmar pago';
+        }
+      },
     });
-  } catch (error) {
-    console.error('[Fylox] Error iniciando pago:', error);
+
+  } catch (err) {
+    console.error('[Fylox] Error iniciando pago:', err);
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Confirmar pago';
+    }
   }
 }
 
-// ── 2. FLUJO DE RETIRO SEGURO (A2U: De Fylox al Pioneer) ────────────────────
+// ── Función llamada desde el botón de confirmar pago ─
+function fyloxSendPayment() {
+  const { to, amt } = PaymentState.get();
+
+  if (!PaymentState.isValid()) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Datos de pago incompletos',
+      sub: 'Volvé a escanear el QR', amt: '', sound: false,
+    });
+    return;
+  }
+
+  initiatePiPayment(amt, to);
+}
+
+// ── 2. FLUJO DE RETIRO (A2U: Fylox → Pioneer) ───────
 async function withdrawToWallet(amountToWithdraw) {
   const amount = parseFloat(amountToWithdraw);
-  if (isNaN(amount) || amount <= 0) return alert('Monto inválido.');
-  
-  const btns = document.querySelectorAll('[onclick="withdrawToWallet()"]');
-  btns.forEach(b => { b.disabled = true; b.innerHTML = '<span class="spinner"></span> Procesando...'; });
+  if (isNaN(amount) || amount <= 0) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Monto inválido',
+      sub: 'Ingresá un monto válido', amt: '', sound: false,
+    });
+    return;
+  }
+
+  const btns = document.querySelectorAll('[onclick*="withdrawToWallet"]');
+  btns.forEach(b => { b.disabled = true; b.textContent = 'Procesando…'; });
 
   try {
-    console.log(`[Fylox] Solicitando retiro de ${amount} Pi...`);
-    await apiCall('POST', '/api/payments/withdraw', { amount });
-    
+    await apiCall('POST', '/payments/withdraw', { amount });
     const newBalance = await fetchBalance();
     updateUIWithUser(window._fyloxUsername, newBalance);
-    alert(`✅ Retiro exitoso. ${amount} Pi enviados a tu billetera.`);
+
+    FyloxNotification.show({
+      icon: '✅',
+      title: 'Retiro exitoso',
+      sub:   fmtPi(amount) + ' π enviados a tu billetera',
+      amt:   '+' + fmtPi(amount) + ' π',
+      sound: true,
+      type:  'receive',
+    });
+
   } catch (err) {
     console.error('[Fylox] Error en retiro:', err.message);
-    alert(`❌ No se pudo procesar: ${err.message}`);
+    FyloxNotification.show({
+      icon: '❌', title: 'Error en el retiro',
+      sub: err.message || 'Intentá de nuevo', amt: '', sound: false,
+    });
   } finally {
-    btns.forEach(b => { b.disabled = false; b.innerHTML = 'Retirar a mi Billetera'; });
+    btns.forEach(b => { b.disabled = false; b.textContent = 'Retirar a mi Billetera'; });
   }
 }
 
-// ── 3. MITIGACIÓN DE DDOS (Polling optimizado) ──────────────────────────────
+// ── 3. POLLING DE SALDO ──────────────────────────────
 let _balancePollTimer = null;
+
 function startBalancePolling() {
   if (_balancePollTimer) clearInterval(_balancePollTimer);
   _balancePollTimer = setInterval(async () => {
+    if (!getToken()) return;
     try {
       const newBalance = await fetchBalance();
       if (newBalance !== window._fyloxBalance) {
@@ -150,4 +256,11 @@ function startBalancePolling() {
       console.warn('[Fylox] Error polling:', e.message);
     }
   }, 180000); // 3 minutos
+}
+
+function stopBalancePolling() {
+  if (_balancePollTimer) {
+    clearInterval(_balancePollTimer);
+    _balancePollTimer = null;
+  }
 }
