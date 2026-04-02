@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.minepi.com cdnjs.cloudflare.com fonts.googleapis.com; connect-src 'self' https://fylox-backend.onrender.com https://api.cloudinary.com https://www.okx.com https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline' fonts.googleapis.com cdnjs.cloudflare.com; font-src fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.basemaps.cartocdn.com; worker-src blob:;">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#00D4E8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1137,7 +1137,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       <div class="kkey" data-k=".">.</div><div class="kkey" data-k="0">0</div><div class="kkey kc" data-k="x">⌫</div>
     </div>
     <div style="flex:1"></div>
-    <button class="btn bp mb8" data-i18n="confirmPay" onclick="window.SEND_AMT=kval!=='0'?kval:'0.00'; fyloxSendPayment();">Confirm Payment</button>
+    <button class="btn bp mb8" data-i18n="confirmPay" onclick="PaymentState.setAmt(kval !== '0' ? kval : '0.00'); fyloxSendPayment();">Confirm Payment</button>
     <button class="btn bg" data-go="s5" data-i18n="cancel">Cancel</button>
   </div>
 </div>
@@ -1874,16 +1874,17 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 
 <script src="js/fylox-storage.js"></script>
 <script src="js/fylox-api.js"></script>
+<script src="js/fylox-utils.js"></script>
 <script src="js/fylox-langs.js"></script>
 <script src="js/fylox-i18n.js"></script>
-<script src="js/fylox-ui.js"></script>
 <script src="js/fylox-notifications.js"></script>
 <script src="js/fylox-payments.js"></script>
-<script src="js/fylox-earn.js"></script>
+<script src="js/fylox-ui.js"></script>
 <script src="js/fylox-map.js"></script>
 <script src="js/fylox-home.js"></script>
+<script src="js/fylox-earn.js"></script>
 <script src="js/fylox-init.js"></script>
-
+  
 <!-- S-REGISTER-MERCHANT -->
 <div class="scr" id="s-register-merchant">
   <div class="grid"></div>
@@ -2142,8 +2143,7 @@ async function fyloxNFCPay() {
               cerrarNFCModal();
 
               // Pre-cargar datos de pago y navegar
-              window.SEND_TO  = merchant;
-              window.SEND_AMT = amount;
+              PaymentState.set(merchant, amount !== '0' ? amount : '0');
               const mEl = document.getElementById('s11q-merchant-name');
               if (mEl) mEl.textContent = merchant;
 
