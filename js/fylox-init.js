@@ -108,33 +108,35 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // ── Función pública — onclick="piLogin()" en el botón de s4 ──
 function piLogin() {
-  if (!window.Pi || window._fyloxDemoMode) {
+  // Debug visual temporal
+  const btn = document.getElementById('pi-login-btn');
+  
+  if (!window.Pi) {
     FyloxNotification.show({
-      icon:  'ℹ️',
-      title: 'Abrí en Pi Browser',
-      sub:   'Los pagos reales requieren el Pi Browser',
-      amt:   '',
-      sound: false,
+      icon: '❌', title: 'Pi SDK no detectado',
+      sub: 'window.Pi es undefined', amt: '', sound: false,
     });
     return;
   }
 
-  const btn = document.getElementById('pi-login-btn');
-  if (!btn || btn.disabled) return;
+  FyloxNotification.show({
+    icon: '✅', title: 'Pi SDK detectado',
+    sub: 'Iniciando authenticate...', amt: '', sound: false,
+  });
 
+  if (!btn || btn.disabled) return;
   btn.disabled  = true;
   btn.innerHTML = '<span style="position:relative;z-index:1;opacity:.7">Conectando…</span>';
 
   _authenticateWithPi().catch(err => {
     console.error('[Fylox] Auth fallida:', err);
     btn.disabled  = false;
-    btn.innerHTML = '<span style="position:relative;z-index:1" data-i18n="continueWithPi">Continuar con Pi Network →</span>';
+    btn.innerHTML = '<span style="position:relative;z-index:1">Continuar con Pi Network →</span>';
     FyloxNotification.show({
-      icon:  '⚠️',
+      icon: '⚠️',
       title: 'Error de conexión',
-      sub:   err.message || 'Intentá de nuevo',
-      amt:   '',
-      sound: false,
+      sub: err.message || 'Sin mensaje de error',
+      amt: '', sound: false,
     });
   });
 }
