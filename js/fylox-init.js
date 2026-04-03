@@ -1,9 +1,10 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX INIT — v3
+//  FYLOX INIT — v4
 //  - piLogin() función pública para el botón de s4
-//  - Sin addEventListener en el botón — usa onclick directo
+//  - Sin addEventListener — usa onclick directo
 //  - ?pay= validado y sanitizado (anti-phishing)
 //  - Pi SDK auth con manejo de errores robusto
+//  - Payload correcto para /auth/pi (accessToken + walletAddress)
 //  - Demo mode no permite acceder a pagos reales
 //  - Polling de saldo arranca solo tras auth exitosa
 // ═══════════════════════════════════════════════════
@@ -98,7 +99,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('[Fylox] Pi Browser detectado — esperando auth del usuario');
     const hb = document.getElementById('home-balance');
     if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
-    // El usuario toca el botón que llama piLogin() directamente
   } else {
     console.log('[Fylox] Modo demo — funciones de pago deshabilitadas');
     _startDemoMode();
@@ -108,7 +108,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // ── Función pública — onclick="piLogin()" en el botón de s4 ──
 function piLogin() {
-  // Sin Pi SDK — modo demo
   if (!window.Pi || window._fyloxDemoMode) {
     FyloxNotification.show({
       icon:  'ℹ️',
@@ -148,19 +147,19 @@ async function _authenticateWithPi() {
       _onIncompletePayment
     ).then(async (authResult) => {
       try {
-        // Verificar accessToken con el backend
+        // Payload correcto — el backend espera accessToken y walletAddress
         const data = await apiCall('POST', '/auth/pi', {
-          accessToken: authResult.accessToken,
-          user:        authResult.user,
+          accessToken:   authResult.accessToken,
+          walletAddress: authResult.user?.wallet_address || null,
         });
 
-        // Guardar token JWT del backend
+        // Guardar JWT del backend
         setToken(data.token);
 
-        // Actualizar UI con datos reales
+        // La respuesta del backend tiene { token, user: { username, walletAddress } }
         updateUIWithUser(
-          data.username || authResult.user.username,
-          data.balance  || 0
+          data.user?.username || authResult.user.username,
+          data.balance || 0
         );
 
         // Aplicar ?pay= pendiente DESPUÉS de auth exitosa
