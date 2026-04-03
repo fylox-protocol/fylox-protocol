@@ -96,9 +96,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // ── 3. Inicializar según contexto ────────────────────
   if (window.Pi) {
-    console.log('[Fylox] Pi Browser detectado — esperando auth del usuario');
-    const hb = document.getElementById('home-balance');
-    if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
+  console.log('[Fylox] Pi Browser detectado — inicializando SDK');
+  
+  // CRÍTICO: Pi.init() debe llamarse antes de cualquier otra función del SDK
+  Pi.init({
+    version: '2.0',
+    sandbox: true, // true = testnet, false = mainnet
+  });
+
+  const hb = document.getElementById('home-balance');
+  if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
   } else {
     console.log('[Fylox] Modo demo — funciones de pago deshabilitadas');
     _startDemoMode();
