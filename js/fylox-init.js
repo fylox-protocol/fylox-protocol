@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX INIT — v2
+//  FYLOX INIT — v3
+//  - piLogin() función pública para el botón de s4
+//  - Sin addEventListener en el botón — usa onclick directo
 //  - ?pay= validado y sanitizado (anti-phishing)
 //  - Pi SDK auth con manejo de errores robusto
 //  - Demo mode no permite acceder a pagos reales
 //  - Polling de saldo arranca solo tras auth exitosa
-//  - window.onload reemplazado por DOMContentLoaded
 // ═══════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -30,22 +31,16 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   // ── 1. Validar parámetro ?pay= anti-phishing ────────
-  //  Solo acepta formato @username o username.pi
-  //  Nunca precarga el destinatario sin que el usuario
-  //  haya iniciado sesión primero.
   const urlParams = new URLSearchParams(window.location.search);
   const rawPayTo  = urlParams.get('pay');
 
   if (rawPayTo) {
-    // Validar formato: solo letras, números, _, . y @
     const PI_USERNAME_REGEX = /^@?[a-zA-Z0-9_]{2,32}(\.pi)?$/;
     if (PI_USERNAME_REGEX.test(rawPayTo.trim())) {
-      // Guardar como pendiente — se aplica DESPUÉS de auth exitosa
       window._pendingPayTo = rawPayTo.trim();
     } else {
       console.warn('[Fylox] ?pay= inválido ignorado:', rawPayTo);
     }
-    // Limpiar la URL para no exponer el destinatario en el historial
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
@@ -100,42 +95,52 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // ── 3. Inicializar según contexto ────────────────────
   if (window.Pi) {
-    // Estamos en Pi Browser — mostrar placeholder hasta que el usuario toque
     console.log('[Fylox] Pi Browser detectado — esperando auth del usuario');
     const hb = document.getElementById('home-balance');
     if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
-    _setupPiLoginButton();
+    // El usuario toca el botón que llama piLogin() directamente
   } else {
-    // Fuera del Pi Browser — modo demo restringido
     console.log('[Fylox] Modo demo — funciones de pago deshabilitadas');
     _startDemoMode();
   }
 
 });
 
-// ── Auth con Pi SDK ──────────────────────────────────
-function _setupPiLoginButton() {
+// ── Función pública — onclick="piLogin()" en el botón de s4 ──
+function piLogin() {
+  // Sin Pi SDK — modo demo
+  if (!window.Pi || window._fyloxDemoMode) {
+    FyloxNotification.show({
+      icon:  'ℹ️',
+      title: 'Abrí en Pi Browser',
+      sub:   'Los pagos reales requieren el Pi Browser',
+      amt:   '',
+      sound: false,
+    });
+    return;
+  }
+
   const btn = document.getElementById('pi-login-btn');
-  if (!btn) return;
+  if (!btn || btn.disabled) return;
 
-  btn.addEventListener('click', async function() {
-    btn.disabled     = true;
-    btn.innerHTML    = '<span style="opacity:.6">Connecting…</span>';
+  btn.disabled  = true;
+  btn.innerHTML = '<span style="position:relative;z-index:1;opacity:.7">Conectando…</span>';
 
-    try {
-      await _authenticateWithPi();
-    } catch (err) {
-      console.error('[Fylox] Auth fallida:', err);
-      btn.disabled  = false;
-      btn.innerHTML = '<span style="position:relative;z-index:1">Continue with Pi Network →</span>';
-      FyloxNotification.show({
-        icon: '⚠️', title: 'Error de conexión',
-        sub: 'Intentá de nuevo', amt: '', sound: false,
-      });
-    }
+  _authenticateWithPi().catch(err => {
+    console.error('[Fylox] Auth fallida:', err);
+    btn.disabled  = false;
+    btn.innerHTML = '<span style="position:relative;z-index:1" data-i18n="continueWithPi">Continuar con Pi Network →</span>';
+    FyloxNotification.show({
+      icon:  '⚠️',
+      title: 'Error de conexión',
+      sub:   err.message || 'Intentá de nuevo',
+      amt:   '',
+      sound: false,
+    });
   });
 }
 
+// ── Auth con Pi SDK ──────────────────────────────────
 async function _authenticateWithPi() {
   return new Promise((resolve, reject) => {
     Pi.authenticate(
@@ -143,7 +148,7 @@ async function _authenticateWithPi() {
       _onIncompletePayment
     ).then(async (authResult) => {
       try {
-        // Enviar accessToken al backend para verificar con Pi Platform API
+        // Verificar accessToken con el backend
         const data = await apiCall('POST', '/auth/pi', {
           accessToken: authResult.accessToken,
           user:        authResult.user,
@@ -153,16 +158,18 @@ async function _authenticateWithPi() {
         setToken(data.token);
 
         // Actualizar UI con datos reales
-        updateUIWithUser(data.username || authResult.user.username, data.balance || 0);
+        updateUIWithUser(
+          data.username || authResult.user.username,
+          data.balance  || 0
+        );
 
-        // Aplicar ?pay= pendiente AHORA que el usuario está autenticado
+        // Aplicar ?pay= pendiente DESPUÉS de auth exitosa
         if (window._pendingPayTo) {
-          const to = window._pendingPayTo;
+          const to             = window._pendingPayTo;
           window._pendingPayTo = null;
           PaymentState.setTo(to);
           const mEl = document.getElementById('s11q-merchant-name');
           if (mEl) mEl.textContent = to;
-          // Navegar directo a la pantalla de pago
           setTimeout(() => goTo('s11q'), 300);
         } else {
           goTo('s5');
@@ -179,11 +186,10 @@ async function _authenticateWithPi() {
   });
 }
 
-// ── Pagos incompletos — Pi SDK los detecta al iniciar ─
+// ── Pagos incompletos detectados por Pi SDK al iniciar ─
 async function _onIncompletePayment(payment) {
   console.log('[Fylox] Pago incompleto detectado:', payment.identifier);
   try {
-    // Intentar completar el pago pendiente
     await apiCall('POST', '/payments/complete', {
       paymentId: payment.identifier,
       txid:      payment.transaction?.txid,
@@ -194,25 +200,8 @@ async function _onIncompletePayment(payment) {
   }
 }
 
-// ── Modo demo ────────────────────────────────────────
-//  Muestra la UI pero bloquea todas las funciones de pago real.
+// ── Modo demo — fuera del Pi Browser ────────────────
 function _startDemoMode() {
-  updateUIWithUser('Pioneer', 0.00);
-
-  // Marcar la app como demo — fyloxSendPayment() lo verifica
   window._fyloxDemoMode = true;
-
-  // Parchear el botón de login para mostrar aviso
-  const btn = document.getElementById('pi-login-btn');
-  if (btn) {
-    btn.addEventListener('click', () => {
-      FyloxNotification.show({
-        icon: 'ℹ️',
-        title: 'Abrí en Pi Browser',
-        sub:   'Los pagos reales requieren el Pi Browser',
-        amt:   '',
-        sound: false,
-      });
-    });
-  }
+  updateUIWithUser('Pioneer', 0.00);
 }
