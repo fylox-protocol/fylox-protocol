@@ -1,17 +1,14 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX INIT — v4
-//  - piLogin() función pública para el botón de s4
-//  - Sin addEventListener — usa onclick directo
-//  - ?pay= validado y sanitizado (anti-phishing)
-//  - Pi SDK auth con manejo de errores robusto
-//  - Payload correcto para /auth/pi (accessToken + walletAddress)
-//  - Demo mode no permite acceder a pagos reales
-//  - Polling de saldo arranca solo tras auth exitosa
+//  FYLOX INIT — v5
+//  - Restaurado _setupPiLoginButton con addEventListener
+//  - piLogin() como fallback para onclick en HTML
+//  - Payload correcto para /auth/pi
+//  - Sin Pi.init() — el SDK no lo necesita
 // ═══════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', async function() {
 
-  // ── 0. Aplicar idioma y tema antes de mostrar nada ──
+  // ── 0. Aplicar idioma y tema ─────────────────────────
   try {
     const savedLang    = FyloxStorage.get('fylox-lang');
     const detectedLang = (savedLang && LANGS[savedLang]) ? savedLang : detectLang();
@@ -31,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.warn('[Fylox] Error aplicando tema:', e.message);
   }
 
-  // ── 1. Validar parámetro ?pay= anti-phishing ────────
+  // ── 1. Validar ?pay= anti-phishing ──────────────────
   const urlParams = new URLSearchParams(window.location.search);
   const rawPayTo  = urlParams.get('pay');
 
@@ -96,10 +93,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // ── 3. Inicializar según contexto ────────────────────
   if (window.Pi) {
-  console.log('[Fylox] Pi Browser detectado — esperando auth');
-
-  const hb = document.getElementById('home-balance');
-  if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
+    console.log('[Fylox] Pi Browser detectado — esperando auth del usuario');
+    const hb = document.getElementById('home-balance');
+    if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
+    _setupPiLoginButton();
   } else {
     console.log('[Fylox] Modo demo — funciones de pago deshabilitadas');
     _startDemoMode();
@@ -107,37 +104,54 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 });
 
-// ── Función pública — onclick="piLogin()" en el botón de s4 ──
-function piLogin() {
-  // Debug visual temporal
+// ── Setup del botón — addEventListener (versión original que funcionaba) ──
+function _setupPiLoginButton() {
   const btn = document.getElementById('pi-login-btn');
-  
-  if (!window.Pi) {
+  if (!btn) return;
+
+  btn.addEventListener('click', async function() {
+    if (btn.disabled) return;
+    btn.disabled  = true;
+    btn.innerHTML = '<span style="opacity:.6">Conectando…</span>';
+
+    try {
+      await _authenticateWithPi();
+    } catch (err) {
+      console.error('[Fylox] Auth fallida:', err);
+      btn.disabled  = false;
+      btn.innerHTML = '<span style="position:relative;z-index:1">Continuar con Pi Network →</span>';
+      FyloxNotification.show({
+        icon: '⚠️', title: 'Error de conexión',
+        sub: err.message || 'Intentá de nuevo', amt: '', sound: false,
+      });
+    }
+  });
+}
+
+// ── piLogin() — fallback si el botón usa onclick="piLogin()" ──
+function piLogin() {
+  if (!window.Pi || window._fyloxDemoMode) {
     FyloxNotification.show({
-      icon: '❌', title: 'Pi SDK no detectado',
-      sub: 'window.Pi es undefined', amt: '', sound: false,
+      icon: 'ℹ️', title: 'Abrí en Pi Browser',
+      sub: 'Los pagos reales requieren el Pi Browser',
+      amt: '', sound: false,
     });
     return;
   }
 
-  FyloxNotification.show({
-    icon: '✅', title: 'Pi SDK detectado',
-    sub: 'Iniciando authenticate...', amt: '', sound: false,
-  });
-
+  const btn = document.getElementById('pi-login-btn');
   if (!btn || btn.disabled) return;
+
   btn.disabled  = true;
-  btn.innerHTML = '<span style="position:relative;z-index:1;opacity:.7">Conectando…</span>';
+  btn.innerHTML = '<span style="opacity:.6">Conectando…</span>';
 
   _authenticateWithPi().catch(err => {
     console.error('[Fylox] Auth fallida:', err);
     btn.disabled  = false;
     btn.innerHTML = '<span style="position:relative;z-index:1">Continuar con Pi Network →</span>';
     FyloxNotification.show({
-      icon: '⚠️',
-      title: 'Error de conexión',
-      sub: err.message || 'Sin mensaje de error',
-      amt: '', sound: false,
+      icon: '⚠️', title: 'Error de conexión',
+      sub: err.message || 'Intentá de nuevo', amt: '', sound: false,
     });
   });
 }
@@ -150,22 +164,23 @@ async function _authenticateWithPi() {
       _onIncompletePayment
     ).then(async (authResult) => {
       try {
-        // Payload correcto — el backend espera accessToken y walletAddress
-        const data = await apiCall('POST', '/auth/pi', {
-          accessToken:   authResult.accessToken,
-          walletAddress: authResult.user?.wallet_address || null,
-        });
+        // Payload correcto — walletAddress separado, no dentro de user
+        const payload = { accessToken: authResult.accessToken };
+        if (authResult.user?.wallet_address) {
+          payload.walletAddress = authResult.user.wallet_address;
+        }
+
+        const data = await apiCall('POST', '/auth/pi', payload);
 
         // Guardar JWT del backend
         setToken(data.token);
 
-        // La respuesta del backend tiene { token, user: { username, walletAddress } }
+        // Respuesta del backend: { token, user: { username, walletAddress } }
         updateUIWithUser(
           data.user?.username || authResult.user.username,
           data.balance || 0
         );
 
-        // Aplicar ?pay= pendiente DESPUÉS de auth exitosa
         if (window._pendingPayTo) {
           const to             = window._pendingPayTo;
           window._pendingPayTo = null;
@@ -177,10 +192,9 @@ async function _authenticateWithPi() {
           goTo('s5');
         }
 
-        // Arrancar polling de saldo
         startBalancePolling();
-
         resolve(data);
+
       } catch (err) {
         reject(err);
       }
@@ -188,7 +202,7 @@ async function _authenticateWithPi() {
   });
 }
 
-// ── Pagos incompletos detectados por Pi SDK al iniciar ─
+// ── Pagos incompletos ────────────────────────────────
 async function _onIncompletePayment(payment) {
   console.log('[Fylox] Pago incompleto detectado:', payment.identifier);
   try {
@@ -202,8 +216,19 @@ async function _onIncompletePayment(payment) {
   }
 }
 
-// ── Modo demo — fuera del Pi Browser ────────────────
+// ── Modo demo ────────────────────────────────────────
 function _startDemoMode() {
   window._fyloxDemoMode = true;
   updateUIWithUser('Pioneer', 0.00);
+
+  const btn = document.getElementById('pi-login-btn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      FyloxNotification.show({
+        icon: 'ℹ️', title: 'Abrí en Pi Browser',
+        sub: 'Los pagos reales requieren el Pi Browser',
+        amt: '', sound: false,
+      });
+    });
+  }
 }
