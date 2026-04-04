@@ -5,6 +5,15 @@
 document.addEventListener('DOMContentLoaded', async function() {
 
   try {
+      // Inicializar el SDK de Pi Network
+      // Nota: Recuerda poner sandbox: false cuando vayas a Mainnet
+      Pi.init({ version: "2.0", sandbox: true }); 
+      console.log("[Fylox] Pi SDK inicializado correctamente");
+  } catch (err) {
+      console.error("[Fylox] Error al inicializar Pi SDK:", err);
+  }
+
+  try {
     const savedLang    = FyloxStorage.get('fylox-lang');
     const detectedLang = (savedLang && LANGS[savedLang]) ? savedLang : detectLang();
     applyLang(detectedLang);
