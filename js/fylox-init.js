@@ -1,5 +1,8 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX INIT — v6 DEBUG
+//  FYLOX INIT — v7 FINAL
+//  - Sin toasts de debug
+//  - Login con Pi SDK funcionando
+//  - Payload correcto para /auth/pi
 // ═══════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -95,28 +98,20 @@ function _setupPiLoginButton() {
     btn.disabled  = true;
     btn.innerHTML = '<span style="opacity:.6">Conectando…</span>';
 
-    // DEBUG 1 — el click llegó
-    FyloxNotification.show({
-      icon: '1️⃣', title: 'Click detectado',
-      sub: 'Llamando Pi.authenticate...', amt: '', sound: false,
-    });
-
     try {
       await _authenticateWithPi();
     } catch (err) {
       btn.disabled  = false;
       btn.innerHTML = '<span style="position:relative;z-index:1">Continuar con Pi Network →</span>';
       FyloxNotification.show({
-        icon: '❌', title: 'Error auth',
-        sub: err.message || 'Sin mensaje', amt: '', sound: false,
+        icon: '⚠️', title: 'Error de conexión',
+        sub: err.message || 'Intentá de nuevo', amt: '', sound: false,
       });
     }
   });
 }
 
 function piLogin() {
-  const btn = document.getElementById('pi-login-btn');
-
   if (!window.Pi || window._fyloxDemoMode) {
     FyloxNotification.show({
       icon: 'ℹ️', title: 'Abrí en Pi Browser',
@@ -126,45 +121,28 @@ function piLogin() {
     return;
   }
 
+  const btn = document.getElementById('pi-login-btn');
   if (!btn || btn.disabled) return;
+
   btn.disabled  = true;
   btn.innerHTML = '<span style="opacity:.6">Conectando…</span>';
-
-  FyloxNotification.show({
-    icon: '1️⃣', title: 'piLogin() llamado',
-    sub: 'Llamando Pi.authenticate...', amt: '', sound: false,
-  });
 
   _authenticateWithPi().catch(err => {
     btn.disabled  = false;
     btn.innerHTML = '<span style="position:relative;z-index:1">Continuar con Pi Network →</span>';
     FyloxNotification.show({
-      icon: '❌', title: 'Error auth',
-      sub: err.message || 'Sin mensaje', amt: '', sound: false,
+      icon: '⚠️', title: 'Error de conexión',
+      sub: err.message || 'Intentá de nuevo', amt: '', sound: false,
     });
   });
 }
 
 async function _authenticateWithPi() {
   return new Promise((resolve, reject) => {
-
-    // DEBUG 2 — Pi.authenticate está siendo llamado
-    FyloxNotification.show({
-      icon: '2️⃣', title: 'Pi.authenticate llamado',
-      sub: 'Esperando respuesta del SDK...', amt: '', sound: false,
-    });
-
     Pi.authenticate(
       ['username', 'payments', 'wallet_address'],
       _onIncompletePayment
     ).then(async (authResult) => {
-
-      // DEBUG 3 — Pi.authenticate resolvió
-      FyloxNotification.show({
-        icon: '3️⃣', title: 'Pi auth OK',
-        sub: 'Llamando backend /auth/pi...', amt: '', sound: false,
-      });
-
       try {
         const payload = { accessToken: authResult.accessToken };
         if (authResult.user?.wallet_address) {
@@ -172,12 +150,6 @@ async function _authenticateWithPi() {
         }
 
         const data = await apiCall('POST', '/auth/pi', payload);
-
-        // DEBUG 4 — backend respondió
-        FyloxNotification.show({
-          icon: '4️⃣', title: 'Backend OK',
-          sub: 'Login exitoso! Entrando...', amt: '', sound: false,
-        });
 
         setToken(data.token);
         updateUIWithUser(
@@ -200,19 +172,9 @@ async function _authenticateWithPi() {
         resolve(data);
 
       } catch (err) {
-        FyloxNotification.show({
-          icon: '❌', title: 'Error backend',
-          sub: err.message || 'Sin mensaje', amt: '', sound: false,
-        });
         reject(err);
       }
-    }).catch(err => {
-      FyloxNotification.show({
-        icon: '❌', title: 'Pi.authenticate falló',
-        sub: err.message || 'Sin mensaje del SDK', amt: '', sound: false,
-      });
-      reject(err);
-    });
+    }).catch(reject);
   });
 }
 
