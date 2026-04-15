@@ -140,7 +140,7 @@ async function initiatePiPayment(amount, recipientUsername, memoText = 'Pago en 
             sound: true,
             type:  'receive',
           });
-
+          FyloxRealtime.checkNow();
           goTo('s8');
 
         } catch (err) {
