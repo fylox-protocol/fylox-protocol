@@ -169,6 +169,7 @@ async function _authenticateWithPi() {
         }
 
         startBalancePolling();
+        FyloxRealtime.start();
         resolve(data);
 
       } catch (err) {
