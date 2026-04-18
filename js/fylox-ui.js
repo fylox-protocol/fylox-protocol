@@ -123,6 +123,8 @@ function goTo(id) {
           function scanFrame() {
             if (detected) return;
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
+               // DEBUG — mostrar que el scanner está corriendo
+            if (status) status.textContent = `Escaneando... ${canvas.width}x${canvas.height}`;
               canvas.width  = video.videoWidth;
               canvas.height = video.videoHeight;
               ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
