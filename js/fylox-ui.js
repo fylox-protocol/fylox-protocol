@@ -47,15 +47,6 @@ function goTo(id) {
   next.classList.add('show', 'enter');
   next.addEventListener('animationend', () => next.classList.remove('enter'), { once: true });
 
-  // 2. Botón AI (FYL)
-  const fab              = document.getElementById('ai-fab');
-  const pantallasNoFab   = ['s0', 's1', 's2', 's3', 's4'];
-  if (fab) {
-    fab.style.display  = pantallasNoFab.includes(id) ? 'none' : 'flex';
-    fab.style.opacity  = '1';
-    fab.style.zIndex   = '99999';
-  }
-
   // 3. Reset scroll
   const sc = next.querySelector('.sc');
   if (sc) sc.scrollTop = 0;
