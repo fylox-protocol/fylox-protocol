@@ -149,10 +149,16 @@ function goTo(id) {
                   merchant = raw.slice(0, 30);
                 }
 
-                // PaymentState en vez de window.SEND_TO / SEND_AMT
-                PaymentState.set(merchant, amount !== '0' ? amount : '0');
-                kval = amount !== '0' ? amount : '0';
-
+                // Guardar destinatario — el monto lo ingresa el usuario si no viene en el QR
+                  PaymentState.setTo(merchant);
+                 if (amount !== '0') {
+                  PaymentState.setAmt(amount);
+                  kval = amount;
+                } else {
+                  PaymentState.clear();
+                  PaymentState.setTo(merchant);
+                  kval = '0';
+                }
                 const mEl = document.getElementById('s11q-merchant-name');
                 if (mEl) mEl.textContent = merchant;
                 const aEl = document.getElementById('sa');
