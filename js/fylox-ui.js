@@ -100,82 +100,116 @@ function goTo(id) {
 
   // 7. Activar cámara QR al entrar a s10
   if (id === 's10') {
-    const video  = document.getElementById('qr-video');
-    const canvas = document.getElementById('qr-canvas');
-    const status = document.getElementById('qr-status');
-    if (video && canvas && navigator.mediaDevices?.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(stream => {
-          video.srcObject = stream;
-          video.play();
-          const ctx = canvas.getContext('2d');
-          let detected = false;
+  const video  = document.getElementById('qr-video');
+  const canvas = document.getElementById('qr-canvas');
+  const status = document.getElementById('qr-status');
 
-          function scanFrame() {
-            if (detected) return;
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-               // DEBUG — mostrar que el scanner está corriendo
-            if (status) status.textContent = `Escaneando... ${canvas.width}x${canvas.height}`;
-              canvas.width  = video.videoWidth;
-              canvas.height = video.videoHeight;
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-              const code      = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: 'dontInvert',
-              });
-              if (code) {
-                detected = true;
-                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-                const raw = code.data;
-                let merchant = 'Merchant Name';
-                let amount   = '0';
-                try {
-                  // Solo procesar URLs con prefijo exacto fylox://pay?
-                  if (raw.startsWith('fylox://pay?')) {
-                    const url = new URL(raw.replace('fylox://', 'https://x/'));
-                    merchant  = url.searchParams.get('to')     || merchant;
-                    amount    = url.searchParams.get('amount') || amount;
-                  } else {
-                    merchant = raw.slice(0, 30);
-                  }
-                } catch {
-                  merchant = raw.slice(0, 30);
-                }
+  if (!video || !canvas) return;
+  if (!navigator.mediaDevices?.getUserMedia) {
+    if (status) status.innerHTML = '<span style="color:#ff6b81">Cámara no soportada en este browser</span>';
+    return;
+  }
 
-                // Guardar destinatario — el monto lo ingresa el usuario si no viene en el QR
-                  PaymentState.setTo(merchant);
-                 if (amount !== '0') {
-                  PaymentState.setAmt(amount);
-                  kval = amount;
-                } else {
-                  PaymentState.clear();
-                  PaymentState.setTo(merchant);
-                  kval = '0';
-                }
-                const mEl = document.getElementById('s11q-merchant-name');
-                if (mEl) mEl.textContent = merchant;
-                const aEl = document.getElementById('sa');
-                if (aEl) aEl.innerHTML = `${esc(kval)} <span style="font-size:26px;color:var(--c)">π</span>`;
+  // Intentar con cámara trasera, fallback a cualquier cámara
+  const constraints = [
+    { video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+    { video: { facingMode: 'environment' } },
+    { video: true },
+  ];
 
-                video.srcObject.getTracks().forEach(t => t.stop());
-                video.srcObject = null;
-                goTo('s11q');
-                return;
-              }
-            }
-            window._qrScanLoop = requestAnimationFrame(scanFrame);
+  async function tryCamera(index) {
+    if (index >= constraints.length) {
+      if (status) status.innerHTML = '<span style="color:#ff6b81">No se pudo acceder a la cámara</span>';
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints[index]);
+      video.srcObject = stream;
+      await video.play();
+
+      const ctx      = canvas.getContext('2d');
+      let detected   = false;
+      let frameCount = 0;
+
+      function scanFrame() {
+        if (detected) return;
+        if (video.readyState >= 2 && video.videoWidth > 0) {
+          canvas.width  = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          frameCount++;
+          if (status && frameCount % 30 === 0) {
+            status.textContent = `Escaneando... ${canvas.width}x${canvas.height}`;
           }
 
-          video.addEventListener('loadeddata', () => {
-            window._qrScanLoop = requestAnimationFrame(scanFrame);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'attemptBoth',
           });
-        })
-        .catch(err => {
-          console.warn('[Fylox] Cámara no disponible:', err.message);
-          if (status) status.innerHTML = '<span style="color:#ff6b81">Cámara no disponible</span>';
-        });
+
+          if (code && code.data) {
+            detected = true;
+            if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+
+            const raw      = code.data;
+            let merchant   = '';
+            let amount     = '0';
+
+            try {
+              if (raw.startsWith('fylox://pay?')) {
+                const url = new URL(raw.replace('fylox://', 'https://x/'));
+                merchant  = url.searchParams.get('to')     || '';
+                amount    = url.searchParams.get('amount') || '0';
+              } else {
+                merchant = raw.slice(0, 50);
+              }
+            } catch {
+              merchant = raw.slice(0, 50);
+            }
+
+            if (!merchant) {
+              detected = false;
+              window._qrScanLoop = requestAnimationFrame(scanFrame);
+              return;
+            }
+
+            PaymentState.setTo(merchant);
+            if (amount !== '0') {
+              PaymentState.setAmt(amount);
+              kval = amount;
+            } else {
+              kval = '0';
+            }
+
+            const mEl = document.getElementById('s11q-merchant-name');
+            if (mEl) mEl.textContent = merchant;
+            const aEl = document.getElementById('sa');
+            if (aEl) aEl.innerHTML = `${esc(kval)} <span style="font-size:26px;color:var(--c)">π</span>`;
+
+            stream.getTracks().forEach(t => t.stop());
+            video.srcObject = null;
+            goTo('s11q');
+            return;
+          }
+        } else if (status && frameCount < 5) {
+          frameCount++;
+          status.textContent = `Iniciando cámara...`;
+        }
+        window._qrScanLoop = requestAnimationFrame(scanFrame);
+      }
+
+      window._qrScanLoop = requestAnimationFrame(scanFrame);
+
+    } catch (err) {
+      console.warn(`[Fylox] Cámara constraint ${index} falló:`, err.message);
+      tryCamera(index + 1);
     }
   }
+
+  tryCamera(0);
+}
+  
 
   // 8. Animación de balance en s9
   if (id === 's9') {
