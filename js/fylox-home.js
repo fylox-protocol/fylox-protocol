@@ -215,8 +215,7 @@ function loadTransitScreen() {
 }
 
 // ══════════════════════════════════════════════════════
-//  SISTEMA DE EVENTOS — reemplaza monkey-patch de goTo
-//  Escucha el evento 'fylox:screen' que dispara fylox-ui.js
+//  SISTEMA DE EVENTOS 
 // ══════════════════════════════════════════════════════
 document.addEventListener('fylox:screen', (e) => {
   const id = e.detail?.id;
@@ -226,4 +225,13 @@ document.addEventListener('fylox:screen', (e) => {
   if (id === 's12') loadTransitScreen();
   if (id === 's16') loadWalletScreen();
   if (id === 's17') loadProfileScreen();
+  if (id === 's9')  loadReceiveScreen();
 });
+
+function loadReceiveScreen() {
+  const username = window._fyloxUsername || 'Pioneer';
+  const qrData   = `fylox://pay?to=@${username}`;
+  generateQR('qr-receive-img', qrData, 180);
+  const addrEl = document.getElementById('receive-address');
+  if (addrEl) addrEl.textContent = `@${username} · ${username}.pi`;
+}
