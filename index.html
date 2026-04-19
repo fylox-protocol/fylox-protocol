@@ -454,17 +454,10 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 <script>
   Pi.init({ version: "2.0", sandbox: true });
 </script>
-  <script>
-  window.addEventListener('load', function() {
-    if (typeof jsQR === 'undefined') {
-      document.title = 'jsQR NO CARGO';
-    }
-  });
-</script>
+  
   
 </head>
 <body>
-<button onclick="alert('jsQR: ' + typeof jsQR + ' | QRCode: ' + typeof QRCode)" style="position:fixed;top:5px;right:5px;z-index:99999;padding:8px;font-size:12px;background:red;color:white;border:none;border-radius:6px">TEST</button>
 
 <!-- LANGUAGE BOTTOM SHEET -->
 <div class="lang-overlay" id="lang-overlay" onclick="hideLangPicker(event)">
