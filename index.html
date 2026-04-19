@@ -1080,30 +1080,16 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 <!-- S9 RECEIVE -->
 <div class="scr" id="s9">
   <div class="grid"></div>
-  <div class="sbar"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div></div>
+  <div class="sbar"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg><svg width="18" height="18" viewBox="0 0 24 18" fill="currentColor"><rect x="0" y="1" width="20" height="16" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="20" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="2" y="3" width="13" height="12" rx="2" fill="currentColor" opacity="0.8"/></svg></div></div>
   <div class="tnav"><div class="bk" data-go="s5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div><div class="ttitle" data-i18n="receiveTitle">Receive Pi</div><div style="width:36px"></div></div>
   <div class="sc" style="display:flex;flex-direction:column;align-items:center">
-    <div style="font-size:14px;color:var(--t2);margin-bottom:24px;text-align:center" data-i18n="shareQR">Share your QR code to receive Pi</div>
+    <div style="font-size:14px;color:var(--t2);margin-bottom:24px;text-align:center"><span data-i18n="shareQR">Share your QR code to receive Pi</span></div>
     <div style="background:white;border-radius:20px;padding:20px;margin-bottom:20px;box-shadow:0 8px 40px rgba(0,0,0,.4)">
       <div id="qr-receive-img" style="width:180px;height:180px"></div>
     </div>
-    <div id="receive-address-box" style="font-family:var(--fm);font-size:13px;color:var(--t2);background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:10px 16px;margin-bottom:20px;letter-spacing:.5px;text-align:center"></div>
-    <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="
-      const addr = document.getElementById('receive-address-box')?.textContent || '';
-      if (navigator.share) {
-        navigator.share({ title: 'Fylox — Receive Pi', text: addr });
-      } else {
-        navigator.clipboard?.writeText(addr);
-      }
-    " data-i18n="shareAddr">Share address</button>
-    <button class="btn bg" style="width:100%;margin-bottom:8px" onclick="
-      const addr = document.getElementById('receive-address-box')?.textContent || '';
-      navigator.clipboard?.writeText(addr).then(() => {
-        FyloxNotification.show({ icon:'✅', title:'Copiado', sub: addr, amt:'', sound:false });
-      }).catch(() => {
-        FyloxNotification.show({ icon:'⚠️', title:'No se pudo copiar', sub:'Copiá el texto manualmente', amt:'', sound:false });
-      });
-    " data-i18n="copy">Copy</button>
+    <div id="receive-address" style="font-family:var(--fm);font-size:13px;color:var(--t2);background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:10px 16px;margin-bottom:20px;letter-spacing:.5px"></div>
+    <button class="btn bp" style="width:100%;margin-bottom:8px" data-i18n="shareAddr">Share address</button>
+    <button class="btn bg" style="width:100%;margin-bottom:8px" data-i18n="copy">Copy</button>
     <button class="btn" style="width:100%;border:1px solid rgba(0,212,232,.3);color:var(--c);background:rgba(0,212,232,.07)" data-go="s25"><span data-i18n="simulatePayment">⚡ Simulate incoming payment</span></button>
   </div>
 </div>
