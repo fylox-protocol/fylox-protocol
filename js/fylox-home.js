@@ -229,14 +229,18 @@ document.addEventListener('fylox:screen', (e) => {
 });
 
 function loadReceiveScreen() {
-  const username = window._fyloxUsername || 'Pioneer';
-  const qrData   = `fylox://pay?to=@${username}`;
-  
-  // Regenerar QR limpiando el contenedor primero
+  const username = window._fyloxUsername 
+    || FyloxStorage.get('fylox_username') 
+    || 'Pioneer';
+
   const qrEl = document.getElementById('qr-receive-img');
-  if (qrEl) qrEl.innerHTML = '';
-  generateQR('qr-receive-img', qrData, 180);
-  
+  if (qrEl) {
+    qrEl.innerHTML = '';
+    if (typeof generateQR === 'function') {
+      generateQR('qr-receive-img', `fylox://pay?to=@${username}`, 180);
+    }
+  }
+
   const addrEl = document.getElementById('receive-address-box');
   if (addrEl) addrEl.textContent = `@${username} · ${username}.pi`;
 }
