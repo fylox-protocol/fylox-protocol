@@ -38,6 +38,16 @@ FyloxStorage.set('fylox_username', username);
 
   const wb = document.getElementById('wallet-balance');
   if (wb) wb.dataset.value = balance;
+  // Regenerar QR de Receive con el username correcto
+  const qrEl = document.getElementById('qr-receive-img');
+  if (qrEl) {
+  qrEl.innerHTML = '';
+  if (typeof generateQR === 'function') {
+    generateQR('qr-receive-img', `fylox://pay?to=@${username}`, 180);
+  }
+}
+  const addrBox = document.getElementById('receive-address-box');
+  if (addrBox) addrBox.textContent = `@${username} · ${username}.pi`;
 }
 
 // ── Obtener saldo desde el backend ──────────────────
