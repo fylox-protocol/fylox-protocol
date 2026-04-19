@@ -454,6 +454,13 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 <script>
   Pi.init({ version: "2.0", sandbox: true });
 </script>
+  <script>
+  window.addEventListener('load', function() {
+    if (typeof jsQR === 'undefined') {
+      document.title = 'jsQR NO CARGO';
+    }
+  });
+</script>
   
 </head>
 <body>
