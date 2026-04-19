@@ -241,6 +241,6 @@ function loadReceiveScreen() {
     }
   }
 
-  const addrEl = document.getElementById('receive-address-box');
+  const addrEl = document.getElementById('receive-address');
   if (addrEl) addrEl.textContent = `@${username} · ${username}.pi`;
 }
