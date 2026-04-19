@@ -1087,11 +1087,11 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     <div style="background:white;border-radius:20px;padding:20px;margin-bottom:20px;box-shadow:0 8px 40px rgba(0,0,0,.4)">
       <div id="qr-receive-img" style="width:180px;height:180px"></div>
     </div>
-    <div id="receive-address-box" style="font-family:var(--fm);font-size:13px;color:var(--t2);background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:10px 16px;margin-bottom:20px;letter-spacing:.5px;text-align:center">@Pioneer · pioneer.pi</div>
+    <div id="receive-address-box" style="font-family:var(--fm);font-size:13px;color:var(--t2);background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:10px 16px;margin-bottom:20px;letter-spacing:.5px;text-align:center">Cargando...</div>
     <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="
       const addr = document.getElementById('receive-address-box')?.textContent || '';
       if (navigator.share) {
-        navigator.share({ title: 'Fylox', text: addr });
+        navigator.share({ title: 'Fylox — Receive Pi', text: addr });
       } else {
         navigator.clipboard?.writeText(addr);
       }
@@ -1100,6 +1100,8 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       const addr = document.getElementById('receive-address-box')?.textContent || '';
       navigator.clipboard?.writeText(addr).then(() => {
         FyloxNotification.show({ icon:'✅', title:'Copiado', sub: addr, amt:'', sound:false });
+      }).catch(() => {
+        FyloxNotification.show({ icon:'⚠️', title:'No se pudo copiar', sub:'Copiá el texto manualmente', amt:'', sound:false });
       });
     " data-i18n="copy">Copy</button>
     <button class="btn" style="width:100%;border:1px solid rgba(0,212,232,.3);color:var(--c);background:rgba(0,212,232,.07)" data-go="s25"><span data-i18n="simulatePayment">⚡ Simulate incoming payment</span></button>
