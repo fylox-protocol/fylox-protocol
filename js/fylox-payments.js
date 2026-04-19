@@ -46,7 +46,7 @@ FyloxStorage.set('fylox_username', username);
     generateQR('qr-receive-img', `fylox://pay?to=@${username}`, 180);
   }
 }
-  const addrBox = document.getElementById('receive-address-box');
+  const addrBox = document.getElementById('receive-address');
   if (addrBox) addrBox.textContent = `@${username} · ${username}.pi`;
 }
 
