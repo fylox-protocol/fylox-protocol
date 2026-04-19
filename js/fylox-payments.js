@@ -12,7 +12,8 @@
 function updateUIWithUser(username, balance) {
   window._fyloxBalance  = balance;
   window._fyloxUsername = username;
-
+FyloxStorage.set('fylox_username', username);
+  
   const piid       = username + '.pi';
   const balanceUSD = fmtUSD(balance);
   const balanceFmt = fmtPi(balance);
