@@ -96,8 +96,8 @@ const FyloxRealtime = (() => {
 
             // Notificar solo las de tipo recibido
             newTxs.forEach(tx => {
-              if (tx.type === 'received' || tx.type === 'reward' ||
-                  tx.type === 'oracle'   || tx.type === 'agora') {
+              if (tx.type === 'received' || tx.type === 'user_to_app' ||
+                  tx.type === 'reward'   || tx.type === 'oracle' || tx.type === 'agora') {
                 _notifyReceived(tx);
               }
             });
