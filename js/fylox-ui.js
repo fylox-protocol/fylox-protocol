@@ -118,6 +118,7 @@ function goTo(id) {
   ];
 
   async function tryCamera(index) {
+    if (status) status.textContent = `Intentando cámara ${index}...`;
     if (index >= constraints.length) {
       if (status) status.innerHTML = '<span style="color:#ff6b81">No se pudo acceder a la cámara</span>';
       return;
@@ -202,8 +203,9 @@ function goTo(id) {
       window._qrScanLoop = requestAnimationFrame(scanFrame);
 
     } catch (err) {
+      if (status) status.textContent = `Error ${index}: ${err.name} - ${err.message}`;
       console.warn(`[Fylox] Cámara constraint ${index} falló:`, err.message);
-      tryCamera(index + 1);
+      setTimeout(() => tryCamera(index + 1), 500);
     }
   }
 
