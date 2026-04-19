@@ -229,10 +229,13 @@ document.addEventListener('fylox:screen', (e) => {
 });
 
 function loadReceiveScreen() {
-  // Intentar obtener username de múltiples fuentes
-  const username = window._fyloxUsername 
-    || FyloxStorage.get('fylox_username')
-    || 'Pioneer';
+  // Leer username del DOM que ya está actualizado por updateUIWithUser
+  const usernameEl = document.getElementById('home-username');
+  const rawUsername = usernameEl?.textContent?.replace('@', '').trim();
+  
+  const username = rawUsername && rawUsername !== 'Pioneer' 
+    ? rawUsername 
+    : (window._fyloxUsername || FyloxStorage.get('fylox_username') || 'Pioneer');
 
   const qrData = `fylox://pay?to=@${username}`;
   generateQR('qr-receive-img', qrData, 180);
