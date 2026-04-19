@@ -232,6 +232,6 @@ function loadReceiveScreen() {
   const username = window._fyloxUsername || 'Pioneer';
   const qrData   = `fylox://pay?to=@${username}`;
   generateQR('qr-receive-img', qrData, 180);
-  const addrEl = document.getElementById('receive-address');
+  const addrEl = document.getElementById('receive-address-box');
   if (addrEl) addrEl.textContent = `@${username} · ${username}.pi`;
 }
