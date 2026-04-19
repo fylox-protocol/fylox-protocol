@@ -229,9 +229,14 @@ document.addEventListener('fylox:screen', (e) => {
 });
 
 function loadReceiveScreen() {
-  const username = window._fyloxUsername || 'Pioneer';
-  const qrData   = `fylox://pay?to=@${username}`;
+  // Intentar obtener username de múltiples fuentes
+  const username = window._fyloxUsername 
+    || FyloxStorage.get('fylox_username')
+    || 'Pioneer';
+
+  const qrData = `fylox://pay?to=@${username}`;
   generateQR('qr-receive-img', qrData, 180);
+  
   const addrEl = document.getElementById('receive-address-box');
   if (addrEl) addrEl.textContent = `@${username} · ${username}.pi`;
 }
