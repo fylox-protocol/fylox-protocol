@@ -44,7 +44,7 @@ function _renderTxRow(tx) {
       ? `<span style="font-size:16px">⚡</span>`
       : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
 
-  const amount = esc(String(tx.amount || 0));
+  const amount = esc(fmtPi(parseFloat(tx.amount?.toString() || tx.amount || 0)));
   const date   = fmtDate(tx.createdAt);
 
   return `<div class="tx">
@@ -77,7 +77,7 @@ function _renderWalletTxRow(tx) {
   const type  = isSent ? 'Enviado' : isReward ? 'Ganado' : 'Recibido';
   const date  = fmtDate(tx.createdAt);
   const usd   = fmtUSD(tx.amount || 0);
-  const amount = esc(String(tx.amount || 0));
+  const amount = esc(fmtPi(parseFloat(tx.amount?.toString() || tx.amount || 0)));
 
   const icon = isSent
     ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`
