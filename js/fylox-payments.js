@@ -27,7 +27,10 @@ FyloxStorage.set('fylox_username', username);
     'receive-address': '@' + username + ' · ' + piid,
     's3-username':     '@' + username + '.pi',
     's3-back-username':'@' + username + '.pi',
+    'card-holder-name': username.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    'card-last4':       username.slice(-4).toUpperCase().padStart(4, '0'),
   };
+  
 
   Object.entries(els).forEach(([id, val]) => {
     const el = document.getElementById(id);
