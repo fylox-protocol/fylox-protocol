@@ -632,7 +632,6 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   </div>
 </div>
 
-
 <!-- ========== S2 ONBOARDING ========== -->
 <div class="scr" id="s2">
   <!-- Top visual section -->
@@ -690,6 +689,12 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
           </div>
         </div>
 
+        <!-- Floating badge -->
+        <div style="position:absolute;top:-16px;right:-10px;background:linear-gradient(135deg,rgba(0,224,144,.15),rgba(0,212,232,.1));border:1px solid rgba(0,224,144,.3);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(8px)">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse-dot 2s infinite"></div>
+          <span style="font-size:10px;font-weight:700;color:var(--grn)" data-i18n="zeroFees">Zero fees</span>
+        </div>
+
       </div>
     </div>
   </div>
@@ -707,20 +712,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   </div>
 </div>
 
-      
 
-  <!-- Bottom text section -->
-  <div style="padding:28px 28px 24px;background:var(--bg);flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:18px">
-      <div style="width:8px;height:4px;border-radius:2px;background:var(--b2)"></div>
-      <div style="width:32px;height:4px;border-radius:2px;background:var(--c)"></div>
-      <div style="width:8px;height:4px;border-radius:2px;background:var(--b2)"></div>
-    </div>
-    <div style="font-family:var(--fd);font-weight:900;font-size:30px;letter-spacing:-1.5px;line-height:1.15;margin-bottom:10px"><span data-i18n="ob2Title">Pay anything.</span><br><span style="background:linear-gradient(135deg,var(--c2),var(--c));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" data-i18n="ob2Sub">Anywhere. In Pi.</span></div>
-    <div style="font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:24px" data-i18n="ob2Desc">Bills, transit, groceries, flights — pay your entire life in Pi. No banks. No exchange. No limits.</div>
-    <button class="btn bp mb8" data-go="s3" style="font-size:17px;padding:18px;" data-i18n="nextBtn">Next →</button>
-  </div>
-</div>
 
 <!-- ========== S3 ONBOARDING ========== -->
 <div class="scr" id="s3">
