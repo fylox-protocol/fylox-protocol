@@ -278,6 +278,14 @@ function goTo(id) {
   // 12. Vibración de navegación
   if (navigator.vibrate) navigator.vibrate(20);
   window.scrollTo(0, 0);
+  // Sticky blur header al hacer scroll
+  const scEl   = next.querySelector('.sc');
+  const tnavEl = next.querySelector('.tnav');
+  if (scEl && tnavEl) {
+    scEl.addEventListener('scroll', () => {
+      tnavEl.classList.toggle('scrolled', scEl.scrollTop > 10);
+    }, { passive: true });
+  }
 
   // 13. Disparar evento para que todos los módulos reaccionen
   //     Reemplaza los 4 monkey-patches encadenados
