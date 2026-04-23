@@ -189,11 +189,19 @@ async function loadWalletScreen() {
 //  S15 — CARD SCREEN
 // ══════════════════════════════════════════════════════
 function loadCardScreen() {
-  const username = window._fyloxUsername || FyloxStorage.get('fylox_username') || 'Pioneer';
+  const username = window._fyloxUsername 
+    || FyloxStorage.get('fylox_username') 
+    || 'Pioneer';
+    
+  if (username === 'Pioneer') {
+    setTimeout(loadCardScreen, 500);
+    return;
+  }
+  
   const fullName = username.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const last4    = username.slice(-4).toUpperCase().padStart(4, '0');
   
-  const nameEl = document.getElementById('card-holder-name');
+  const nameEl  = document.getElementById('card-holder-name');
   const last4El = document.getElementById('card-last4');
   
   if (nameEl)  nameEl.textContent  = fullName;
