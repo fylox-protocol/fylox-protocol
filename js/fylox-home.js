@@ -193,6 +193,13 @@ function loadCardScreen() {
     || FyloxStorage.get('fylox_username') 
     || 'Pioneer';
     
+  // DEBUG
+  FyloxNotification.show({
+    icon: '🃏', title: 'Card: ' + username,
+    sub: 'fylox_username: ' + FyloxStorage.get('fylox_username'),
+    amt: '', sound: false,
+  });
+    
   if (username === 'Pioneer') {
     setTimeout(loadCardScreen, 500);
     return;
