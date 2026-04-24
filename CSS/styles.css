@@ -2804,10 +2804,11 @@ html.light .tnav.scrolled {
   border-bottom: 1px solid rgba(0,0,0,.06);
 }
 
+
+  
 /* ═══════════════════════════════════════════════════
    S5 HOME — REDESIGN
    ═══════════════════════════════════════════════════ */
-
 
 /* HEADER */
 #s5 .s5-hdr {
@@ -2826,7 +2827,7 @@ html.light .tnav.scrolled {
   height: 30px;
   border-radius: 8px;
   background: linear-gradient(135deg, #0A0A0C, #1A1A22);
-  border: 1px solid rgba(255,255,255,.1);
+  border: 1px solid var(--b2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2840,10 +2841,11 @@ html.light #s5 .s5-logo {
   border-color: rgba(0,0,0,.08);
 }
 #s5 .s5-uname {
+  font-family: var(--fd);
   font-weight: 500;
   font-size: 15px;
   letter-spacing: -0.02em;
-  color: var(--t);
+  color: var(--t1);
 }
 #s5 .s5-hdr-actions {
   display: flex;
@@ -2855,7 +2857,7 @@ html.light #s5 .s5-logo {
   height: 36px;
   border-radius: 50%;
   background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.06);
+  border: 1px solid var(--b);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2895,11 +2897,11 @@ html.light #s5 .s5-hdr-btn {
   margin-bottom: 18px;
 }
 #s5 .s5-hero-lbl-text {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--t3);
+  color: var(--t2);
   font-weight: 500;
 }
 #s5 .s5-live {
@@ -2907,23 +2909,23 @@ html.light #s5 .s5-hdr-btn {
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
-  background: rgba(16,185,129,.08);
-  border: 1px solid rgba(16,185,129,.2);
+  background: rgba(0,224,144,.08);
+  border: 1px solid rgba(0,224,144,.2);
   border-radius: 100px;
 }
 #s5 .s5-live-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 8px #10B981;
+  background: var(--grn);
+  box-shadow: 0 0 8px var(--grn);
   animation: s5-pulse 2s ease-in-out infinite;
 }
 #s5 .s5-live-text {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 600;
-  color: #10B981;
+  color: var(--grn);
   letter-spacing: 0.1em;
 }
 @keyframes s5-pulse {
@@ -2942,13 +2944,13 @@ html.light #s5 .s5-hdr-btn {
 #s5 .s5-hero-int {
   font-size: 88px;
   font-weight: 400;
-  color: var(--t);
+  color: var(--t1);
   font-variant-numeric: tabular-nums;
 }
 #s5 .s5-hero-dec {
   font-size: 42px;
   font-weight: 400;
-  color: var(--t3);
+  color: var(--t2);
   font-variant-numeric: tabular-nums;
 }
 #s5 .s5-hero-unit {
@@ -2961,7 +2963,7 @@ html.light #s5 .s5-hdr-btn {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
 }
 #s5 .s5-hero-usd {
   font-size: 13px;
@@ -2991,8 +2993,8 @@ html.light #s5 .s5-hdr-btn {
 #s5 .s5-action {
   position: relative;
   padding: 20px 14px 16px;
-  background: #0C0C0E;
-  border: 1px solid rgba(255,255,255,.06);
+  background: var(--bg2);
+  border: 1px solid var(--b);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -3008,14 +3010,14 @@ html.light #s5 .s5-action {
 }
 #s5 .s5-action:active {
   transform: scale(0.97);
-  background: #131316;
+  background: var(--bg3);
 }
 html.light #s5 .s5-action:active {
   background: #F8F9FB;
 }
 #s5 .s5-action.primary {
   background: linear-gradient(180deg, rgba(0,212,232,.14), rgba(0,212,232,.04));
-  border-color: rgba(0,212,232,.28);
+  border-color: var(--cb);
 }
 #s5 .s5-action.primary::before {
   content: '';
@@ -3030,7 +3032,7 @@ html.light #s5 .s5-action:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--t);
+  color: var(--t1);
   position: relative;
   z-index: 1;
 }
@@ -3038,9 +3040,10 @@ html.light #s5 .s5-action:active {
   color: var(--c);
 }
 #s5 .s5-action-lbl {
+  font-family: var(--fd);
   font-size: 13px;
   font-weight: 500;
-  color: var(--t);
+  color: var(--t1);
   letter-spacing: -0.01em;
   position: relative;
   z-index: 1;
@@ -3058,14 +3061,15 @@ html.light #s5 .s5-action:active {
   margin-bottom: 12px;
 }
 #s5 .s5-section-title {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--t3);
+  color: var(--t2);
   font-weight: 500;
 }
 #s5 .s5-section-link {
+  font-family: var(--fd);
   font-size: 12px;
   color: var(--t2);
   font-weight: 500;
@@ -3079,8 +3083,8 @@ html.light #s5 .s5-action:active {
 #s5 .s5-earn {
   position: relative;
   padding: 20px;
-  background: #0C0C0E;
-  border: 1px solid rgba(255,255,255,.06);
+  background: var(--bg2);
+  border: 1px solid var(--b);
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -3111,32 +3115,33 @@ html.light #s5 .s5-earn {
   min-width: 0;
 }
 #s5 .s5-earn-title {
+  font-family: var(--fd);
   font-size: 15px;
   font-weight: 600;
-  color: var(--t);
+  color: var(--t1);
   letter-spacing: -0.02em;
   margin-bottom: 3px;
 }
 #s5 .s5-earn-sub {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 10px;
-  color: var(--t3);
+  color: var(--t2);
   letter-spacing: 0.08em;
   font-weight: 500;
 }
 #s5 .s5-earn-amt { text-align: right; }
 #s5 .s5-earn-val {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 15px;
   font-weight: 600;
-  color: #F59E0B;
+  color: var(--ylw);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
 #s5 .s5-earn-per {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 9px;
-  color: var(--t3);
+  color: var(--t2);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-top: 2px;
@@ -3145,8 +3150,8 @@ html.light #s5 .s5-earn {
 
 /* ACTIVITY LIST */
 #s5 .s5-activity {
-  background: #0C0C0E;
-  border: 1px solid rgba(255,255,255,.06);
+  background: var(--bg2);
+  border: 1px solid var(--b);
   border-radius: 18px;
   padding: 4px 18px;
 }
@@ -3169,11 +3174,11 @@ html.light #s5 .s5-act-item {
   width: 40px;
   height: 40px;
   border-radius: 11px;
-  background: rgba(16,185,129,.1);
+  background: rgba(0,224,144,.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #10B981;
+  color: var(--grn);
   flex-shrink: 0;
 }
 #s5 .s5-act-icon.out {
@@ -3188,9 +3193,10 @@ html.light #s5 .s5-act-icon.out {
   min-width: 0;
 }
 #s5 .s5-act-title {
+  font-family: var(--fd);
   font-size: 14px;
   font-weight: 500;
-  color: var(--t);
+  color: var(--t1);
   letter-spacing: -0.01em;
   margin-bottom: 2px;
   white-space: nowrap;
@@ -3198,17 +3204,17 @@ html.light #s5 .s5-act-icon.out {
   text-overflow: ellipsis;
 }
 #s5 .s5-act-sub {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 11px;
-  color: var(--t3);
+  color: var(--t2);
   font-weight: 500;
   letter-spacing: 0.02em;
 }
 #s5 .s5-act-amt {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: 'Geist Mono', 'Space Mono', ui-monospace, monospace;
   font-size: 14px;
   font-weight: 600;
-  color: #10B981;
+  color: var(--grn);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -3217,7 +3223,13 @@ html.light #s5 .s5-act-icon.out {
 #s5 .s5-empty {
   padding: 32px 20px;
   text-align: center;
-  color: var(--t3);
+  color: var(--t2);
   font-size: 13px;
+  font-family: var(--fd);
 }
+
+  
+
+  
+  
 
