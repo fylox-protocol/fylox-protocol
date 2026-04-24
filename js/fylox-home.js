@@ -191,14 +191,7 @@ async function loadWalletScreen() {
 function loadCardScreen() {
   const username = window._fyloxUsername 
     || FyloxStorage.get('fylox_username') 
-    || 'Pioneer';
-    
-  // DEBUG
-  FyloxNotification.show({
-    icon: '🃏', title: 'Card: ' + username,
-    sub: 'fylox_username: ' + FyloxStorage.get('fylox_username'),
-    amt: '', sound: false,
-  });
+    || 'Pioneer'
     
   if (username === 'Pioneer') {
     setTimeout(loadCardScreen, 500);
@@ -263,3 +256,31 @@ function loadReceiveScreen() {
   const addrEl = document.getElementById('receive-address');
   if (addrEl) addrEl.textContent = `@${username} · ${username}.pi`;
 }
+
+// ═══════════════════════════════════════════════════
+//  S15 CARD — Observer que actualiza al mostrar
+// ═══════════════════════════════════════════════════
+(function() {
+  const s15 = document.getElementById('s15');
+  if (!s15) return;
+  
+  const obs = new MutationObserver(() => {
+    if (s15.classList.contains('show')) {
+      const username = window._fyloxUsername 
+        || FyloxStorage.get('fylox_username');
+      
+      if (!username) return;
+      
+      const fullName = username.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const last4    = username.slice(-4).toUpperCase().padStart(4, '0');
+      
+      const nameEl  = document.getElementById('card-holder-name');
+      const last4El = document.getElementById('card-last4');
+      
+      if (nameEl)  nameEl.textContent  = fullName;
+      if (last4El) last4El.textContent = last4;
+    }
+  });
+  
+  obs.observe(s15, { attributes: true, attributeFilter: ['class'] });
+})();
