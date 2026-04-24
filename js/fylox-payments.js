@@ -19,7 +19,8 @@ FyloxStorage.set('fylox_username', username);
   const balanceFmt = fmtPi(balance);
 
   const els = {
-    'home-balance':    `${balanceFmt} <span style="font-size:24px;color:var(--c)">π</span>`,
+    'home-balance-int': balanceFmt.split('.')[0],
+    'home-balance-dec': '.' + (balanceFmt.split('.')[1] || '00'),
     'home-ars':        balanceUSD,
     'home-piid':       piid,
     'home-username':   '@' + username,
