@@ -851,16 +851,12 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 </style>
 
 
-<!-- ═══════════════════════════════════════════════════
-     S5 HOME — REDESIGN 
-     ═══════════════════════════════════════════════════ -->
 
-<div class="scr" id="s5">
-  <div class="grid"></div>
-  <div class="sbar"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg><svg width="18" height="18" viewBox="0 0 24 18" fill="currentColor"><rect x="0" y="1" width="20" height="16" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="20" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="2" y="3" width="13" height="12" rx="2" fill="currentColor" opacity="0.8"/></svg></div></div>
+    <!-- S5 HOME PREMIUM -->
+<div class="scr" id="s5" data-s5-scope>
   
-  <!-- TOP HEADER (sticky blur) -->
-  <div class="tnav s5-hdr">
+  <!-- HEADER -->
+  <div class="s5-hdr">
     <div class="s5-brand">
       <div class="s5-logo">𝔽</div>
       <div class="s5-uname" id="home-username">@usuario</div>
@@ -876,90 +872,85 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     </div>
   </div>
   
-  <div class="sc">
-    
-    <!-- HERO BALANCE -->
-    <div class="s5-hero">
-      <div class="s5-hero-label">
-        <div class="s5-hero-lbl-text" data-i18n="availableBalance">Saldo disponible</div>
-        <div class="s5-live">
-          <div class="s5-live-dot"></div>
-          <div class="s5-live-text">LIVE</div>
-        </div>
-      </div>
-      <div class="s5-hero-amount">
-        <span class="s5-hero-int" id="home-balance-int">90</span><span class="s5-hero-dec" id="home-balance-dec">.00</span><span class="s5-hero-unit">π</span>
-      </div>
-      <div class="s5-hero-meta">
-        <div class="s5-hero-usd" id="home-ars">≈ $15.10 USD</div>
-        <div class="s5-hero-dot"></div>
-        <div class="s5-hero-piid" id="home-piid">pi-id</div>
+  <!-- HERO BALANCE -->
+  <div class="s5-hero">
+    <div class="s5-hero-label">
+      <div class="s5-hero-lbl" data-i18n="availableBalance">Saldo disponible</div>
+      <div class="s5-live">
+        <div class="s5-live-dot"></div>
+        <div class="s5-live-text">LIVE</div>
       </div>
     </div>
-    
-    <!-- 3 ACTIONS -->
-    <div class="s5-actions">
-      <div class="s5-action primary" data-go="s7">
-        <div class="s5-action-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-        </div>
-        <div class="s5-action-lbl" data-i18n="send">Enviar</div>
-      </div>
-      <div class="s5-action" data-go="s9">
-        <div class="s5-action-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-        </div>
-        <div class="s5-action-lbl" data-i18n="receive">Recibir</div>
-      </div>
-      <div class="s5-action" data-go="s10">
-        <div class="s5-action-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-        </div>
-        <div class="s5-action-lbl" data-i18n="scan">Escanear</div>
-      </div>
+    <div class="s5-hero-amount">
+      <span class="s5-hero-int" id="home-balance-int">0</span><span class="s5-hero-dec" id="home-balance-dec">.00</span><span class="s5-hero-unit">π</span>
     </div>
-    
-    <!-- EARN -->
-    <div class="s5-section">
-      <div class="s5-section-hdr">
-        <div class="s5-section-title">Fylox Earn</div>
-        <div class="s5-section-link" data-go="s21">
-          <span data-i18n="seeAll">Ver todo</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-      </div>
-      <div class="s5-earn" data-go="s21">
-        <div class="s5-earn-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </div>
-        <div class="s5-earn-body">
-          <div class="s5-earn-title">2 <span data-i18n="activeTasks">tareas activas</span></div>
-          <div class="s5-earn-sub">ORACLE · AGORA · NEXUS</div>
-        </div>
-        <div class="s5-earn-amt">
-          <div class="s5-earn-val" id="earn-total">+0.0 π</div>
-          <div class="s5-earn-per" data-i18n="thisMonth">Este mes</div>
-        </div>
-      </div>
+    <div class="s5-hero-meta">
+      <div class="s5-hero-usd" id="home-ars">≈ $0.00 USD</div>
+      <div class="s5-hero-sep"></div>
+      <div class="s5-hero-piid" id="home-piid">pi-id</div>
     </div>
-    
-    <!-- ACTIVITY -->
-    <div class="s5-section">
-      <div class="s5-section-hdr">
-        <div class="s5-section-title" data-i18n="recentActivity">Actividad reciente</div>
-        <div class="s5-section-link" data-go="s13">
-          <span data-i18n="seeAll">Ver todo</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-      </div>
-      <div class="s5-activity" id="home-activity">
-        <!-- Los items se llenan dinámicamente desde fylox-home.js (loadHomeScreen) -->
-      </div>
-    </div>
-    
   </div>
   
-
+  <!-- 3 ACTIONS -->
+  <div class="s5-actions">
+    <div class="s5-action primary" data-go="s7">
+      <div class="s5-action-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </div>
+      <div class="s5-action-lbl" data-i18n="send">Enviar</div>
+    </div>
+    <div class="s5-action" data-go="s9">
+      <div class="s5-action-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      </div>
+      <div class="s5-action-lbl" data-i18n="receive">Recibir</div>
+    </div>
+    <div class="s5-action" data-go="s10">
+      <div class="s5-action-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+      </div>
+      <div class="s5-action-lbl" data-i18n="scan">Escanear</div>
+    </div>
+  </div>
+  
+  <!-- EARN -->
+  <div class="s5-section">
+    <div class="s5-section-hdr">
+      <div class="s5-section-title">Fylox Earn</div>
+      <div class="s5-section-link" data-go="s21">
+        <span data-i18n="seeAll">Ver todo</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+    <div class="s5-earn" data-go="s21">
+      <div class="s5-earn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div class="s5-earn-body">
+        <div class="s5-earn-title">2 <span data-i18n="activeTasks">tareas activas</span></div>
+        <div class="s5-earn-sub">ORACLE · AGORA · NEXUS</div>
+      </div>
+      <div class="s5-earn-amt">
+        <div class="s5-earn-val" id="earn-total">+0.0 π</div>
+        <div class="s5-earn-per" data-i18n="thisMonth">Este mes</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ACTIVITY -->
+  <div class="s5-section">
+    <div class="s5-section-hdr">
+      <div class="s5-section-title" data-i18n="recentActivity">Actividad reciente</div>
+      <div class="s5-section-link" data-go="s13">
+        <span data-i18n="seeAll">Ver todo</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+    <div class="s5-activity" id="home-activity">
+      <!-- Se llena dinámicamente -->
+    </div>
+  </div>
+  
 </div>
 
     
