@@ -1,9 +1,11 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX HOME — v2
+//  FYLOX HOME — v3
 //  - Sin XSS — esc() en todos los datos del servidor
 //  - Sin piPrice hardcodeado — usa getPiPrice()
 //  - Fecha localizada con fmtDate()
 //  - Sin monkey-patch de goTo — usa eventos
+//  - FIX: loadHomeScreen ahora actualiza saldo en s5
+//  - FIX: tipos de transacción del nuevo backend (user_to_user, received, etc.)
 // ═══════════════════════════════════════════════════
 
 // ── Utilidades internas ──────────────────────────────
@@ -17,10 +19,43 @@ function _setHTML(id, val) {
   if (el) el.innerHTML = val;
 }
 
+// ── Helper para clasificar tipo de transacción ──────
+// Soporta tanto los tipos viejos (sent/received) como los nuevos del backend (user_to_user/received/etc.)
+function _classifyTx(tx, currentUid) {
+  // SENT: el usuario actual envió
+  // - 'user_to_user' (nuevo backend, perspectiva del sender)
+  // - 'sent' (legacy)
+  // - 'withdraw' / 'app_to_user' invertido (no aplica acá)
+  // - 'user_to_app' (pago a la pool de Fylox)
+  if (
+    tx.type === 'sent' ||
+    tx.type === 'user_to_user' ||
+    tx.type === 'user_to_app' ||
+    tx.type === 'withdraw'
+  ) {
+    return 'sent';
+  }
+
+  // RECEIVED: el usuario actual recibió
+  // - 'received' (nuevo backend)
+  // - 'app_to_user' (retiro acreditado, lo recibe el user)
+  if (tx.type === 'received' || tx.type === 'app_to_user') {
+    return 'received';
+  }
+
+  // REWARD: tareas / recompensas
+  if (['reward', 'oracle', 'agora'].includes(tx.type)) {
+    return 'reward';
+  }
+
+  return 'received'; // default seguro
+}
+
 // ── Render de una fila de transacción ───────────────
 function _renderTxRow(tx) {
-  const isSent   = tx.type === 'sent' || tx.type === 'withdraw';
-  const isReward = ['reward', 'oracle', 'agora'].includes(tx.type);
+  const kind = _classifyTx(tx);
+  const isSent   = kind === 'sent';
+  const isReward = kind === 'reward';
 
   const color     = isSent ? 'var(--red)' : 'var(--grn)';
   const bg        = isSent
@@ -32,7 +67,7 @@ function _renderTxRow(tx) {
   // esc() en TODOS los valores del servidor
   const label = esc(
     isSent
-      ? (tx.toName || tx.toAddress || 'Pago enviado')
+      ? (tx.toUsername ? `A @${tx.toUsername}` : (tx.toName || tx.toAddress || 'Pago enviado'))
       : isReward
         ? (tx.rewardSource?.toUpperCase() || 'Reward')
         : `De @${tx.fromUsername || 'Pioneer'}`
@@ -59,8 +94,9 @@ function _renderTxRow(tx) {
 
 // ── Render de fila para wallet (con USD) ────────────
 function _renderWalletTxRow(tx) {
-  const isSent   = tx.type === 'sent' || tx.type === 'withdraw';
-  const isReward = ['reward', 'oracle', 'agora'].includes(tx.type);
+  const kind = _classifyTx(tx);
+  const isSent   = kind === 'sent';
+  const isReward = kind === 'reward';
 
   const color  = isSent ? 'var(--red)' : isReward ? 'var(--ylw)' : 'var(--grn)';
   const bg     = isSent ? 'rgba(255,70,70,.07)' : isReward ? 'rgba(255,183,0,.1)' : 'rgba(0,224,144,.1)';
@@ -68,7 +104,7 @@ function _renderWalletTxRow(tx) {
 
   const label = esc(
     isSent
-      ? (tx.toName || tx.toAddress || 'Pago enviado')
+      ? (tx.toUsername ? `A @${tx.toUsername}` : (tx.toName || tx.toAddress || 'Pago enviado'))
       : isReward
         ? (tx.rewardSource?.toUpperCase() || 'Reward')
         : `De @${tx.fromUsername || 'Pioneer'}`
@@ -105,10 +141,37 @@ async function loadHomeScreen() {
   if (!getToken()) return;
 
   try {
-    const [earnRes, txRes] = await Promise.allSettled([
+    // ⚡ Cargar TODO en paralelo: balance + earn + tx
+    const [meRes, earnRes, txRes] = await Promise.allSettled([
+      apiCall('GET', '/user/me'),
       apiCall('GET', '/user/earn-stats'),
       apiCall('GET', '/user/transactions?limit=5'),
     ]);
+
+    // ── ★ Refrescar saldo del usuario en el s5 ★
+    if (meRes.status === 'fulfilled' && meRes.value) {
+      const data = meRes.value;
+      const balance = parseFloat(data.balance) || 0;
+      const username = data.username || window._fyloxUsername || 'Pioneer';
+
+      // Actualizar window state
+      window._fyloxBalance = balance;
+      window._fyloxUsername = username;
+      
+      // Si existe la función global updateUIWithUser, usarla (es la canónica)
+      if (typeof updateUIWithUser === 'function') {
+        updateUIWithUser(username, balance);
+      } else {
+        // Fallback manual: actualizar directamente los IDs del s5
+        const balanceFmt = fmtPi(balance);
+        const balanceUSD = fmtUSD(balance);
+        _set('home-balance-int', balanceFmt.split('.')[0]);
+        _set('home-balance-dec', '.' + (balanceFmt.split('.')[1] || '00'));
+        _set('home-ars',         balanceUSD);
+        _set('home-piid',        username + '.pi');
+        _set('home-username',    '@' + username);
+      }
+    }
 
     // ── Earn banner
     if (earnRes.status === 'fulfilled') {
@@ -127,11 +190,17 @@ async function loadHomeScreen() {
       const txs         = txRes.value.transactions || [];
       const recentList  = document.getElementById('home-recent-list');
       const recentTitle = document.getElementById('home-recent-title');
+      const homeActivity = document.getElementById('home-activity');
 
-      if (txs.length > 0 && recentList) {
-        recentList.style.display = 'block';
+      // Soporta ambos contenedores (legacy + premium)
+      const targetList = recentList || homeActivity;
+
+      if (txs.length > 0 && targetList) {
+        targetList.style.display = 'block';
         if (recentTitle) recentTitle.style.removeProperty('display');
-        recentList.innerHTML = txs.slice(0, 3).map(_renderTxRow).join('');
+        targetList.innerHTML = txs.slice(0, 3).map(_renderTxRow).join('');
+      } else if (targetList) {
+        targetList.innerHTML = '<div style="padding:18px;text-align:center;color:var(--t3);font-size:12px">Sin movimientos aún</div>';
       }
     }
 
@@ -162,13 +231,18 @@ async function loadWalletScreen() {
       const d = balRes.value;
       _set('wallet-stat-sent',     `${fmtPi(d.totalSent     || 0)} π`);
       _set('wallet-stat-received', `${fmtPi(d.totalReceived || 0)} π`);
+
+      // Refrescar también el saldo principal
+      if (typeof updateUIWithUser === 'function' && d.username) {
+        updateUIWithUser(d.username, parseFloat(d.balance) || 0);
+      }
     }
 
     if (txRes.status === 'fulfilled') {
       const txs    = txRes.value.transactions || [];
       const earned = txs
         .filter(t => ['reward', 'oracle', 'agora'].includes(t.type))
-        .reduce((s, t) => s + (t.amount || 0), 0);
+        .reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
 
       _set('wallet-stat-earned', `${fmtPi(earned)} π`);
 
@@ -191,7 +265,7 @@ async function loadWalletScreen() {
 function loadCardScreen() {
   const username = window._fyloxUsername 
     || FyloxStorage.get('fylox_username') 
-    || 'Pioneer'
+    || 'Pioneer';
     
   if (username === 'Pioneer') {
     setTimeout(loadCardScreen, 500);
@@ -283,4 +357,23 @@ function loadReceiveScreen() {
   });
   
   obs.observe(s15, { attributes: true, attributeFilter: ['class'] });
+})();
+
+// ═══════════════════════════════════════════════════
+//  S5 HOME — Observer que recarga cada vez que entra
+// ═══════════════════════════════════════════════════
+(function() {
+  const s5 = document.getElementById('s5');
+  if (!s5) return;
+  
+  const obs = new MutationObserver(() => {
+    if (s5.classList.contains('show')) {
+      // Llamar loadHomeScreen para refrescar saldo + tx + earn
+      if (typeof loadHomeScreen === 'function') {
+        loadHomeScreen();
+      }
+    }
+  });
+  
+  obs.observe(s5, { attributes: true, attributeFilter: ['class'] });
 })();
