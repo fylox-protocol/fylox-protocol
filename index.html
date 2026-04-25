@@ -6,6 +6,8 @@
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#00D4E8">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fylox">
@@ -26,10 +28,14 @@
   --fn:'Inter',sans-serif;--fd:'Space Grotesk',sans-serif;--fm:'Space Mono',monospace;
   --r:16px;--rl:22px;--rs:12px;
 }
+
+html, body { color-scheme: dark; }
+@media (prefers-color-scheme: light) {
+  html:not(.light) { color-scheme: dark !important; }
+}
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;min-height:100vh;background:#000;font-family:var(--fn);color:var(--t1);overflow:hidden;-webkit-font-smoothing:antialiased}
-#app{position:relative;width:100%;height:100vh;height:100dvh;max-width:430px;margin:0 auto;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
-  
 /* GRID */
 .grid{position:absolute;inset:0;pointer-events:none;z-index:0;
   background-image:linear-gradient(rgba(0,212,232,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,232,.025) 1px,transparent 1px);
