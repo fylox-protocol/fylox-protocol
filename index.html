@@ -864,7 +864,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   
   <div class="tnav">
     <div class="tbrand">
-      <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,rgba(0,212,232,.15),rgba(0,212,232,.05));border:1px solid rgba(0,212,232,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:800;font-size:17px;color:var(--c);letter-spacing:-.05em">𝔽</div>
+      <img src="assets/ICONOS/Fylox_icono_v2.png" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(0,212,232,.25);box-shadow:0 0 20px rgba(0,212,232,.15)">
       <div style="font-family:var(--fd);font-weight:600;font-size:15px;letter-spacing:-.3px;color:var(--t1)" id="home-username">@usuario</div>
     </div>
     <div class="tact">
@@ -891,7 +891,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       </div>
       
       <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:12px;font-family:'Instrument Serif',Georgia,serif;letter-spacing:-.04em;line-height:.95">
-        <span style="font-size:82px;font-weight:400;color:var(--t1);font-variant-numeric:tabular-nums" id="home-balance-int">0</span><span style="font-size:40px;font-weight:400;color:var(--t2);font-variant-numeric:tabular-nums" id="home-balance-dec">.00</span><span style="font-size:28px;color:var(--c);font-style:italic;margin-left:6px">π</span>
+        <span style="font-size:82px;font-weight:400;color:var(--t1);font-variant-numeric:tabular-nums" id="home-balance-int">100</span><span style="font-size:40px;font-weight:400;color:var(--t2);font-variant-numeric:tabular-nums" id="home-balance-dec">.00</span><span style="font-size:28px;color:var(--c);font-style:italic;margin-left:6px">π</span>
       </div>
       
       <div style="display:flex;align-items:center;gap:10px;font-family:var(--fm)">
@@ -901,9 +901,9 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       </div>
     </div>
     
-    <!-- 3 ACTIONS -->
+    <!-- 3 ACTIONS PRINCIPALES -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px">
-      <div class="card" data-go="s7" style="padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;background:linear-gradient(180deg,rgba(0,212,232,.14),rgba(0,212,232,.04));border-color:var(--cb);cursor:pointer;position:relative;overflow:hidden">
+      <div class="card" data-go="s6" style="padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;background:linear-gradient(180deg,rgba(0,212,232,.14),rgba(0,212,232,.04));border-color:var(--cb);cursor:pointer;position:relative;overflow:hidden">
         <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,212,232,.18),transparent 60%);pointer-events:none"></div>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         <div style="font-family:var(--fd);font-size:13px;font-weight:600;color:var(--t1);letter-spacing:-.2px;position:relative;z-index:1" data-i18n="send">Enviar</div>
@@ -918,26 +918,61 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       </div>
     </div>
     
-    <!-- EARN SECTION -->
+    <!-- SERVICIOS — 6 CATEGORÍAS -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div class="sh" style="margin-bottom:0">Fylox Earn</div>
-      <div data-go="s21" style="font-family:var(--fd);font-size:12px;color:var(--t2);font-weight:500;display:flex;align-items:center;gap:2px;cursor:pointer">
-        <span data-i18n="seeAll">Ver todo</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </div>
+      <div class="sh" style="margin-bottom:0" data-i18n="services">Servicios</div>
     </div>
-    <div class="card" data-go="s21" style="display:flex;align-items:center;gap:14px;cursor:pointer;padding:18px;margin-bottom:24px">
-      <div style="width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#F59E0B,#EA580C);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 8px 24px -4px rgba(245,158,11,.4)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px">
+      
+      <!-- CARD -->
+      <div class="card" data-go="s15" style="padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;cursor:pointer;text-align:center">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(0,212,232,.18),rgba(139,92,246,.12));border:1px solid rgba(0,212,232,.22);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div style="font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t1);letter-spacing:-.2px" data-i18n="fyloxCard">Tarjeta</div>
       </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-family:var(--fd);font-size:15px;font-weight:600;color:var(--t1);letter-spacing:-.3px;margin-bottom:3px">2 <span data-i18n="activeTasks">tareas activas</span></div>
-        <div style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.08em;font-weight:500">ORACLE · AGORA · NEXUS</div>
+      
+      <!-- BILLS -->
+      <div class="card" data-go="s22" style="padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;cursor:pointer;text-align:center">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(234,88,12,.12));border:1px solid rgba(245,158,11,.22);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ylw)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div style="font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t1);letter-spacing:-.2px" data-i18n="bills">Facturas</div>
       </div>
-      <div style="text-align:right">
-        <div style="font-family:var(--fm);font-size:15px;font-weight:700;color:var(--ylw);font-variant-numeric:tabular-nums;letter-spacing:-.3px" id="earn-total">+0.0 π</div>
-        <div style="font-family:var(--fm);font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-top:2px;font-weight:500" data-i18n="thisMonth">Este mes</div>
+      
+      <!-- MERCHANTS -->
+      <div class="card" data-go="s20" style="padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;cursor:pointer;text-align:center">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(0,224,144,.18),rgba(0,150,100,.12));border:1px solid rgba(0,224,144,.22);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--grn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <div style="font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t1);letter-spacing:-.2px" data-i18n="merchants">Comercios</div>
       </div>
+      
+      <!-- TRANSIT -->
+      <div class="card" data-go="s23" style="padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;cursor:pointer;text-align:center">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(96,37,192,.12));border:1px solid rgba(139,92,246,.22);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div style="font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t1);letter-spacing:-.2px" data-i18n="transit">Transporte</div>
+      </div>
+      
+      <!-- EARN -->
+      <div class="card" data-go="s21" style="padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;cursor:pointer;text-align:center;position:relative;overflow:hidden">
+        <div style="position:absolute;top:6px;right:6px;background:var(--ylw);color:#000;font-size:8px;font-weight:800;padding:2px 6px;border-radius:6px;letter-spacing:.2px">+π</div>
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(234,88,12,.12));border:1px solid rgba(245,158,11,.28);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ylw)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div style="font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t1);letter-spacing:-.2px" data-i18n="earn">Ganar</div>
+      </div>
+      
+      <!-- ACTIVITY -->
+      <div class="card" data-go="s13" style="padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:0;cursor:pointer;text-align:center">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </div>
+        <div style="font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t1);letter-spacing:-.2px" data-i18n="activity">Actividad</div>
+      </div>
+      
     </div>
     
     <!-- ACTIVITY SECTION -->
@@ -954,7 +989,6 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     
   </div>
 </div>
-    
     
 <!-- S6 SEND AMOUNT -->
 <div class="scr" id="s6">
