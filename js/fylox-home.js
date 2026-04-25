@@ -1,11 +1,9 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX HOME — v3
+//  FYLOX HOME — v4
+//  - iOS-safe: pinta saldo directamente sin depender
+//    de updateUIWithUser (cross-file binding).
 //  - Sin XSS — esc() en todos los datos del servidor
-//  - Sin piPrice hardcodeado — usa getPiPrice()
-//  - Fecha localizada con fmtDate()
-//  - Sin monkey-patch de goTo — usa eventos
-//  - FIX: loadHomeScreen ahora actualiza saldo en s5
-//  - FIX: tipos de transacción del nuevo backend (user_to_user, received, etc.)
+//  - Soporta tipos viejos y nuevos del backend
 // ═══════════════════════════════════════════════════
 
 // ── Utilidades internas ──────────────────────────────
@@ -19,14 +17,61 @@ function _setHTML(id, val) {
   if (el) el.innerHTML = val;
 }
 
+// ── Helper: pintar saldo en s5 (función inline, sin deps) ──
+function _paintHomeBalance(username, balance) {
+  const safeBalance = parseFloat(balance) || 0;
+  const safeUser    = username || 'Pioneer';
+
+  // Persistir state global
+  window._fyloxBalance  = safeBalance;
+  window._fyloxUsername = safeUser;
+  if (typeof FyloxStorage !== 'undefined' && FyloxStorage.set) {
+    try { FyloxStorage.set('fylox_username', safeUser); } catch (e) {}
+  }
+
+  // Formato del balance
+  let balanceFmt;
+  if (typeof fmtPi === 'function') {
+    balanceFmt = fmtPi(safeBalance);
+  } else {
+    balanceFmt = safeBalance.toFixed(2);
+  }
+
+  const parts   = balanceFmt.split('.');
+  const intPart = parts[0] || '0';
+  const decPart = '.' + (parts[1] || '00');
+
+  // USD format
+  let usdStr = '0.00';
+  if (typeof fmtUSD === 'function') {
+    usdStr = fmtUSD(safeBalance);
+  }
+
+  // Pintar IDs CRÍTICOS del s5
+  _set('home-balance-int', intPart);
+  _set('home-balance-dec', decPart);
+  _set('home-ars',         '≈ ' + usdStr + ' USD');
+  _set('home-piid',        safeUser + '.pi');
+  _set('home-username',    '@' + safeUser);
+
+  // Compatibilidad con HTML viejo (un solo span)
+  _set('home-balance', balanceFmt);
+
+  // Profile y otros lugares donde aparece
+  _set('profile-username', '@' + safeUser);
+  _set('s3-username',      '@' + safeUser + '.pi');
+  _set('s3-back-username', '@' + safeUser + '.pi');
+  _set('receive-address',  '@' + safeUser + ' · ' + safeUser + '.pi');
+  _set('card-holder-name', safeUser.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+  _set('card-last4',       safeUser.slice(-4).toUpperCase().padStart(4, '0'));
+
+  // Wallet balance dataset
+  const wb = document.getElementById('wallet-balance');
+  if (wb) wb.dataset.value = safeBalance;
+}
+
 // ── Helper para clasificar tipo de transacción ──────
-// Soporta tanto los tipos viejos (sent/received) como los nuevos del backend (user_to_user/received/etc.)
-function _classifyTx(tx, currentUid) {
-  // SENT: el usuario actual envió
-  // - 'user_to_user' (nuevo backend, perspectiva del sender)
-  // - 'sent' (legacy)
-  // - 'withdraw' / 'app_to_user' invertido (no aplica acá)
-  // - 'user_to_app' (pago a la pool de Fylox)
+function _classifyTx(tx) {
   if (
     tx.type === 'sent' ||
     tx.type === 'user_to_user' ||
@@ -35,20 +80,13 @@ function _classifyTx(tx, currentUid) {
   ) {
     return 'sent';
   }
-
-  // RECEIVED: el usuario actual recibió
-  // - 'received' (nuevo backend)
-  // - 'app_to_user' (retiro acreditado, lo recibe el user)
   if (tx.type === 'received' || tx.type === 'app_to_user') {
     return 'received';
   }
-
-  // REWARD: tareas / recompensas
   if (['reward', 'oracle', 'agora'].includes(tx.type)) {
     return 'reward';
   }
-
-  return 'received'; // default seguro
+  return 'received';
 }
 
 // ── Render de una fila de transacción ───────────────
@@ -64,7 +102,6 @@ function _renderTxRow(tx) {
   const iconColor = isSent ? 'var(--red)' : isReward ? 'var(--ylw)' : 'var(--grn)';
   const sign      = isSent ? '−' : '+';
 
-  // esc() en TODOS los valores del servidor
   const label = esc(
     isSent
       ? (tx.toUsername ? `A @${tx.toUsername}` : (tx.toName || tx.toAddress || 'Pago enviado'))
@@ -138,7 +175,7 @@ function _renderWalletTxRow(tx) {
 //  S5 — HOME SCREEN
 // ══════════════════════════════════════════════════════
 async function loadHomeScreen() {
-  if (!getToken()) return;
+  if (typeof getToken !== 'function' || !getToken()) return;
 
   try {
     // ⚡ Cargar TODO en paralelo: balance + earn + tx
@@ -148,28 +185,34 @@ async function loadHomeScreen() {
       apiCall('GET', '/user/transactions?limit=5'),
     ]);
 
-    // ── ★ Refrescar saldo del usuario en el s5 ★
+    // ── ★ Pintar saldo del usuario en el s5 (DIRECTO, sin updateUIWithUser) ★
     if (meRes.status === 'fulfilled' && meRes.value) {
       const data = meRes.value;
-      const balance = parseFloat(data.balance) || 0;
-      const username = data.username || window._fyloxUsername || 'Pioneer';
-
-      // Actualizar window state
-      window._fyloxBalance = balance;
-      window._fyloxUsername = username;
       
-      // Si existe la función global updateUIWithUser, usarla (es la canónica)
+      // Soportar Decimal128 serializado, number plain, o string
+      let balance = 0;
+      if (data.balance != null) {
+        try {
+          balance = parseFloat(
+            typeof data.balance === 'object' && data.balance.$numberDecimal
+              ? data.balance.$numberDecimal
+              : data.balance.toString()
+          );
+        } catch (e) {
+          balance = 0;
+        }
+      }
+      
+      const username = data.username || window._fyloxUsername || 'Pioneer';
+      
+      // Pintar directamente (no depende de updateUIWithUser de otro archivo)
+      _paintHomeBalance(username, balance);
+      
+      // Si existe updateUIWithUser, también la llamamos para pintar otros lugares (QR, etc.)
       if (typeof updateUIWithUser === 'function') {
-        updateUIWithUser(username, balance);
-      } else {
-        // Fallback manual: actualizar directamente los IDs del s5
-        const balanceFmt = fmtPi(balance);
-        const balanceUSD = fmtUSD(balance);
-        _set('home-balance-int', balanceFmt.split('.')[0]);
-        _set('home-balance-dec', '.' + (balanceFmt.split('.')[1] || '00'));
-        _set('home-ars',         balanceUSD);
-        _set('home-piid',        username + '.pi');
-        _set('home-username',    '@' + username);
+        try { updateUIWithUser(username, balance); } catch (e) {
+          console.warn('[Home] updateUIWithUser falló:', e.message);
+        }
       }
     }
 
@@ -192,7 +235,6 @@ async function loadHomeScreen() {
       const recentTitle = document.getElementById('home-recent-title');
       const homeActivity = document.getElementById('home-activity');
 
-      // Soporta ambos contenedores (legacy + premium)
       const targetList = recentList || homeActivity;
 
       if (txs.length > 0 && targetList) {
@@ -219,7 +261,7 @@ async function loadHomeScreen() {
 //  S16 — WALLET SCREEN
 // ══════════════════════════════════════════════════════
 async function loadWalletScreen() {
-  if (!getToken()) return;
+  if (typeof getToken !== 'function' || !getToken()) return;
 
   try {
     const [balRes, txRes] = await Promise.allSettled([
@@ -232,10 +274,18 @@ async function loadWalletScreen() {
       _set('wallet-stat-sent',     `${fmtPi(d.totalSent     || 0)} π`);
       _set('wallet-stat-received', `${fmtPi(d.totalReceived || 0)} π`);
 
-      // Refrescar también el saldo principal
-      if (typeof updateUIWithUser === 'function' && d.username) {
-        updateUIWithUser(d.username, parseFloat(d.balance) || 0);
+      // También pintar saldo principal acá por si entra directo a s16
+      let balance = 0;
+      if (d.balance != null) {
+        try {
+          balance = parseFloat(
+            typeof d.balance === 'object' && d.balance.$numberDecimal
+              ? d.balance.$numberDecimal
+              : d.balance.toString()
+          );
+        } catch (e) { balance = 0; }
       }
+      if (d.username) _paintHomeBalance(d.username, balance);
     }
 
     if (txRes.status === 'fulfilled') {
@@ -264,7 +314,7 @@ async function loadWalletScreen() {
 // ══════════════════════════════════════════════════════
 function loadCardScreen() {
   const username = window._fyloxUsername 
-    || FyloxStorage.get('fylox_username') 
+    || (typeof FyloxStorage !== 'undefined' ? FyloxStorage.get('fylox_username') : null)
     || 'Pioneer';
     
   if (username === 'Pioneer') {
@@ -275,11 +325,8 @@ function loadCardScreen() {
   const fullName = username.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const last4    = username.slice(-4).toUpperCase().padStart(4, '0');
   
-  const nameEl  = document.getElementById('card-holder-name');
-  const last4El = document.getElementById('card-last4');
-  
-  if (nameEl)  nameEl.textContent  = fullName;
-  if (last4El) last4El.textContent = last4;
+  _set('card-holder-name', fullName);
+  _set('card-last4',       last4);
 }
 
 // ══════════════════════════════════════════════════════
@@ -300,23 +347,9 @@ function loadTransitScreen() {
   _set('transit-card-last4', last4);
 }
 
-// ══════════════════════════════════════════════════════
-//  SISTEMA DE EVENTOS 
-// ══════════════════════════════════════════════════════
-document.addEventListener('fylox:screen', (e) => {
-  const id = e.detail?.id;
-  if (!id) return;
-  if (id === 's5')  loadHomeScreen();
-  if (id === 's15') loadCardScreen();
-  if (id === 's12') loadTransitScreen();
-  if (id === 's16') loadWalletScreen();
-  if (id === 's17') loadProfileScreen();
-  if (id === 's9')  loadReceiveScreen();
-});
-
 function loadReceiveScreen() {
   const username = window._fyloxUsername 
-    || FyloxStorage.get('fylox_username') 
+    || (typeof FyloxStorage !== 'undefined' ? FyloxStorage.get('fylox_username') : null)
     || 'Pioneer';
 
   const qrEl = document.getElementById('qr-receive-img');
@@ -331,6 +364,20 @@ function loadReceiveScreen() {
   if (addrEl) addrEl.textContent = `@${username} · ${username}.pi`;
 }
 
+// ══════════════════════════════════════════════════════
+//  SISTEMA DE EVENTOS 
+// ══════════════════════════════════════════════════════
+document.addEventListener('fylox:screen', (e) => {
+  const id = e.detail?.id;
+  if (!id) return;
+  if (id === 's5')  loadHomeScreen();
+  if (id === 's15') loadCardScreen();
+  if (id === 's12') loadTransitScreen();
+  if (id === 's16') loadWalletScreen();
+  if (id === 's17') loadProfileScreen();
+  if (id === 's9')  loadReceiveScreen();
+});
+
 // ═══════════════════════════════════════════════════
 //  S15 CARD — Observer que actualiza al mostrar
 // ═══════════════════════════════════════════════════
@@ -341,18 +388,15 @@ function loadReceiveScreen() {
   const obs = new MutationObserver(() => {
     if (s15.classList.contains('show')) {
       const username = window._fyloxUsername 
-        || FyloxStorage.get('fylox_username');
+        || (typeof FyloxStorage !== 'undefined' ? FyloxStorage.get('fylox_username') : null);
       
       if (!username) return;
       
       const fullName = username.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
       const last4    = username.slice(-4).toUpperCase().padStart(4, '0');
       
-      const nameEl  = document.getElementById('card-holder-name');
-      const last4El = document.getElementById('card-last4');
-      
-      if (nameEl)  nameEl.textContent  = fullName;
-      if (last4El) last4El.textContent = last4;
+      _set('card-holder-name', fullName);
+      _set('card-last4',       last4);
     }
   });
   
@@ -368,7 +412,6 @@ function loadReceiveScreen() {
   
   const obs = new MutationObserver(() => {
     if (s5.classList.contains('show')) {
-      // Llamar loadHomeScreen para refrescar saldo + tx + earn
       if (typeof loadHomeScreen === 'function') {
         loadHomeScreen();
       }
