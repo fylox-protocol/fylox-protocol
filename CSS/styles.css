@@ -350,3 +350,47 @@ html.light #s16 .row svg[stroke]:not([stroke="none"]),
 html.light #s16 .stat-card svg[stroke]:not([stroke="none"]) {
   stroke: #0A0A0A;
 }
+
+/* ═══════════════════════════════════════════════════
+   FIX TEXTOS SECUNDARIOS DENTRO DE .bc EN LIGHT MODE
+   La card .bc mantiene fondo oscuro pero los textos --t2/t3
+   se vuelven oscuros también. Forzamos colores legibles.
+═══════════════════════════════════════════════════ */
+
+html.light .bc {
+  color: #FFFFFF !important;
+}
+
+/* "SALDO DISPONIBLE", "En vivo · Testnet" — labels secundarios */
+html.light .bc .lbl,
+html.light .bc .sh,
+html.light #s5 .bc .lbl,
+html.light #s16 .bc .lbl {
+  color: rgba(255,255,255,.62) !important;
+}
+
+/* El monto grande siempre blanco puro */
+html.light .bc .amt,
+html.light #s5 .bc .amt,
+html.light #s16 .bc .amt {
+  color: #FFFFFF !important;
+}
+
+/* USD / equivalente fiat */
+html.light .bc [id*="usd"],
+html.light .bc [id*="ars"],
+html.light #s5 #home-ars,
+html.light #s16 [id*="ars"] {
+  color: rgba(255,255,255,.65) !important;
+}
+
+/* Pi-id mantiene cyan */
+html.light .bc [id*="piid"],
+html.light #s5 #home-piid {
+  color: var(--c) !important;
+}
+
+/* Usernames dentro de la card */
+html.light .bc [id*="username"] {
+  color: #FFFFFF !important;
+}
