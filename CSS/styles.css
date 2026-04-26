@@ -248,192 +248,82 @@ html.light .task-card *,html.light .task-card-p *{color:#090B10 !important}
 
 
 /* ═══════════════════════════════════════════════════
-   LIGHT MODE FIX — Cards de s5 y s16 forzadas a blanco
-   Soluciona textos ilegibles en iPhone con light mode.
-   Solo afecta a las pantallas Home (s5) y Wallet (s16).
+   LIGHT MODE FIX — S5 (Home) e iPhone
+   La card .bc del s5 mantiene fondo oscuro, pero los textos
+   que usan var(--t2)/var(--t3) inline se vuelven invisibles.
+   
+   Solución: redefinir las variables CSS dentro del scope
+   de la card oscura. Los inline styles que usan var(--t2)
+   automáticamente toman el nuevo valor blanco translúcido.
 ═══════════════════════════════════════════════════ */
 
 html.light #s5 .bc,
-html.light #s5 .card,
-html.light #s5 .row,
+html.light #s16 .bc {
+  --t1: #FFFFFF !important;
+  --t2: rgba(255,255,255,.72) !important;
+  --t3: rgba(255,255,255,.55) !important;
+  --t4: rgba(255,255,255,.30) !important;
+}
+
+/* Heredar color por defecto adentro de la card */
+html.light #s5 .bc,
+html.light #s5 .bc *:not(.pill-live):not(.pill-live *):not(.chip):not(.bp):not(.bp *):not([id*="piid"]),
 html.light #s16 .bc,
-html.light #s16 .card,
-html.light #s16 .row,
-html.light #s16 .stat-card {
-  background: #FFFFFF !important;
-  border-color: rgba(0,0,0,.08) !important;
-  color: #0A0A0A !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+html.light #s16 .bc *:not(.pill-live):not(.pill-live *):not(.chip):not(.bp):not(.bp *):not([id*="piid"]) {
+  color: inherit;
 }
 
-/* Todos los textos dentro de las cards en negro */
-html.light #s5 .bc *,
-html.light #s5 .card *,
-html.light #s5 .row *,
-html.light #s16 .bc *,
-html.light #s16 .card *,
-html.light #s16 .row *,
-html.light #s16 .stat-card * {
-  color: #0A0A0A !important;
-}
-
-/* Excepción: el saldo grande en color cyan */
-html.light #s5 .bc .amt,
-html.light #s16 .bc .amt {
-  color: #0A0A0A !important;
-}
-
-/* Excepción: pills LIVE en verde legible sobre blanco */
-html.light #s5 .pill-live,
-html.light #s16 .pill-live {
-  background: rgba(0,200,130,.12) !important;
-  color: #009060 !important;
-}
-html.light #s5 .pill-live *,
-html.light #s16 .pill-live * {
-  color: #009060 !important;
-}
-
-/* Excepción: pills PENDING en amarillo legible sobre blanco */
-html.light #s5 .pill-pend,
-html.light #s16 .pill-pend {
-  background: rgba(200,140,0,.15) !important;
-  color: #A06000 !important;
-}
-html.light #s5 .pill-pend *,
-html.light #s16 .pill-pend * {
-  color: #A06000 !important;
-}
-
-/* Botón primary "Enviar" mantiene su look cyan */
-html.light #s5 .bp,
-html.light #s16 .bp {
-  background: linear-gradient(135deg,#00D4E8,#00B8D9) !important;
-  color: #000 !important;
-}
-html.light #s5 .bp *,
-html.light #s16 .bp * {
-  color: #000 !important;
-}
-
-/* Botones secundarios (Recibir, Escanear) sobre fondo blanco */
-html.light #s5 .bg,
-html.light #s16 .bg {
-  background: #F2F4F7 !important;
-  color: #0A0A0A !important;
-  border-color: rgba(0,0,0,.06) !important;
-}
-html.light #s5 .bg *,
-html.light #s16 .bg * {
-  color: #0A0A0A !important;
-}
-
-/* Íconos circulares de transacciones — fondo más claro */
-html.light #s5 .ti,
-html.light #s16 .ti {
-  background: rgba(0,0,0,.04) !important;
-}
-
-/* Borde sutil entre transacciones */
-html.light #s5 .tx,
-html.light #s16 .tx {
-  border-color: rgba(0,0,0,.06) !important;
-}
-
-/* SVGs de iconos: forzar stroke oscuro */
-html.light #s5 .bc svg[stroke]:not([stroke="none"]),
-html.light #s5 .card svg[stroke]:not([stroke="none"]),
-html.light #s5 .row svg[stroke]:not([stroke="none"]),
-html.light #s16 .bc svg[stroke]:not([stroke="none"]),
-html.light #s16 .card svg[stroke]:not([stroke="none"]),
-html.light #s16 .row svg[stroke]:not([stroke="none"]),
-html.light #s16 .stat-card svg[stroke]:not([stroke="none"]) {
-  stroke: #0A0A0A;
-}
-
-/* ═══════════════════════════════════════════════════
-   FIX TEXTOS SECUNDARIOS DENTRO DE .bc EN LIGHT MODE
-   La card .bc mantiene fondo oscuro pero los textos --t2/t3
-   se vuelven oscuros también. Forzamos colores legibles.
-═══════════════════════════════════════════════════ */
-
-html.light .bc {
-  color: #FFFFFF !important;
-}
-
-/* "SALDO DISPONIBLE", "En vivo · Testnet" — labels secundarios */
-html.light .bc .lbl,
-html.light .bc .sh,
-html.light #s5 .bc .lbl,
-html.light #s16 .bc .lbl {
-  color: rgba(255,255,255,.62) !important;
-}
-
-/* El monto grande siempre blanco puro */
-html.light .bc .amt,
-html.light #s5 .bc .amt,
-html.light #s16 .bc .amt {
-  color: #FFFFFF !important;
-}
-
-/* USD / equivalente fiat */
-html.light .bc [id*="usd"],
-html.light .bc [id*="ars"],
-html.light #s5 #home-ars,
-html.light #s16 [id*="ars"] {
-  color: rgba(255,255,255,.65) !important;
-}
-
-/* Pi-id mantiene cyan */
-html.light .bc [id*="piid"],
-html.light #s5 #home-piid {
+/* Excepciones: elementos brand mantienen sus colores */
+html.light #s5 .bc [id*="piid"],
+html.light #s16 .bc [id*="piid"] {
   color: var(--c) !important;
 }
 
-/* Usernames dentro de la card */
-html.light .bc [id*="username"] {
+html.light #s5 .bc .pill-live,
+html.light #s16 .bc .pill-live {
+  background: rgba(0,224,144,.12) !important;
+  color: var(--grn) !important;
+}
+html.light #s5 .bc .pill-live *,
+html.light #s16 .bc .pill-live * {
+  color: var(--grn) !important;
+}
+
+html.light #s5 .bc .pill-pend,
+html.light #s16 .bc .pill-pend {
+  background: rgba(255,183,0,.15) !important;
+  color: var(--ylw) !important;
+}
+html.light #s5 .bc .pill-pend *,
+html.light #s16 .bc .pill-pend * {
+  color: var(--ylw) !important;
+}
+
+/* Monto principal blanco puro */
+html.light #s5 .bc .amt,
+html.light #s16 .bc .amt {
   color: #FFFFFF !important;
 }
 
-/* OVERRIDE EXTREMO: en light mode las cards principales son BLANCAS */
-html.light #s5 .bc,
-html.light #s16 .bc {
-  background: #FFFFFF !important;
-  border-color: rgba(0,0,0,.08) !important;
+/* Botón Enviar primary mantiene cyan */
+html.light #s5 .bc .bp,
+html.light #s16 .bc .bp {
+  background: linear-gradient(135deg,#00D4E8,#00B8D9) !important;
+  color: #000 !important;
+}
+html.light #s5 .bc .bp *,
+html.light #s16 .bc .bp * {
+  color: #000 !important;
 }
 
-html.light #s5 .bc .lbl,
-html.light #s16 .bc .lbl,
-html.light #s5 .bc .sh,
-html.light #s16 .bc .sh {
-  color: #4A5568 !important;
-}
-
-html.light #s5 .bc .amt,
-html.light #s16 .bc .amt {
-  color: #0A0A0A !important;
-}
-
-html.light #s5 .bc [id*="usd"],
-html.light #s5 .bc [id*="ars"],
-html.light #s16 .bc [id*="usd"],
-html.light #s16 .bc [id*="ars"] {
-  color: #4A5568 !important;
-}
-
-html.light #s5 .bc [id*="username"],
-html.light #s16 .bc [id*="username"] {
-  color: #0A0A0A !important;
-}
-
-html.light #s5 .bc [id*="piid"],
-html.light #s16 .bc [id*="piid"] {
-  color: #00A8C0 !important;
-}
-
-/* Botones secundarios sobre card blanca */
+/* Botones secundarios sobre la card oscura */
 html.light #s5 .bc .bg,
 html.light #s16 .bc .bg {
-  background: #F2F4F7 !important;
-  color: #0A0A0A !important;
+  background: rgba(255,255,255,.06) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+html.light #s5 .bc .bg *,
+html.light #s16 .bc .bg * {
+  color: #FFFFFF !important;
 }
