@@ -1327,7 +1327,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
           <div style="font-family:var(--fd);font-weight:800;font-size:22px;color:var(--c)">π</div>
         </div>
         <div style="font-family:var(--fm);font-size:14px;color:rgba(255,255,255,.45);margin-bottom:18px;letter-spacing:2px">•••• •••• •••• <span id="card-last4">••••</span></div>
-        <div style="font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:-.3px;margin-bottom:4px" id="card-holder-name">Tu Nombre</div>
+        <div style="font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:-.3px;margin-bottom:4px" id="card-holder-name">Pioneer</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
           <div style="font-size:11px;color:rgba(255,255,255,.35)"><span data-i18n="virtualCardNfc">Virtual Card · NFC Ready</span></div>
           <div style="display:flex;gap:6px">
@@ -2232,5 +2232,40 @@ function cerrarNFCModal() {
 }
 </script>
 
+  <script>
+// FIX FYLOX CARD: pintar nombre cada vez que se entra al s15
+(function() {
+  function paintCard() {
+    var u = window._fyloxUsername 
+         || (window.FyloxStorage && FyloxStorage.get('fylox_username'))
+         || localStorage.getItem('fylox_username');
+    if (!u) return;
+    
+    var fullName = u.replace(/_/g, ' ').replace(/\b\w/g, function(c){return c.toUpperCase();});
+    var last4 = u.slice(-4).toUpperCase().padStart(4, '0');
+    
+    var nameEl = document.getElementById('card-holder-name');
+    var last4El = document.getElementById('card-last4');
+    
+    if (nameEl) nameEl.textContent = fullName;
+    if (last4El) last4El.textContent = last4;
+  }
+  
+  // Pintar cada 500ms si el s15 está visible (super defensivo, garantizado funciona)
+  setInterval(function() {
+    var s15 = document.getElementById('s15');
+    if (s15 && s15.classList.contains('show')) {
+      paintCard();
+    }
+  }, 500);
+  
+  // También pintar cuando se entre al s15 vía data-go
+  document.addEventListener('click', function(e) {
+    var go = e.target.closest('[data-go="s15"]');
+    if (go) setTimeout(paintCard, 300);
+  });
+})();
+</script>
+  
 </body>
 </html>
