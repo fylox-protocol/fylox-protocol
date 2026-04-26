@@ -394,3 +394,46 @@ html.light #s5 #home-piid {
 html.light .bc [id*="username"] {
   color: #FFFFFF !important;
 }
+
+/* OVERRIDE EXTREMO: en light mode las cards principales son BLANCAS */
+html.light #s5 .bc,
+html.light #s16 .bc {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,.08) !important;
+}
+
+html.light #s5 .bc .lbl,
+html.light #s16 .bc .lbl,
+html.light #s5 .bc .sh,
+html.light #s16 .bc .sh {
+  color: #4A5568 !important;
+}
+
+html.light #s5 .bc .amt,
+html.light #s16 .bc .amt {
+  color: #0A0A0A !important;
+}
+
+html.light #s5 .bc [id*="usd"],
+html.light #s5 .bc [id*="ars"],
+html.light #s16 .bc [id*="usd"],
+html.light #s16 .bc [id*="ars"] {
+  color: #4A5568 !important;
+}
+
+html.light #s5 .bc [id*="username"],
+html.light #s16 .bc [id*="username"] {
+  color: #0A0A0A !important;
+}
+
+html.light #s5 .bc [id*="piid"],
+html.light #s16 .bc [id*="piid"] {
+  color: #00A8C0 !important;
+}
+
+/* Botones secundarios sobre card blanca */
+html.light #s5 .bc .bg,
+html.light #s16 .bc .bg {
+  background: #F2F4F7 !important;
+  color: #0A0A0A !important;
+}
