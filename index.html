@@ -1042,7 +1042,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       <div class="kkey" data-k=".">.</div><div class="kkey" data-k="0">0</div><div class="kkey kc" data-k="x">⌫</div>
     </div>
     <div style="flex:1"></div>
-    <button class="btn bp" data-i18n="continueBtn" onclick="window.SEND_TO='@'+((document.getElementById('send-to-input').value||'').replace('@','')||'Pioneer'); var a=kval!=='0'?kval:'0.00'; document.getElementById('s7amt').innerHTML=a+' <span style=\'font-size:26px;color:var(--c)\'>π</span>'; document.getElementById('s7total').textContent=a+' π'; document.getElementById('s7to').textContent=window.SEND_TO;goTo('s7') ;">Continue</button> 
+<button class="btn bp" data-i18n="continueBtn" onclick="fyloxValidateAndContinue()">Continue</button>
   </div>
 </div>
 <!-- S7 CONFIRM SEND -->
@@ -1054,7 +1054,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     <div class="card card-lg mb16" style="text-align:center;padding:28px">
       <div style="font-size:13px;color:var(--t2);margin-bottom:8px" data-i18n="sendingLabel">Sending</div>
       <div style="font-family:var(--fd);font-weight:800;font-size:48px;letter-spacing:-3px;margin-bottom:4px" id="s7amt">0.00 <span style="font-size:26px;color:var(--c)">π</span></div>
-      <div style="font-size:14px;color:var(--t2)">≈ $8.50 USD</div>
+      <div style="font-size:14px;color:var(--t2)" id="s7usd">≈ $0.00 USD</div>
     </div>
     <div class="card mb16">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:14px;color:var(--t2)" data-i18n="toLabel">To</span><span style="font-size:14px;font-weight:600" id="s7to">@Pioneer</span></div>
