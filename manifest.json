@@ -1,25 +1,41 @@
 {
   "name": "Fylox — Pi Network Financial Layer",
   "short_name": "Fylox",
-  "description": "Send, receive and earn Pi. The payment layer Pi was waiting for.",
+  "description": "Send, receive and earn Pi. The payment layer Pi was waiting for. P2P payments, virtual card, merchant tools, transit, bills and rewards — all running on Pi Network.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#060608",
   "theme_color": "#00D4E8",
-  "categories": ["finance", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["finance", "utilities", "business"],
   "icons": [
     {
       "src": "assets/ICONOS/Fylox_icono_v2.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "assets/ICONOS/Fylox_icono_v2.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "assets/ICONOS/Fylox_icono_v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/ICONOS/Fylox_icono_v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [],
