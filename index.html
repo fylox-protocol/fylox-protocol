@@ -1042,8 +1042,30 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       <div class="kkey" data-k=".">.</div><div class="kkey" data-k="0">0</div><div class="kkey kc" data-k="x">⌫</div>
     </div>
     <div style="flex:1"></div>
-<button class="btn bp" data-i18n="continueBtn" onclick="fyloxValidateAndContinue()">Continue</button>
-  </div>
+<button class="btn bp" data-i18n="continueBtn" onclick="
+  var inp=document.getElementById('send-to-input');
+  var rcp=((inp&&inp.value)||'').trim().replace(/^@/,'').replace(/\.pi$/i,'').toLowerCase();
+  var amtStr=(typeof kval!=='undefined'?kval:'0')||'0';
+  if(amtStr.endsWith('.'))amtStr=amtStr.slice(0,-1);
+  var amt=parseFloat(amtStr);
+  var me=(window._fyloxUsername||'').toLowerCase();
+  var bal=window._fyloxBalance||0;
+  if(!rcp||rcp.length<2){alert('Ingresá un destinatario válido');return;}
+  if(!/^[a-z0-9_]+$/i.test(rcp)){alert('Usuario inválido (solo letras, números, guiones bajos)');return;}
+  if(me&&rcp===me){alert('No podés enviarte Pi a vos mismo');return;}
+  if(isNaN(amt)||amt<=0){alert('Ingresá un monto mayor a 0');return;}
+  if(amt>bal){alert('Saldo insuficiente. Tenés '+bal.toFixed(2)+' π');return;}
+  if(amt>1000000){alert('Monto demasiado alto');return;}
+  window.SEND_TO='@'+rcp;
+  if(typeof PaymentState!=='undefined')PaymentState.set({to:rcp,amt:amt});
+  var px=(typeof getPiPrice==='function')?getPiPrice():0.4;
+  var usd=(amt*px).toFixed(2);
+  document.getElementById('s7amt').innerHTML=amt.toFixed(2)+' <span style=\'font-size:26px;color:var(--c)\'>π</span>';
+  document.getElementById('s7total').textContent=amt.toFixed(2)+' π';
+  document.getElementById('s7to').textContent='@'+rcp+'.pi';
+  var u=document.getElementById('s7usd');if(u)u.textContent='≈ $'+usd+' USD';
+  goTo('s7');
+">Continue</button>
 </div>
 <!-- S7 CONFIRM SEND -->
 <div class="scr" id="s7">
