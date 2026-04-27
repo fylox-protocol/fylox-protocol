@@ -1,18 +1,16 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX PAYMENTS — v2
-//  - Sin apiCall duplicado (usa fylox-api.js)
-//  - Sin alert() — usa FyloxNotification
-//  - Sin piPrice hardcodeado — usa getPiPrice()
-//  - Sin window.SEND_TO/AMT — usa PaymentState
-//  - Validación de monto antes de Pi.createPayment()
-//  - Manejo de pagos pendientes (incomplete payments)
+//  FYLOX PAYMENTS — v3
+//  - Validación completa antes de avanzar a s7
+//  - PaymentState se llena correctamente desde s6
+//  - USD calculado dinámicamente con piPrice
+//  - Bloqueo de auto-pago, saldo insuficiente, monto inválido
 // ═══════════════════════════════════════════════════
 
 // ── Actualizar UI con datos del usuario ─────────────
 function updateUIWithUser(username, balance) {
   window._fyloxBalance  = balance;
   window._fyloxUsername = username;
-FyloxStorage.set('fylox_username', username);
+  FyloxStorage.set('fylox_username', username);
   
   const piid       = username + '.pi';
   const balanceUSD = fmtUSD(balance);
@@ -45,11 +43,11 @@ FyloxStorage.set('fylox_username', username);
   // Regenerar QR de Receive con el username correcto
   const qrEl = document.getElementById('qr-receive-img');
   if (qrEl) {
-  qrEl.innerHTML = '';
-  if (typeof generateQR === 'function') {
-    generateQR('qr-receive-img', `fylox://pay?to=@${username}`, 180);
+    qrEl.innerHTML = '';
+    if (typeof generateQR === 'function') {
+      generateQR('qr-receive-img', `fylox://pay?to=@${username}`, 180);
+    }
   }
-}
   const addrBox = document.getElementById('receive-address');
   if (addrBox) addrBox.textContent = `@${username} · ${username}.pi`;
 }
@@ -71,7 +69,6 @@ async function loadUserProfile() {
     const data = await apiCall('GET', '/user/me');
     if (data.username) updateUIWithUser(data.username, data.balance || 0);
 
-    // Stats de perfil
     const earned = document.getElementById('profile-earned');
     if (earned) earned.textContent = fmtPi(data.totalEarned || 0) + ' π';
 
@@ -82,11 +79,114 @@ async function loadUserProfile() {
   }
 }
 
+// ═══════════════════════════════════════════════════
+// ── VALIDACIÓN DE PAGO ANTES DE AVANZAR A s7 ────────
+// ═══════════════════════════════════════════════════
+function fyloxValidateAndContinue() {
+  // 1. Leer destinatario del input
+  const inputEl = document.getElementById('send-to-input');
+  let recipient = (inputEl && inputEl.value || '').trim();
+  // Quitar @ si lo puso, quitar .pi si lo puso
+  recipient = recipient.replace(/^@/, '').replace(/\.pi$/i, '').toLowerCase();
+
+  // 2. Leer monto del teclado (variable global kval del index.html)
+  let amountStr = (typeof kval !== 'undefined' ? kval : '0') || '0';
+  // Limpiar trailing dot ("5." → "5")
+  if (amountStr.endsWith('.')) amountStr = amountStr.slice(0, -1);
+  const amount = parseFloat(amountStr);
+
+  // ── Validación 1: Destinatario vacío ──
+  if (!recipient || recipient.length < 2) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Destinatario inválido',
+      sub: 'Ingresá un usuario Pi válido', amt: '', sound: false,
+    });
+    return;
+  }
+
+  // ── Validación 2: Solo letras, números y guiones bajos ──
+  if (!/^[a-z0-9_]+$/i.test(recipient)) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Usuario inválido',
+      sub: 'Solo letras, números y guiones bajos', amt: '', sound: false,
+    });
+    return;
+  }
+
+  // ── Validación 3: Auto-pago ──
+  const myUsername = (window._fyloxUsername || '').toLowerCase();
+  if (myUsername && recipient.toLowerCase() === myUsername) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'No podés enviarte Pi a vos mismo',
+      sub: 'Elegí otro destinatario', amt: '', sound: false,
+    });
+    return;
+  }
+
+  // ── Validación 4: Monto válido ──
+  if (isNaN(amount) || amount <= 0) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Monto inválido',
+      sub: 'Ingresá un monto mayor a 0', amt: '', sound: false,
+    });
+    return;
+  }
+
+  // ── Validación 5: Máximo 7 decimales (Pi Network limit) ──
+  const decimals = (amountStr.split('.')[1] || '').length;
+  if (decimals > 7) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Demasiados decimales',
+      sub: 'Pi Network soporta máximo 7 decimales', amt: '', sound: false,
+    });
+    return;
+  }
+
+  // ── Validación 6: Saldo suficiente ──
+  const balance = window._fyloxBalance || 0;
+  if (amount > balance) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Saldo insuficiente',
+      sub: `Tenés ${fmtPi(balance)} π disponibles`, amt: '', sound: false,
+    });
+    return;
+  }
+
+  // ── Validación 7: Monto razonable (anti-typo) ──
+  if (amount > 1000000) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'Monto demasiado alto',
+      sub: 'Verificá el monto antes de enviar', amt: '', sound: false,
+    });
+    return;
+  }
+
+  // ✅ Todas las validaciones pasaron — guardar en PaymentState
+  PaymentState.set({ to: recipient, amt: amount });
+  window.SEND_TO = '@' + recipient;
+
+  // Pintar pantalla s7 con datos correctos
+  const piPrice = (typeof getPiPrice === 'function') ? getPiPrice() : 0.4;
+  const usdValue = (amount * piPrice).toFixed(2);
+
+  const s7amt = document.getElementById('s7amt');
+  const s7total = document.getElementById('s7total');
+  const s7to = document.getElementById('s7to');
+  const s7usd = document.getElementById('s7usd');
+
+  if (s7amt) s7amt.innerHTML = fmtPi(amount) + ' <span style="font-size:26px;color:var(--c)">π</span>';
+  if (s7total) s7total.textContent = fmtPi(amount) + ' π';
+  if (s7to) s7to.textContent = '@' + recipient + '.pi';
+  if (s7usd) s7usd.textContent = '≈ $' + usdValue + ' USD';
+
+  goTo('s7');
+}
+
 // ── 1. FLUJO DE PAGO (U2A: Pioneer → Fylox) ─────────
 async function initiatePiPayment(amount, recipientUsername, memoText = 'Pago en Fylox') {
   const parsedAmount = parseFloat(amount);
 
-  // Validaciones antes de llamar al SDK
+  // Validaciones defensivas (ya validadas en s6)
   if (isNaN(parsedAmount) || parsedAmount <= 0) {
     FyloxNotification.show({
       icon: '⚠️', title: 'Monto inválido',
@@ -112,7 +212,6 @@ async function initiatePiPayment(amount, recipientUsername, memoText = 'Pago en 
     return;
   }
 
-  // Deshabilitar botón durante el proceso
   const confirmBtn = document.querySelector('.scr.show .btn.bp');
   if (confirmBtn) {
     confirmBtn.disabled = true;
@@ -130,7 +229,6 @@ async function initiatePiPayment(amount, recipientUsername, memoText = 'Pago en 
           await apiCall('POST', '/payments/approve', { paymentId });
         } catch (err) {
           console.error('[Fylox] Aprobación S2S fallida:', err);
-          // Registrar el paymentId pendiente para reintentar
           FyloxStorage.set('fylox_pending_payment', paymentId);
           throw err;
         }
@@ -140,7 +238,6 @@ async function initiatePiPayment(amount, recipientUsername, memoText = 'Pago en 
         try {
           await apiCall('POST', '/payments/complete', { paymentId, txid });
 
-          // Limpiar pago pendiente si existía
           FyloxStorage.remove('fylox_pending_payment');
 
           const newBalance = await fetchBalance();
@@ -208,7 +305,7 @@ function fyloxSendPayment() {
   if (!PaymentState.isValid()) {
     FyloxNotification.show({
       icon: '⚠️', title: 'Datos de pago incompletos',
-      sub: 'Volvé a escanear el QR', amt: '', sound: false,
+      sub: 'Volvé a iniciar el envío', amt: '', sound: false,
     });
     return;
   }
