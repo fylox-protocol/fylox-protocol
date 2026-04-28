@@ -1058,7 +1058,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   if(amt>1000000){alert('Monto demasiado alto');return;}
   window.SEND_TO='@'+rcp;
   if(typeof PaymentState!=='undefined')PaymentState.set({to:rcp,amt:amt});
-  var px=(typeof getPiPrice==='function')?getPiPrice():0.4;
+  var px=(window._fyloxLivePrice&&window._fyloxLivePrice>0)?window._fyloxLivePrice:((typeof getPiPrice==='function')?getPiPrice():0.4);
   var usd=(amt*px).toFixed(2);
   document.getElementById('s7amt').innerHTML=amt.toFixed(2)+' <span style=\'font-size:26px;color:var(--c)\'>π</span>';
   document.getElementById('s7total').textContent=amt.toFixed(2)+' π';
@@ -2302,6 +2302,7 @@ function cerrarNFCModal() {
       var data = await res.json();
       if (data && data.price > 0) {
         _cachedPrice = data.price;
+        window._fyloxLivePrice = data.price;
         _lastFetch = Date.now();
       }
     } catch(e) {
