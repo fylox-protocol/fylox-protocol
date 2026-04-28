@@ -387,22 +387,6 @@ async function fetchPiPrice() {
 fetchPiPrice();
 setInterval(fetchPiPrice, 60000);
 
-  const el = document.getElementById('pi-price');
-  if (el) {
-    el.textContent = '$' + newPrice.toFixed(4);
-    el.classList.remove('price-up', 'price-down');
-    void el.offsetWidth;
-    el.classList.add(isUp ? 'price-up' : 'price-down');
-  }
-
-  const balanceEl = document.getElementById('home-ars');
-  if (balanceEl && window._fyloxBalance) {
-    balanceEl.textContent = fmtUSD(window._fyloxBalance);
-  }
-}
-
-fetchPiPrice();
-setInterval(fetchPiPrice, 60000);
 // ── Contador de Pioneers — solo desde API ────────────
 //  Eliminado el contador falso y aleatorio.
 //  Se actualiza cuando la API devuelve el dato real.
