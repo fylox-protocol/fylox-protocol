@@ -2347,6 +2347,35 @@ function cerrarNFCModal() {
   setInterval(updateS6Display, 200);
 })();
 </script>
+
+<script>
+// FIX S7: recalcular USD cuando se entra a la pantalla de confirmación
+(function() {
+  function paintS7Usd() {
+    var s7 = document.getElementById('s7');
+    if (!s7 || !s7.classList.contains('show')) return;
+    
+    var usdEl = document.getElementById('s7usd');
+    var totalEl = document.getElementById('s7total');
+    if (!usdEl || !totalEl) return;
+    
+    // Leer el monto del total
+    var totalText = totalEl.textContent || '0';
+    var amt = parseFloat(totalText.replace(/[^\d.]/g, '')) || 0;
+    
+    // Leer precio en vivo
+    var px = (window._fyloxLivePrice && window._fyloxLivePrice > 0)
+      ? window._fyloxLivePrice
+      : ((typeof getPiPrice === 'function') ? getPiPrice() : 0.4);
+    
+    var usd = (amt * px).toFixed(2);
+    usdEl.textContent = '≈ $' + usd + ' USD';
+  }
+  
+  // Pintar cada 200ms si el s7 está visible
+  setInterval(paintS7Usd, 200);
+})();
+</script>
   
 </body>
 </html>
