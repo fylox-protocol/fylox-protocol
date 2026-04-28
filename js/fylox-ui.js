@@ -353,62 +353,39 @@ function updateTime() {
 }
 updateTime();
 setInterval(updateTime, 10000);
-// ── Precio de Pi — fuentes múltiples con fallback ────
-async function _fetchFromOKX() {
-  const res = await fetch('https://www.okx.com/api/v5/market/ticker?instId=PI-USDT');
-  const data = await res.json();
-  if (data?.data?.[0]?.last) return parseFloat(data.data[0].last);
-  throw new Error('OKX: respuesta inválida');
-}
-
-async function _fetchFromCoinGecko() {
-  const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pi-network&vs_currencies=usd');
-  const data = await res.json();
-  if (data?.['pi-network']?.usd) return parseFloat(data['pi-network'].usd);
-  throw new Error('CoinGecko: respuesta inválida');
-}
-
-async function _fetchFromBinance() {
-  const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PIUSDT');
-  const data = await res.json();
-  if (data?.price) return parseFloat(data.price);
-  throw new Error('Binance: respuesta inválida');
-}
-
+// ── Precio de Pi — vía backend (evita CORS) ──────────
 async function fetchPiPrice() {
-  const sources = [
-    { name: 'OKX',       fn: _fetchFromOKX },
-    { name: 'CoinGecko', fn: _fetchFromCoinGecko },
-    { name: 'Binance',   fn: _fetchFromBinance },
-  ];
+  try {
+    const res = await fetch('https://fylox-backend.onrender.com/api/price/pi');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.price || data.price <= 0) throw new Error('Precio inválido');
 
-  let newPrice = null;
-  let usedSource = null;
+    const newPrice  = parseFloat(data.price);
+    const prevPrice = getPiPrice();
+    const isUp      = newPrice >= prevPrice;
 
-  for (const src of sources) {
-    try {
-      const price = await src.fn();
-      if (price > 0) {
-        newPrice = price;
-        usedSource = src.name;
-        break;
-      }
-    } catch (err) {
-      console.warn('[Fylox] Falló fuente ' + src.name + ':', err.message);
+    setPiPrice(newPrice);
+
+    const el = document.getElementById('pi-price');
+    if (el) {
+      el.textContent = '$' + newPrice.toFixed(4);
+      el.classList.remove('price-up', 'price-down');
+      void el.offsetWidth;
+      el.classList.add(isUp ? 'price-up' : 'price-down');
     }
+
+    const balanceEl = document.getElementById('home-ars');
+    if (balanceEl && window._fyloxBalance) {
+      balanceEl.textContent = fmtUSD(window._fyloxBalance);
+    }
+  } catch (err) {
+    console.warn('[Fylox] No se pudo obtener precio de Pi desde backend:', err.message);
   }
+}
 
-  if (newPrice === null) {
-    console.warn('[Fylox] Todas las fuentes de precio fallaron, manteniendo último valor');
-    return;
-  }
-
-  console.log('[Fylox] Precio de Pi actualizado desde ' + usedSource + ': $' + newPrice);
-
-  const prevPrice = getPiPrice();
-  const isUp = newPrice >= prevPrice;
-
-  setPiPrice(newPrice);
+fetchPiPrice();
+setInterval(fetchPiPrice, 60000);
 
   const el = document.getElementById('pi-price');
   if (el) {
