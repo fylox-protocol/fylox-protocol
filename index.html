@@ -1421,10 +1421,11 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
       </div>
       <!-- Balance -->
       <div id="wallet-balance" data-value="0" style="font-family:var(--fd);font-weight:900;font-size:52px;letter-spacing:-3px;line-height:1;color:#FFFFFF;margin-bottom:6px">0.00 <span style="font-size:26px;color:var(--c)">π</span></div>
-      <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:22px">≈ $34 USD · <span style="color:var(--grn);font-weight:600">↑ 2.4%</span> <span data-i18n="thisWeek">this week</span></div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:22px">≈ $<span id="wallet-usd">0.00</span> USD · <span style="color:var(--grn);font-weight:600">↑ 2.4%</span> <span data-i18n="thisWeek">this week</span></div>
             <button class="btn bg" onclick="withdrawToWallet()" style="width: 100%; border: 1px solid var(--c); color: var(--c); font-weight: 600; padding: 12px; border-radius: 12px; position: relative; z-index: 10; margin-bottom: 24px;">
           Retirar a mi Billetera
       </button>
+
 
       <!-- Stats row -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px">
@@ -2437,6 +2438,30 @@ if (window.FyloxRealtime) {
   checkOnboardingMode();
 })();
 </script>
+
+    <script>
+// FIX S16: actualizar USD del saldo total con precio en vivo
+(function() {
+  function paintS16Usd() {
+    var s16 = document.getElementById('s16');
+    if (!s16 || !s16.classList.contains('show')) return;
+    
+    var usdEl = document.getElementById('wallet-usd');
+    if (!usdEl) return;
+    
+    var balance = window._fyloxBalance || 0;
+    var px = (window._fyloxLivePrice && window._fyloxLivePrice > 0)
+      ? window._fyloxLivePrice
+      : 0.1886;
+    
+    var usd = (balance * px).toFixed(2);
+    usdEl.textContent = usd;
+  }
+  
+  setInterval(paintS16Usd, 200);
+})();
+</script>
+    
   
 </body>
 </html>
