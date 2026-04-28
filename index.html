@@ -1457,6 +1457,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     <!-- Security -->
     <div class="sh" data-i18n="security">Security</div>
 
+
 <!-- S16 WALLET -->
 <div class="scr" id="s16">
   <div class="grid"></div>
@@ -1548,13 +1549,24 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 
     <!-- Filter chips -->
     <div style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none">
-      <div class="filter-chip on" onclick="filterWalletTx(this,'all')" data-i18n="allFilter">All</div>
-      <div class="filter-chip" onclick="filterWalletTx(this,'sent')" data-i18n="sentFilter">Sent</div>
-      <div class="filter-chip" onclick="filterWalletTx(this,'received')" data-i18n="receivedFilter">Received</div>
-      <div class="filter-chip" onclick="filterWalletTx(this,'earned')"><span data-i18n="earnedProfile">Earned</span></div>
+      <div class="filter-chip on" data-i18n="allFilter">All</div>
+      <div class="filter-chip" data-i18n="sentFilter">Sent</div>
+      <div class="filter-chip" data-i18n="receivedFilter">Received</div>
+      <div class="filter-chip"><span data-i18n="earnedProfile">Earned</span></div>
     </div>
 
     <div style="background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:4px 16px">
+      <div class="tx">
+        <div class="ti" style="background:rgba(255,70,70,.07);color:var(--red)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600"><span data-i18n="utilityBill">Utility Bill</span></div>
+          <div style="font-size:11px;color:var(--t2);margin-top:1px" data-i18n="dec1Bills">Dec 1 · Bills</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--fd)">−8.5 π</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:1px">≈ $2.89</div>
+        </div>
+      </div>
       <div id="wallet-tx-dynamic" style="text-align:center;padding:20px;color:var(--t3);font-size:13px">Cargando…</div>
     </div>
     <div style="height:80px"></div>
