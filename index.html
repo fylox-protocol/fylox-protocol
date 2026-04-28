@@ -2310,6 +2310,7 @@ function cerrarNFCModal() {
       var data = await res.json();
       if (data && data.price > 0) {
         _cachedPrice = data.price;
+        window._fyloxLivePrice = data.price;
         _lastFetch = Date.now();
       }
     } catch(e) {
