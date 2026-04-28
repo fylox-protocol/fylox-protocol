@@ -1068,6 +1068,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 ">Continue</button>
 </div>
 </div>
+  
 <!-- S7 CONFIRM SEND -->
 <div class="scr" id="s7">
   <div class="grid"></div>
@@ -1082,7 +1083,13 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     <div class="card mb16">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:14px;color:var(--t2)" data-i18n="toLabel">To</span><span style="font-size:14px;font-weight:600" id="s7to">@Pioneer</span></div>
       <div class="divider"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:14px;color:var(--t2)" data-i18n="networkFee">Network fee</span><span style="font-size:14px;font-weight:600;color:var(--grn)" data-i18n="freeLabel">Free</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:14px;color:var(--t2)" data-i18n="networkFee">Network fee</span>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:600">0.01 π</div>
+          <div style="font-size:11px;color:var(--grn);margin-top:2px" data-i18n="coveredByFylox">Cubierto por Fylox</div>
+        </div>
+      </div>
       <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:700" data-i18n="totalLabel">Total</span><span style="font-family:var(--fd);font-size:16px;font-weight:800" id="s7total">0.00 π</span></div>
     </div>
     <button class="btn bp mb8" onclick="fyloxSendPayment()" data-i18n="confirmSend">Confirm & Send</button>
@@ -1090,6 +1097,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     <div style="height:80px"></div>
   </div>
 </div>
+
 
 <!-- S8 SUCCESS -->
 <div class="scr" id="s8" style="align-items:center;justify-content:center">
