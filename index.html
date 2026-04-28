@@ -2387,6 +2387,50 @@ if (window.FyloxRealtime) {
   window.FyloxRealtime.stop();
 }
 </script>
+
+  <script>
+// FORZAR DARK MODE EN ONBOARDING (s0-s4)
+// El light mode solo se aplica desde s5 en adelante
+(function() {
+  var ONBOARDING_SCREENS = ['s0', 's1', 's2', 's3', 's4'];
+  
+  function checkOnboardingMode() {
+    var html = document.documentElement;
+    
+    // Buscar qué pantalla está visible ahora
+    var currentScreen = null;
+    for (var i = 0; i < ONBOARDING_SCREENS.length + 25; i++) {
+      var id = i < ONBOARDING_SCREENS.length 
+        ? ONBOARDING_SCREENS[i] 
+        : 's' + i;
+      var el = document.getElementById(id);
+      if (el && el.classList.contains('show')) {
+        currentScreen = id;
+        break;
+      }
+    }
+    
+    // Si estamos en onboarding → forzar dark (sacar clase light)
+    if (ONBOARDING_SCREENS.indexOf(currentScreen) !== -1) {
+      if (html.classList.contains('light')) {
+        html.classList.remove('light');
+        html.dataset._lightWasOn = '1';  // recordar que el user tenía light
+      }
+    } else {
+      // Salimos del onboarding → si el user tenía light, restaurarlo
+      if (html.dataset._lightWasOn === '1') {
+        html.classList.add('light');
+        delete html.dataset._lightWasOn;
+      }
+    }
+  }
+  
+  // Chequear cada 200ms
+  setInterval(checkOnboardingMode, 200);
+  // Chequear inmediatamente al cargar
+  checkOnboardingMode();
+})();
+</script>
   
 </body>
 </html>
