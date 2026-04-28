@@ -2291,23 +2291,28 @@ function cerrarNFCModal() {
 </script>
 
 <script>
-// FIX S6: actualizar display de monto y USD en vivo
+// FIX S6: actualizar display de monto y USD en vivo (consulta backend directo)
 (function() {
-  function getPriceSafe() {
-    // Intento 1: getPiPrice() devuelve número
-    if (typeof getPiPrice === 'function') {
-      var p = getPiPrice();
-      if (typeof p === 'number' && p > 0) return p;
-      // Intento 2: getPiPrice() devuelve objeto {price: X}
-      if (p && typeof p === 'object' && p.price > 0) return p.price;
+  var _cachedPrice = 0;
+  var _lastFetch = 0;
+  
+  async function fetchPriceFromBackend() {
+    try {
+      var res = await fetch('https://fylox-backend.onrender.com/api/price/pi');
+      var data = await res.json();
+      if (data && data.price > 0) {
+        _cachedPrice = data.price;
+        _lastFetch = Date.now();
+      }
+    } catch(e) {
+      console.warn('[Fylox s6] No se pudo obtener precio:', e.message);
     }
-    // Intento 3: variable global window.piPrice
-    if (typeof window.piPrice === 'number' && window.piPrice > 0) return window.piPrice;
-    if (typeof window._piPrice === 'number' && window._piPrice > 0) return window._piPrice;
-    if (typeof window.PI_PRICE === 'number' && window.PI_PRICE > 0) return window.PI_PRICE;
-    // Fallback
-    return 0;
   }
+  
+  // Traer precio al cargar
+  fetchPriceFromBackend();
+  // Refrescar cada 60s
+  setInterval(fetchPriceFromBackend, 60000);
   
   function updateS6Display() {
     var s6 = document.getElementById('s6');
@@ -2321,13 +2326,12 @@ function cerrarNFCModal() {
       amtEl.innerHTML = (amtStr || '0.00') + ' <span style="font-size:26px;color:var(--c)">π</span>';
     }
     
-    var px = getPriceSafe();
     if (amtEl && amtEl.nextElementSibling) {
-      if (px > 0) {
-        var usd = (amt * px).toFixed(2);
+      if (_cachedPrice > 0) {
+        var usd = (amt * _cachedPrice).toFixed(2);
         amtEl.nextElementSibling.textContent = '≈ $' + usd + ' USD';
       } else {
-        amtEl.nextElementSibling.textContent = '≈ $-- USD';
+        amtEl.nextElementSibling.textContent = '≈ Calculando...';
       }
     }
   }
