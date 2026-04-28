@@ -2377,6 +2377,16 @@ function cerrarNFCModal() {
   setInterval(paintS7Usd, 200);
 })();
 </script>
+
+  <script>
+// Deshabilitar notificaciones realtime temporalmente
+if (window.FyloxRealtime) {
+  window.FyloxRealtime.start = function() {
+    console.log('[Fylox] Realtime deshabilitado');
+  };
+  window.FyloxRealtime.stop();
+}
+</script>
   
 </body>
 </html>
