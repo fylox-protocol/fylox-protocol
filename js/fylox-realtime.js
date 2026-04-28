@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX REALTIME — v1
+//  FYLOX REALTIME — v2
 //  Polling inteligente para notificaciones instantáneas
 //  - Solo corre cuando la app está visible
 //  - Detecta nuevas transacciones comparando con la última conocida
 //  - Dispara notificación con sonido al recibir Pi
 //  - Actualiza saldo instantáneamente
+//  - FIX v2: filtra tx donde el usuario actual es el sender (no notifica)
 // ═══════════════════════════════════════════════════
 
 const FyloxRealtime = (() => {
@@ -68,6 +69,50 @@ const FyloxRealtime = (() => {
     }
   }
 
+  // ── Helper: ¿es una tx donde el usuario es el SENDER? ──
+  // Si lo es, NO debe disparar notificación de "recibido"
+  function _isSentByMe(tx) {
+    const me = (window._fyloxUsername || '').toLowerCase();
+    if (!me) return false;
+
+    // Caso 1: type explícito de envío (legacy)
+    if (tx.type === 'sent' || tx.type === 'withdraw') return true;
+
+    // Caso 2: type 'user_to_user' o 'user_to_app' donde el fromUsername es el usuario actual
+    if (tx.type === 'user_to_user' || tx.type === 'user_to_app') {
+      const from = (tx.fromUsername || '').toLowerCase();
+      if (from && from === me) return true;
+    }
+
+    // Caso 3: aunque el type sea otro, si fromUsername === me, soy el sender
+    const from = (tx.fromUsername || '').toLowerCase();
+    if (from && from === me) return true;
+
+    return false;
+  }
+
+  // ── Helper: ¿es una tx que YO recibí? ────────────
+  function _isReceivedByMe(tx) {
+    // Nunca notificar si yo lo envié
+    if (_isSentByMe(tx)) return false;
+
+    const me = (window._fyloxUsername || '').toLowerCase();
+
+    // Tipos directos de "recibido"
+    if (tx.type === 'received' || tx.type === 'app_to_user') return true;
+
+    // Rewards / earn
+    if (['reward', 'oracle', 'agora'].includes(tx.type)) return true;
+
+    // P2P donde yo soy el destinatario
+    if (tx.type === 'user_to_user') {
+      const to = (tx.toUsername || '').toLowerCase();
+      if (to && to === me) return true;
+    }
+
+    return false;
+  }
+
   // ── Check principal — se ejecuta cada 15 segundos ─
   async function _check() {
     if (!getToken()) return;
@@ -94,10 +139,9 @@ const FyloxRealtime = (() => {
               newTxs.push(tx);
             }
 
-            // Notificar solo las de tipo recibido
+            // Notificar SOLO las que YO realmente recibí
             newTxs.forEach(tx => {
-              if (tx.type === 'received' || tx.type === 'user_to_app' ||
-                  tx.type === 'reward'   || tx.type === 'oracle' || tx.type === 'agora') {
+              if (_isReceivedByMe(tx)) {
                 _notifyReceived(tx);
               }
             });
@@ -128,24 +172,30 @@ const FyloxRealtime = (() => {
     const isReward = ['reward', 'oracle', 'agora'].includes(tx.type);
 
     const icons = {
-      received: '💸',
-      reward:   '⚡',
-      oracle:   '🌊',
-      agora:    '🏛️',
+      received:     '💸',
+      user_to_user: '💸',
+      app_to_user:  '💸',
+      reward:       '⚡',
+      oracle:       '🌊',
+      agora:        '🏛️',
     };
 
     const titles = {
-      received: `+${fmtPi(tx.amount)} π recibido`,
-      reward:   `+${fmtPi(tx.amount)} π ganado`,
-      oracle:   `+${fmtPi(tx.amount)} π — ORACLE`,
-      agora:    `+${fmtPi(tx.amount)} π — AGORA`,
+      received:     `+${fmtPi(tx.amount)} π recibido`,
+      user_to_user: `+${fmtPi(tx.amount)} π recibido`,
+      app_to_user:  `+${fmtPi(tx.amount)} π acreditado`,
+      reward:       `+${fmtPi(tx.amount)} π ganado`,
+      oracle:       `+${fmtPi(tx.amount)} π — ORACLE`,
+      agora:        `+${fmtPi(tx.amount)} π — AGORA`,
     };
 
     const subs = {
-      received: tx.fromUsername ? `De @${esc(tx.fromUsername)}` : 'Transferencia recibida',
-      reward:   'Recompensa acreditada',
-      oracle:   'Verificación confirmada',
-      agora:    'Voto confirmado',
+      received:     tx.fromUsername ? `De @${esc(tx.fromUsername)}` : 'Transferencia recibida',
+      user_to_user: tx.fromUsername ? `De @${esc(tx.fromUsername)}` : 'Transferencia recibida',
+      app_to_user:  'Retiro acreditado',
+      reward:       'Recompensa acreditada',
+      oracle:       'Verificación confirmada',
+      agora:        'Voto confirmado',
     };
 
     const type  = tx.type || 'received';
