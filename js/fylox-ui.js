@@ -353,41 +353,79 @@ function updateTime() {
 }
 updateTime();
 setInterval(updateTime, 10000);
+// ── Precio de Pi — fuentes múltiples con fallback ────
+async function _fetchFromOKX() {
+  const res = await fetch('https://www.okx.com/api/v5/market/ticker?instId=PI-USDT');
+  const data = await res.json();
+  if (data?.data?.[0]?.last) return parseFloat(data.data[0].last);
+  throw new Error('OKX: respuesta inválida');
+}
 
-// ── Precio de Pi — fuente: OKX ───────────────────────
+async function _fetchFromCoinGecko() {
+  const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pi-network&vs_currencies=usd');
+  const data = await res.json();
+  if (data?.['pi-network']?.usd) return parseFloat(data['pi-network'].usd);
+  throw new Error('CoinGecko: respuesta inválida');
+}
+
+async function _fetchFromBinance() {
+  const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PIUSDT');
+  const data = await res.json();
+  if (data?.price) return parseFloat(data.price);
+  throw new Error('Binance: respuesta inválida');
+}
+
 async function fetchPiPrice() {
-  try {
-    const res  = await fetch('https://www.okx.com/api/v5/market/ticker?instId=PI-USDT');
-    const data = await res.json();
-    if (data?.data?.[0]?.last) {
-      const newPrice  = parseFloat(data.data[0].last);
-      const prevPrice = getPiPrice();
-      const isUp      = newPrice >= prevPrice;
+  const sources = [
+    { name: 'OKX',       fn: _fetchFromOKX },
+    { name: 'CoinGecko', fn: _fetchFromCoinGecko },
+    { name: 'Binance',   fn: _fetchFromBinance },
+  ];
 
-      // Actualizar fuente única de verdad
-      setPiPrice(newPrice);
+  let newPrice = null;
+  let usedSource = null;
 
-      const el = document.getElementById('pi-price');
-      if (el) {
-        el.textContent = '$' + newPrice.toFixed(4);
-        el.classList.remove('price-up', 'price-down');
-        void el.offsetWidth;
-        el.classList.add(isUp ? 'price-up' : 'price-down');
+  for (const src of sources) {
+    try {
+      const price = await src.fn();
+      if (price > 0) {
+        newPrice = price;
+        usedSource = src.name;
+        break;
       }
-
-      const balanceEl = document.getElementById('home-ars');
-      if (balanceEl && window._fyloxBalance) {
-        balanceEl.textContent = fmtUSD(window._fyloxBalance);
-      }
+    } catch (err) {
+      console.warn('[Fylox] Falló fuente ' + src.name + ':', err.message);
     }
-  } catch (err) {
-    console.warn('[Fylox] No se pudo obtener precio de Pi:', err.message);
+  }
+
+  if (newPrice === null) {
+    console.warn('[Fylox] Todas las fuentes de precio fallaron, manteniendo último valor');
+    return;
+  }
+
+  console.log('[Fylox] Precio de Pi actualizado desde ' + usedSource + ': $' + newPrice);
+
+  const prevPrice = getPiPrice();
+  const isUp = newPrice >= prevPrice;
+
+  setPiPrice(newPrice);
+
+  const el = document.getElementById('pi-price');
+  if (el) {
+    el.textContent = '$' + newPrice.toFixed(4);
+    el.classList.remove('price-up', 'price-down');
+    void el.offsetWidth;
+    el.classList.add(isUp ? 'price-up' : 'price-down');
+  }
+
+  const balanceEl = document.getElementById('home-ars');
+  if (balanceEl && window._fyloxBalance) {
+    balanceEl.textContent = fmtUSD(window._fyloxBalance);
   }
 }
 
 fetchPiPrice();
 setInterval(fetchPiPrice, 60000);
-
 // ── Contador de Pioneers — solo desde API ────────────
 //  Eliminado el contador falso y aleatorio.
 //  Se actualiza cuando la API devuelve el dato real.
