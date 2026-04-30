@@ -12,6 +12,10 @@
 function updateUIWithUser(username, balance) {
   window._fyloxBalance  = balance;
   window._fyloxUsername = username;
+  // 🔴 DEBUG TEMPORAL — borrar después
+const debugEl = document.getElementById('s5-greeting');
+if (debugEl) debugEl.textContent = '[DBG] u=' + username + ' h=' + new Date().getHours();
+  
 FyloxStorage.set('fylox_username', username);
   
   const piid       = username + '.pi';
