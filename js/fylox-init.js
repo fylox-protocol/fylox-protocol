@@ -80,12 +80,17 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   if (window.Pi) {
-    const hb = document.getElementById('home-balance');
-    if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
-    _setupPiLoginButton();
-  } else {
-    _startDemoMode();
+  try {
+    Pi.init({ version: "2.0", sandbox: false });
+  } catch (e) {
+    console.error('[Fylox] Pi.init() falló:', e);
   }
+  const hb = document.getElementById('home-balance');
+  if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
+  _setupPiLoginButton();
+} else {
+  _startDemoMode();
+}
 
 });
 
