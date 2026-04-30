@@ -61,9 +61,9 @@ function _s5AnimateBalance(targetBalance) {
     // ease-out cubic
     const eased = 1 - Math.pow(1 - progress, 3);
     const value = target * eased;
-    el.textContent = value.toFixed(2);
+    el.innerHTML = value.toFixed(2) + '<span class="s5-balance-pi">π</span>';
     if (progress < 1) requestAnimationFrame(frame);
-    else el.textContent = target.toFixed(2);
+    else el.innerHTML = target.toFixed(2) + '<span class="s5-balance-pi">π</span>';
   }
   requestAnimationFrame(frame);
 }
