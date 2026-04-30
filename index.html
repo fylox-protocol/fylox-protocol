@@ -898,6 +898,8 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 #s10-flash-btn:active { transform: scale(0.92); }
 #s10-flash-btn.on { background: var(--c) !important; box-shadow: 0 0 20px var(--c); }
 #s10-flash-btn.on svg { stroke: #000 !important; }
+#s10.show ~ .bnav,
+.bnav:has(~ #s10.show) { display: none !important; }
 </style>
 
 <!--- S5 HOME --->
