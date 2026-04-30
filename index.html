@@ -57,17 +57,17 @@ html,body{width:100%;height:100%;min-height:100vh;background:#000;font-family:va
 .scr.enter{animation:sIn .28s cubic-bezier(.4,0,.2,1) forwards}
 @keyframes sIn{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
 
-/* STATUS BAR */
-.sbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 0;position:relative;z-index:10;flex-shrink:0}
-.stime{font-family:var(--fd);font-weight:700;font-size:15px;letter-spacing:-.3px}
-.sicons{display:flex;align-items:center;gap:6px}
+/* BARRA DE ESTADO */
+.sbar { display : flex ; align-items : center ; justify - content : space-between ; padding : 14px 20px 0 ; position : relative ; z - index : 10 ; flex-shrink : 0 }  
+.stime { font-family : var ( --fd ) ; font -weight : 700 ; font-size : 15px ; letter - spacing : -.3px }
+. sicons { display : flex ; align-items : center ; gap : 6 px }
 
-/* TOP NAV */
-.tnav{display:flex;align-items:center;gap:12px;padding:12px 20px 0;position:relative;z-index:10;flex-shrink:0}
-.ttitle{font-family:var(--fd);font-weight:700;font-size:17px;flex:1;letter-spacing:-.3px}
-.tbrand{display:flex;align-items:center;gap:10px}
-.tbrand-name{font-family:var(--fd);font-weight:800;font-size:20px;letter-spacing:-.5px}
-.tbrand img{width:32px;height:32px;border-radius:9px}
+/* NAVEGACIÓN SUPERIOR */
+.tnav { display : flex ; align -items : center ; gap : 12px ; padding : 12px 20px 0 ; position : relative ; z - index : 10 ; flex- shrink : 0 }  
+.ttitle { font-family : var ( --fd ) ; font -weight : 700 ; font-size : 17px ; flex : 1 ; letter - spacing : -.3px }
+.tbrand { display : flex ; align - items : center ; gap : 10px }
+.tbrand -name { font-family : var ( --fd ) ; font-weight : 800 ; font-size : 20px ; letter - spacing : -.5px }
+. tbrand  img { ancho : 32 px ; alto : 32 px ; radio de borde : 9 px }
 .tact{display:flex;align-items:center;gap:10px;margin-left:auto}
 
 /* BUTTONS */
@@ -1180,8 +1180,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   <canvas id="qr-canvas" style="display:none"></canvas>
 
   <!-- Overlay oscuro con spotlight central (clip-path) -->
-  <div id="s10-mask" style="position:absolute;inset:0;background:rgba(0,0,0,0.72);z-index:1;clip-path:polygon(0% 0%, 0% 100%, calc(50% - 130px) 100%, calc(50% - 130px) calc(50% - 130px), calc(50% + 130px) calc(50% - 130px), calc(50% + 130px) calc(50% + 130px), calc(50% - 130px) calc(50% + 130px), calc(50% - 130px) 100%, 100% 100%, 100% 0%);transition:opacity .4s ease"></div>
-
+  <div id="s10-mask" style="position:absolute;inset:0;background:rgba(0,0,0,0.72);z-index:1;clip-path:polygon(0% 0%, 0% 100%, calc(50% - 145px) 100%, calc(50% - 145px) calc(50% - 145px), calc(50% + 145px) calc(50% - 145px), calc(50% + 145px) calc(50% + 145px), calc(50% - 145px) calc(50% + 145px), calc(50% - 145px) 100%, 100% 100%, 100% 0%);transition:opacity .4s ease"></div>
   <!-- Vignette sutil arriba/abajo (depth) -->
   <div style="position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.35),transparent 18%,transparent 82%,rgba(0,0,0,.55))"></div>
 
