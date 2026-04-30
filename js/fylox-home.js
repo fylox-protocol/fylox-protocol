@@ -85,57 +85,16 @@ function _s5RelTime(dateStr) {
   return d.toLocaleDateString(undefined, { day:'numeric', month:'short' });
 }
 
-// ── Render de las 3 últimas TX en el home ─────────────
+// ── Empty state directo (testnet, sin movimientos reales) ─
 async function _s5LoadRecentActivity() {
   const list = document.getElementById('s5-activity');
   if (!list) return;
-  
-  try {
-    const data = await apiCall('GET', '/user/transactions?limit=3');
-    const txs = (data && data.transactions) || [];
-    
-    if (txs.length === 0) {
-      list.innerHTML = `
-        <div style="padding:32px 16px;text-align:center;color:var(--t3)">
-          <div style="font-size:32px;margin-bottom:8px;opacity:.5">📭</div>
-          <div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:3px">Sin movimientos aún</div>
-          <div style="font-size:11px">Tu actividad va a aparecer acá</div>
-        </div>`;
-      return;
-    }
-    
-    const myUid = window._fyloxUid || null;
-    list.innerHTML = txs.map(tx => {
-      const isSent = (tx.type === 'sent' || tx.type === 'app_to_user' || tx.fromUid === myUid);
-      const sign  = isSent ? '−' : '+';
-      const cls   = isSent ? 'sent' : 'received';
-      const otherName = isSent
-        ? (tx.toName || tx.toUsername || tx.toAddress || 'Pago')
-        : (tx.fromUsername || tx.fromName || 'Pioneer');
-      const initial = (otherName.replace(/^@/,'')[0] || '?').toUpperCase();
-      const avatarBg = isSent ? 'rgba(255,107,129,.15)' : 'rgba(0,224,144,.15)';
-      const avatarColor = isSent ? '#ff6b81' : '#00E090';
-      const amount = parseFloat(tx.amount || 0).toFixed(2);
-      const time = _s5RelTime(tx.createdAt);
-      
-      return `
-        <div class="s5-tx" data-go="s18">
-          <div class="s5-tx-avatar" style="background:${avatarBg};color:${avatarColor}">${esc(initial)}</div>
-          <div class="s5-tx-info">
-            <div class="s5-tx-name">${esc(otherName)}</div>
-            <div class="s5-tx-time">${esc(time)}</div>
-          </div>
-          <div class="s5-tx-amount ${cls}">${sign}${amount} π</div>
-        </div>`;
-    }).join('');
-    
-  } catch (err) {
-    console.warn('[Fylox] No se pudo cargar actividad reciente:', err.message);
-    list.innerHTML = `
-      <div style="padding:24px 16px;text-align:center;color:var(--t3);font-size:12px">
-        No se pudo cargar la actividad
-      </div>`;
-  }
+  list.innerHTML = `
+    <div style="padding:32px 16px;text-align:center;color:var(--t3)">
+      <div style="font-size:32px;margin-bottom:8px;opacity:.5">📭</div>
+      <div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:3px">Sin movimientos aún</div>
+      <div style="font-size:11px">Tu actividad va a aparecer acá</div>
+    </div>`;
 }
 
 // ── Haptic feedback en chips ──────────────────────────
