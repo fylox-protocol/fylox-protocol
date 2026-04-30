@@ -158,27 +158,37 @@ if (curr && curr.id === 's10') {
             detected = true;
             if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
 
-            const raw      = code.data;
-            let merchant   = '';
-            let amount     = '0';
+            const raw = (code.data || '').trim();
+           let merchant = '';
+           let amount = '0';
+           let isValidFyloxQR = false;
 
-            try {
-              if (raw.startsWith('fylox://pay?')) {
-                const url = new URL(raw.replace('fylox://', 'https://x/'));
-                merchant  = url.searchParams.get('to')     || '';
-                amount    = url.searchParams.get('amount') || '0';
-              } else {
-                merchant = raw.slice(0, 50);
-              }
-            } catch {
-              merchant = raw.slice(0, 50);
-            }
+      try {
+      // Solo aceptamos QRs Fylox válidos
+           if (raw.startsWith('fylox://pay?')) {
+           const url = new URL(raw.replace('fylox://', 'https://x/'));
+           merchant = (url.searchParams.get('to') || '').trim().replace(/^@/, '');
+           amount = url.searchParams.get('amount') || '0';
+     // Validar formato del username
+           if (/^[a-z0-9_]{2,32}$/i.test(merchant)) {
+           isValidFyloxQR = true;
+          }
+        }
+     // Aceptamos también username plano (@username o username)
+      else if (/^@?[a-z0-9_]{2,32}$/i.test(raw)) {
+           merchant = raw.replace(/^@/, '');
+          isValidFyloxQR = true;
+        }
+    } catch {
+          isValidFyloxQR = false;
+        }
 
-            if (!merchant) {
-              detected = false;
-              window._qrScanLoop = requestAnimationFrame(scanFrame);
-              return;
-            }
+    // Si no es un QR Fylox válido, ignoramos y seguimos escaneando
+           if (!isValidFyloxQR) {
+           detected = false;
+           window._qrScanLoop = requestAnimationFrame(scanFrame);
+           return;
+          }
 
             PaymentState.setTo(merchant);
             if (amount !== '0') {
