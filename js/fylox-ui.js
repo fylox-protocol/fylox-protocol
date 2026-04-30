@@ -140,9 +140,7 @@ function goTo(id) {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
           frameCount++;
-          if (status && frameCount % 30 === 0) {
-            status.textContent = `Escaneando... ${canvas.width}x${canvas.height}`;
-          }
+  // status queda con el texto i18n "Buscando código QR…" sin sobrescribir
 
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const code = jsQR(imageData.data, imageData.width, imageData.height, {
@@ -193,9 +191,6 @@ function goTo(id) {
             goTo('s11q');
             return;
           }
-        } else if (status && frameCount < 5) {
-          frameCount++;
-          status.textContent = `Iniciando cámara...`;
         }
         window._qrScanLoop = requestAnimationFrame(scanFrame);
       }
