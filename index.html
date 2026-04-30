@@ -1181,8 +1181,6 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   <video id="qr-video" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0" autoplay playsinline muted></video>
   <canvas id="qr-canvas" style="display:none"></canvas>
 
-  <!-- Overlay oscuro con spotlight central (clip-path) -->
-  <div id="s10-mask" style="position:absolute;inset:0;background:rgba(0,0,0,0.72);z-index:1;clip-path:polygon(0% 0%, 0% 100%, calc(50% - 145px) 100%, calc(50% - 145px) calc(50% - 145px), calc(50% + 145px) calc(50% - 145px), calc(50% + 145px) calc(50% + 145px), calc(50% - 145px) calc(50% + 145px), calc(50% - 145px) 100%, 100% 100%, 100% 0%);transition:opacity .4s ease"></div>
   <!-- Vignette sutil arriba/abajo (depth) -->
   <div style="position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.35),transparent 18%,transparent 82%,rgba(0,0,0,.55))"></div>
 
@@ -1215,27 +1213,27 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
     </div>
   </div>
 
-  <!-- Centro: marco de scan -->
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;z-index:5">
-    <div id="s10-frame" style="width:260px;height:260px;position:relative">
+  <!-- Centro: marco de scan con spotlight bulletproof -->
+<div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;z-index:3">
+  <div id="s10-frame" style="width:280px;height:280px;position:relative;box-shadow:0 0 0 9999px rgba(0,0,0,0.72);border-radius:24px">
 
-      <!-- 4 esquinas con glow -->
-      <div class="s10c" style="position:absolute;top:-2px;left:-2px;width:56px;height:56px;border-top:3.5px solid var(--c);border-left:3.5px solid var(--c);border-radius:18px 0 0 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
-      <div class="s10c" style="position:absolute;top:-2px;right:-2px;width:56px;height:56px;border-top:3.5px solid var(--c);border-right:3.5px solid var(--c);border-radius:0 18px 0 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
-      <div class="s10c" style="position:absolute;bottom:-2px;left:-2px;width:56px;height:56px;border-bottom:3.5px solid var(--c);border-left:3.5px solid var(--c);border-radius:0 0 0 18px;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
-      <div class="s10c" style="position:absolute;bottom:-2px;right:-2px;width:56px;height:56px;border-bottom:3.5px solid var(--c);border-right:3.5px solid var(--c);border-radius:0 0 18px 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+    <!-- 4 esquinas con glow -->
+    <div class="s10c" style="position:absolute;top:-2px;left:-2px;width:56px;height:56px;border-top:3.5px solid var(--c);border-left:3.5px solid var(--c);border-radius:24px 0 0 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+    <div class="s10c" style="position:absolute;top:-2px;right:-2px;width:56px;height:56px;border-top:3.5px solid var(--c);border-right:3.5px solid var(--c);border-radius:0 24px 0 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+    <div class="s10c" style="position:absolute;bottom:-2px;left:-2px;width:56px;height:56px;border-bottom:3.5px solid var(--c);border-left:3.5px solid var(--c);border-radius:0 0 0 24px;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+    <div class="s10c" style="position:absolute;bottom:-2px;right:-2px;width:56px;height:56px;border-bottom:3.5px solid var(--c);border-right:3.5px solid var(--c);border-radius:0 0 24px 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
 
-      <!-- Línea de scan animada (sube y baja) -->
-      <div id="s10-scanline" style="position:absolute;left:8%;right:8%;height:3px;background:linear-gradient(90deg,transparent,var(--c) 20%,#fff 50%,var(--c) 80%,transparent);border-radius:3px;box-shadow:0 0 24px var(--c),0 0 48px rgba(0,212,232,.5);animation:s10scan 2.4s cubic-bezier(.45,.05,.55,.95) infinite"></div>
+    <!-- Línea de scan animada (sube y baja) -->
+    <div id="s10-scanline" style="position:absolute;left:8%;right:8%;height:3px;background:linear-gradient(90deg,transparent,var(--c) 20%,#fff 50%,var(--c) 80%,transparent);border-radius:3px;box-shadow:0 0 24px var(--c),0 0 48px rgba(0,212,232,.5);animation:s10scan 2.4s cubic-bezier(.45,.05,.55,.95) infinite"></div>
 
-      <!-- Reticle central (cross de mira) -->
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;opacity:.35">
-        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#fff"></div>
-        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#fff"></div>
-      </div>
-
+    <!-- Reticle central (cross de mira) -->
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;opacity:.35">
+      <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#fff"></div>
+      <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#fff"></div>
     </div>
+
   </div>
+</div>
 
   <!-- Card flotante inferior (glass) -->
   <div style="padding:0 20px 28px;position:relative;z-index:5">
