@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX API CLIENT — v3
+//  FYLOX API CLIENT — v4
 //  - URL centralizada y sin placeholders
 //  - JWT expirado → limpia sesión y vuelve al login
 //  - Retry automático en errores de red (1 vez)
 //  - Timeout de 15s por request
 //  - Upload via backend firmado (no credenciales en frontend)
+//  - X-Lang header automático para i18n del backend
 // ═══════════════════════════════════════════════════
 
 const FYLOX_API = 'https://fylox-backend.onrender.com/api';
@@ -22,6 +23,36 @@ function clearToken() { _fyloxToken = null; FyloxStorage.remove('fylox_token'); 
     if (saved) _fyloxToken = saved;
   } catch(e) { /* silencio */ }
 })();
+
+// ── Helper: detectar idioma activo del usuario ───────────────────────────────
+function _getCurrentLang() {
+  // Prioridad:
+  //   1. window.currentLang (variable global del sistema i18n)
+  //   2. localStorage 'fylox_lang'
+  //   3. navigator.language (idioma del browser)
+  //   4. 'en' como default
+  try {
+    if (typeof currentLang !== 'undefined' && currentLang) {
+      return String(currentLang).toLowerCase().slice(0, 2);
+    }
+    if (typeof window !== 'undefined' && window.currentLang) {
+      return String(window.currentLang).toLowerCase().slice(0, 2);
+    }
+  } catch (e) { /* silencio */ }
+
+  try {
+    const stored = (typeof FyloxStorage !== 'undefined') ? FyloxStorage.get('fylox_lang') : null;
+    if (stored) return String(stored).toLowerCase().slice(0, 2);
+  } catch (e) { /* silencio */ }
+
+  try {
+    if (typeof navigator !== 'undefined' && navigator.language) {
+      return String(navigator.language).toLowerCase().slice(0, 2);
+    }
+  } catch (e) { /* silencio */ }
+
+  return 'en';
+}
 
 // ── Manejo centralizado de sesión expirada ───────────────────────────────────
 function _handleSessionExpired() {
@@ -55,7 +86,10 @@ function _handleSessionExpired() {
 
 // ── Cliente HTTP central ─────────────────────────────────────────────────────
 async function apiCall(method, path, body, _isRetry = false) {
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Lang':       _getCurrentLang(),
+  };
   if (_fyloxToken) headers['Authorization'] = 'Bearer ' + _fyloxToken;
 
   const opts = { method, headers };
