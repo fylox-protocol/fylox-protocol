@@ -88,10 +88,20 @@ document.addEventListener('DOMContentLoaded', async function() {
   const hb = document.getElementById('home-balance');
   if (hb) hb.innerHTML = '<span style="font-size:20px;color:var(--t2)">—</span>';
   _setupPiLoginButton();
+
+  // ── Auto-restore de sesión si ya hay JWT ──────────────
+  if (typeof getToken === 'function' && getToken()) {
+    if (typeof loadUserProfile === 'function') {
+      loadUserProfile().then(() => {
+        if (typeof startBalancePolling === 'function') startBalancePolling();
+      }).catch(err => {
+        console.warn('[Fylox] No se pudo restaurar sesión:', err.message);
+      });
+    }
+  }
 } else {
   _startDemoMode();
 }
-
 });
 
 function _setupPiLoginButton() {
