@@ -85,18 +85,25 @@ function goTo(id) {
     if (el8) el8.textContent = `${fmtPi(amt || 0)} π sent to ${to || '@Pioneer'}`;
   }
 
-  // 6. Detener cámara al salir de s10
-  if (curr && curr.id === 's10') {
-    const video = document.getElementById('qr-video');
-    if (video && video.srcObject) {
-      video.srcObject.getTracks().forEach(t => t.stop());
-      video.srcObject = null;
-    }
-    if (window._qrScanLoop) {
-      cancelAnimationFrame(window._qrScanLoop);
-      window._qrScanLoop = null;
-    }
+if (curr && curr.id === 's10') {
+  const video = document.getElementById('qr-video');
+  if (video && video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
   }
+  if (window._qrScanLoop) {
+    cancelAnimationFrame(window._qrScanLoop);
+    window._qrScanLoop = null;
+  }
+  // Reset de estado visual
+  curr.classList.remove('detected', 'invalid');
+  const statusDot = document.getElementById('s10-status-dot');
+  const statusEl = document.getElementById('qr-status');
+  const statusPill = document.getElementById('s10-status-pill');
+  if (statusDot)  { statusDot.style.background = ''; statusDot.style.boxShadow = ''; statusDot.style.animation = ''; }
+  if (statusEl)   statusEl.innerHTML = '<span data-i18n="searchingQR">Buscando código QR…</span>';
+  if (statusPill) { statusPill.style.borderColor = ''; statusPill.style.background = ''; }
+}
 
   // 7. Activar cámara QR al entrar a s10
   if (id === 's10') {
