@@ -187,3 +187,46 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 1000);
 });
 
+// ═══════════════════════════════════════════════════
+//  S5 — Watchdog garantizado (solución nuclear)
+//  Verifica cada 1s si los datos están actualizados
+//  y los corrige si algo los sobreescribe
+// ═══════════════════════════════════════════════════
+setInterval(() => {
+  const username = window._fyloxUsername;
+  // Solo actuar si tenemos un username real (no Pioneer placeholder)
+  if (!username || username === 'Pioneer') return;
+
+  // Avatar
+  const avatarEl = document.getElementById('s5-avatar');
+  if (avatarEl) {
+    const u = username.replace(/^@/, '').replace(/_/g, ' ').trim();
+    const parts = u.split(/\s+/);
+    const initials = parts.length >= 2
+      ? (parts[0][0] + parts[1][0]).toUpperCase()
+      : u.slice(0, 2).toUpperCase();
+    if (avatarEl.textContent !== initials) avatarEl.textContent = initials;
+  }
+
+  // Username
+  const userEl = document.getElementById('s5-username');
+  const expectedUser = '@' + username;
+  if (userEl && userEl.textContent !== expectedUser) {
+    userEl.textContent = expectedUser;
+  }
+
+  // Greeting según hora
+  const greetEl = document.getElementById('s5-greeting');
+  if (greetEl) {
+    const h = new Date().getHours();
+    let greeting;
+    if (h >= 5 && h < 12)       greeting = 'Buenos días';
+    else if (h >= 12 && h < 19) greeting = 'Buenas tardes';
+    else                        greeting = 'Buenas noches';
+    if (greetEl.textContent !== greeting) {
+      greetEl.textContent = greeting;
+      greetEl.removeAttribute('data-i18n'); // evitar que i18n lo sobreescriba
+    }
+  }
+}, 1000);
+
