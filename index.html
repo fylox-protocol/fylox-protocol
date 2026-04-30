@@ -864,6 +864,40 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   from { opacity:0; transform:translateY(20px); }
   to   { opacity:1; transform:translateY(0); }
 }
+  @keyframes s10scan {
+  0%   { top: 6%;  opacity: 0.4; }
+  50%  { top: 92%; opacity: 1;   }
+  100% { top: 6%;  opacity: 0.4; }
+}
+
+@keyframes s10pulse {
+  0%, 100% { transform: scale(1);   opacity: 1;   }
+  50%      { transform: scale(1.4); opacity: 0.4; }
+}
+
+@keyframes s10detected {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes s10shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-8px); }
+  75%      { transform: translateX(8px);  }
+}
+
+#s10 .s10c { transition: all .3s ease; }
+#s10.detected .s10c { border-color: var(--grn) !important; filter: drop-shadow(0 0 14px rgba(0,224,144,.8)) !important; }
+#s10.detected #s10-frame { animation: s10detected .4s ease; }
+#s10.detected #s10-scanline { display: none; }
+
+#s10.invalid .s10c { border-color: #ff6b81 !important; filter: drop-shadow(0 0 12px rgba(255,107,129,.7)) !important; }
+#s10.invalid #s10-frame { animation: s10shake .35s ease; }
+
+#s10-flash-btn:active { transform: scale(0.92); }
+#s10-flash-btn.on { background: var(--c) !important; box-shadow: 0 0 20px var(--c); }
+#s10-flash-btn.on svg { stroke: #000 !important; }
 </style>
 
 <!--- S5 HOME --->
@@ -1139,30 +1173,98 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
 </div>
   
 <!-- S10 QR SCANNER -->
-<div class="scr" id="s10" style="background:#000">
-  <video id="qr-video" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85" autoplay playsinline muted></video>
+<div class="scr" id="s10" style="background:#000;overflow:hidden">
+
+  <!-- Video de cámara (full screen, sin opacity para máxima nitidez) -->
+  <video id="qr-video" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0" autoplay playsinline muted></video>
   <canvas id="qr-canvas" style="display:none"></canvas>
-  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent 30%,transparent 70%,rgba(0,0,0,.7))"></div>
-  <div class="sbar" style="position:relative;z-index:2"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div></div>
-  <div style="position:relative;z-index:2;padding:12px 20px 0;display:flex;align-items:center;gap:12px">
-    <div class="bk" data-go="s5" style="border-color:rgba(255,255,255,.2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div>
-    <div style="font-family:var(--fd);font-weight:700;font-size:17px" data-i18n="scanToPay">Scan to Pay</div>
-  </div>
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;z-index:2">
-    <div style="width:240px;height:240px;position:relative">
-      <div style="position:absolute;top:0;left:0;width:50px;height:50px;border-top:3px solid var(--c);border-left:3px solid var(--c);border-radius:4px 0 0 0"></div>
-      <div style="position:absolute;top:0;right:0;width:50px;height:50px;border-top:3px solid var(--c);border-right:3px solid var(--c);border-radius:0 4px 0 0"></div>
-      <div style="position:absolute;bottom:0;left:0;width:50px;height:50px;border-bottom:3px solid var(--c);border-left:3px solid var(--c);border-radius:0 0 0 4px"></div>
-      <div style="position:absolute;bottom:0;right:0;width:50px;height:50px;border-bottom:3px solid var(--c);border-right:3px solid var(--c);border-radius:0 0 4px 0"></div>
-      <div style="position:absolute;top:10%;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c),transparent);animation:scanLine 2s ease-in-out infinite"></div>
+
+  <!-- Overlay oscuro con spotlight central (clip-path) -->
+  <div id="s10-mask" style="position:absolute;inset:0;background:rgba(0,0,0,0.72);z-index:1;clip-path:polygon(0% 0%, 0% 100%, calc(50% - 130px) 100%, calc(50% - 130px) calc(50% - 130px), calc(50% + 130px) calc(50% - 130px), calc(50% + 130px) calc(50% + 130px), calc(50% - 130px) calc(50% + 130px), calc(50% - 130px) 100%, 100% 100%, 100% 0%);transition:opacity .4s ease"></div>
+
+  <!-- Vignette sutil arriba/abajo (depth) -->
+  <div style="position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.35),transparent 18%,transparent 82%,rgba(0,0,0,.55))"></div>
+
+  <!-- Header glass-morphism -->
+  <div class="sbar" style="position:relative;z-index:5">
+    <span class="stime">9:41</span>
+    <div class="sicons">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
     </div>
   </div>
-  <div style="padding:0 24px 32px;position:relative;z-index:2">
-    <div id="qr-status" style="text-align:center;font-size:14px;color:rgba(255,255,255,.6);margin-bottom:16px"><span data-i18n="pointCamera">Point camera at merchant QR code</span></div>
-    <button class="btn bg" data-go="s11q" style="border-color:rgba(255,255,255,.2);color:#fff" data-i18n="enterManually">Enter amount manually</button>
+
+  <div style="position:relative;z-index:5;padding:14px 20px 0;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <!-- Back glass -->
+    <div class="bk" data-go="s5" style="background:rgba(255,255,255,.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 24px rgba(0,0,0,.3)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </div>
+
+    <!-- Title centrado con badge live -->
+    <div style="flex:1;text-align:center">
+      <div style="font-family:var(--fd);font-weight:700;font-size:17px;color:#fff;letter-spacing:-0.3px" data-i18n="scanToPay">Scan to Pay</div>
+      <div style="display:inline-flex;align-items:center;gap:5px;margin-top:2px;padding:2px 8px;background:rgba(0,212,232,.14);border:1px solid rgba(0,212,232,.3);border-radius:20px">
+        <span style="width:5px;height:5px;border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c);animation:s10pulse 1.6s ease-in-out infinite"></span>
+        <span style="font-size:10px;font-weight:700;color:var(--c);letter-spacing:0.6px;text-transform:uppercase">Live</span>
+      </div>
+    </div>
+
+    <!-- Flash toggle -->
+    <div id="s10-flash-btn" onclick="toggleFlash()" style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;box-shadow:0 4px 24px rgba(0,0,0,.3)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+  </div>
+
+  <!-- Centro: marco de scan -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;z-index:5">
+    <div id="s10-frame" style="width:260px;height:260px;position:relative">
+
+      <!-- 4 esquinas con glow -->
+      <div class="s10c" style="position:absolute;top:-2px;left:-2px;width:56px;height:56px;border-top:3.5px solid var(--c);border-left:3.5px solid var(--c);border-radius:18px 0 0 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+      <div class="s10c" style="position:absolute;top:-2px;right:-2px;width:56px;height:56px;border-top:3.5px solid var(--c);border-right:3.5px solid var(--c);border-radius:0 18px 0 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+      <div class="s10c" style="position:absolute;bottom:-2px;left:-2px;width:56px;height:56px;border-bottom:3.5px solid var(--c);border-left:3.5px solid var(--c);border-radius:0 0 0 18px;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+      <div class="s10c" style="position:absolute;bottom:-2px;right:-2px;width:56px;height:56px;border-bottom:3.5px solid var(--c);border-right:3.5px solid var(--c);border-radius:0 0 18px 0;filter:drop-shadow(0 0 8px rgba(0,212,232,.6))"></div>
+
+      <!-- Línea de scan animada (sube y baja) -->
+      <div id="s10-scanline" style="position:absolute;left:8%;right:8%;height:3px;background:linear-gradient(90deg,transparent,var(--c) 20%,#fff 50%,var(--c) 80%,transparent);border-radius:3px;box-shadow:0 0 24px var(--c),0 0 48px rgba(0,212,232,.5);animation:s10scan 2.4s cubic-bezier(.45,.05,.55,.95) infinite"></div>
+
+      <!-- Reticle central (cross de mira) -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;opacity:.35">
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#fff"></div>
+        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#fff"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Card flotante inferior (glass) -->
+  <div style="padding:0 20px 28px;position:relative;z-index:5">
+
+    <!-- Status pill -->
+    <div id="s10-status-pill" style="display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 16px;padding:10px 18px;width:fit-content;max-width:90%;background:rgba(255,255,255,.06);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.12);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);transition:all .3s ease">
+      <div id="s10-status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c);animation:s10pulse 1.6s ease-in-out infinite"></div>
+      <div id="qr-status" style="font-size:13.5px;font-weight:600;color:rgba(255,255,255,.92);letter-spacing:-0.2px"><span data-i18n="searchingQR">Buscando código QR…</span></div>
+    </div>
+
+    <!-- Card de acciones secundarias -->
+    <div style="background:rgba(20,20,28,.55);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.5)">
+
+      <div style="text-align:center;font-size:12.5px;color:rgba(255,255,255,.55);margin-bottom:12px;letter-spacing:0.2px" data-i18n="cantScan">¿No podés escanear?</div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="pasteQRCode()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s ease">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span data-i18n="pasteCode">Pegar código</span>
+        </button>
+
+        <button data-go="s11q" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:linear-gradient(135deg,var(--c),var(--cd));border:none;border-radius:14px;color:#000;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,212,232,.4)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="enterManually">Manual</span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
-
+  
 <!-- S11Q MANUAL MERCHANT -->
 <div class="scr" id="s11q">
   <div class="grid"></div>
