@@ -168,6 +168,22 @@ window._s5OnBalanceUpdate = function(newBalance) {
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     _s5UpdateGreeting();
+    _s5RefreshIdentity();
     _s5SetupHaptics();
+    _s5LoadRecentActivity();
   }, 100);
+
+  // Retry cada 1s hasta que tengamos username (max 10 intentos)
+  let attempts = 0;
+  const retry = setInterval(() => {
+    attempts++;
+    if (window._fyloxUsername && window._fyloxUsername !== 'Pioneer') {
+      _s5RefreshIdentity();
+      _s5LoadRecentActivity();
+      clearInterval(retry);
+    } else if (attempts > 10) {
+      clearInterval(retry);
+    }
+  }, 1000);
 });
+
