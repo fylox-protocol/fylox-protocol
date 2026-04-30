@@ -175,21 +175,51 @@ function goTo(id) {
 
             PaymentState.setTo(merchant);
             if (amount !== '0') {
-              PaymentState.setAmt(amount);
-              kval = amount;
+            PaymentState.setAmt(amount);
+            kval = amount;
             } else {
-              kval = '0';
+            kval = '0';
             }
 
-            const mEl = document.getElementById('s11q-merchant-name');
-            if (mEl) mEl.textContent = merchant;
-            const aEl = document.getElementById('sa');
-            if (aEl) aEl.innerHTML = `${esc(kval)} <span style="font-size:26px;color:var(--c)">π</span>`;
+           const mEl = document.getElementById('s11q-merchant-name');
+           if (mEl) mEl.textContent = merchant;
+           const aEl = document.getElementById('sa');
+           if (aEl) aEl.innerHTML = `${esc(kval)} <span style="font-size:26px;color:var(--c)">π</span>`;
 
-            stream.getTracks().forEach(t => t.stop());
-            video.srcObject = null;
-            goTo('s11q');
-            return;
+         // ── Feedback premium de detección ──
+           const s10El = document.getElementById('s10');
+           if (s10El) s10El.classList.add('detected');
+
+        // Cambiar status pill a verde con check
+           const statusDot = document.getElementById('s10-status-dot');
+           const statusEl = document.getElementById('qr-status');
+           const statusPill = document.getElementById('s10-status-pill');
+           if (statusDot)  { statusDot.style.background = 'var(--grn)'; statusDot.style.boxShadow = '0 0 12px var(--grn)'; statusDot.style.animation = 'none'; }
+           if (statusEl)   statusEl.innerHTML = '✓ Código detectado';
+           if (statusPill) { statusPill.style.borderColor = 'rgba(0,224,144,.4)'; statusPill.style.background = 'rgba(0,224,144,.12)'; }
+
+        // Beep sutil de confirmación
+        try {
+           const ctx = new (window.AudioContext || window.webkitAudioContext)();
+           const osc = ctx.createOscillator();
+           const gain = ctx.createGain();
+           osc.type = 'sine';
+           osc.frequency.setValueAtTime(880, ctx.currentTime);
+           osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12);
+           gain.gain.setValueAtTime(0.18, ctx.currentTime);
+           gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+           osc.connect(gain); gain.connect(ctx.destination);
+           osc.start(); osc.stop(ctx.currentTime + 0.18);
+           } catch(e) {}
+
+        // Esperar 650ms antes de saltar (para que el usuario vea el efecto)
+           setTimeout(() => {
+           stream.getTracks().forEach(t => t.stop());
+           video.srcObject = null;
+           if (s10El) s10El.classList.remove('detected'); // limpiar para próxima vez
+           goTo('s11q');
+           }, 650);
+           return;
           }
         }
         window._qrScanLoop = requestAnimationFrame(scanFrame);
