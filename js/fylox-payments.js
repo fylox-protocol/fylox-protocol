@@ -21,6 +21,7 @@ FyloxStorage.set('fylox_username', username);
   const els = {
   'home-ars':        balanceUSD,
   'home-piid':       piid,
+  's5-username':     '@' + username,
   'profile-username':'@' + username,
   'receive-address': '@' + username + ' · ' + piid,
   's3-username':     '@' + username + '.pi',
@@ -29,15 +30,37 @@ FyloxStorage.set('fylox_username', username);
   'card-last4':       username.slice(-4).toUpperCase().padStart(4, '0'),
 };
 
-  Object.entries(els).forEach(([id, val]) => {
+Object.entries(els).forEach(([id, val]) => {
   const el = document.getElementById(id);
   if (!el) return;
   el.textContent = val;
 });
 
-// Actualizar balance con animación + identity en s5
-  if (typeof _s5AnimateBalance === 'function') _s5AnimateBalance(balance);
-  if (typeof _s5RefreshIdentity === 'function') _s5RefreshIdentity();
+// ── Actualizar avatar (iniciales) directo al DOM ──────
+const avatarEl = document.getElementById('s5-avatar');
+if (avatarEl) {
+  const u = username.replace(/^@/, '').replace(/_/g, ' ').trim();
+  const parts = u.split(/\s+/);
+  const initials = parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : u.slice(0, 2).toUpperCase();
+  avatarEl.textContent = initials;
+}
+
+// ── Actualizar greeting según hora local ──────────────
+const greetEl = document.getElementById('s5-greeting');
+if (greetEl) {
+  const h = new Date().getHours();
+  let greeting;
+  if (h >= 5 && h < 12)       greeting = 'Buenos días';
+  else if (h >= 12 && h < 19) greeting = 'Buenas tardes';
+  else                        greeting = 'Buenas noches';
+  greetEl.textContent = greeting;
+}
+
+// ── Animar balance + cargar actividad si existen las funciones ──
+if (typeof _s5AnimateBalance === 'function') _s5AnimateBalance(balance);
+if (typeof _s5LoadRecentActivity === 'function') _s5LoadRecentActivity();
 
   const wb = document.getElementById('wallet-balance');
   if (wb) wb.dataset.value = balance;
