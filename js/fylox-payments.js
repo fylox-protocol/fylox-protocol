@@ -19,26 +19,25 @@ FyloxStorage.set('fylox_username', username);
   const balanceFmt = fmtPi(balance);
 
   const els = {
-    'home-balance-int': balanceFmt.split('.')[0],
-    'home-balance-dec': '.' + (balanceFmt.split('.')[1] || '00'),
-    'home-ars':        balanceUSD,
-    'home-piid':       piid,
-    'home-username':   '@' + username,
-    'profile-username':'@' + username,
-    'receive-address': '@' + username + ' · ' + piid,
-    's3-username':     '@' + username + '.pi',
-    's3-back-username':'@' + username + '.pi',
-    'card-holder-name': username.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-    'card-last4':       username.slice(-4).toUpperCase().padStart(4, '0'),
-  };
-  
+  'home-ars':        balanceUSD,
+  'home-piid':       piid,
+  'profile-username':'@' + username,
+  'receive-address': '@' + username + ' · ' + piid,
+  's3-username':     '@' + username + '.pi',
+  's3-back-username':'@' + username + '.pi',
+  'card-holder-name': username.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+  'card-last4':       username.slice(-4).toUpperCase().padStart(4, '0'),
+};
 
   Object.entries(els).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (id === 'home-balance') el.innerHTML = val;
-    else el.textContent = val;
-  });
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = val;
+});
+
+// Actualizar balance con animación + identity en s5
+  if (typeof _s5AnimateBalance === 'function') _s5AnimateBalance(balance);
+  if (typeof _s5RefreshIdentity === 'function') _s5RefreshIdentity();
 
   const wb = document.getElementById('wallet-balance');
   if (wb) wb.dataset.value = balance;
