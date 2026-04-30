@@ -705,3 +705,79 @@ window.clearNotifications = function() {
     list.style.opacity = '1';
   }, 300);
 };
+
+// ═══════════════════════════════════════════════════
+//  S10 — FLASH TOGGLE + PASTE QR
+// ═══════════════════════════════════════════════════
+async function toggleFlash() {
+  const btn = document.getElementById('s10-flash-btn');
+  const video = document.getElementById('qr-video');
+  if (!video || !video.srcObject) return;
+
+  const track = video.srcObject.getVideoTracks()[0];
+  if (!track) return;
+
+  const caps = track.getCapabilities ? track.getCapabilities() : {};
+  if (!caps.torch) {
+    if (window.FyloxNotification) {
+      FyloxNotification.show({
+        icon: '⚠️', title: 'Flash no disponible',
+        sub: 'Tu cámara no soporta linterna', amt: '', sound: false,
+      });
+    }
+    return;
+  }
+
+  try {
+    const isOn = btn.classList.contains('on');
+    await track.applyConstraints({ advanced: [{ torch: !isOn }] });
+    btn.classList.toggle('on');
+    if (navigator.vibrate) navigator.vibrate(20);
+  } catch (e) {
+    console.warn('[Fylox] Flash error:', e);
+  }
+}
+
+async function pasteQRCode() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text || text.trim().length < 3) {
+      FyloxNotification.show({
+        icon: '⚠️', title: 'Portapapeles vacío',
+        sub: 'Copiá un código primero', amt: '', sound: false,
+      });
+      return;
+    }
+
+    let merchant = '', amount = '0';
+    try {
+      if (text.startsWith('fylox://pay?')) {
+        const url = new URL(text.replace('fylox://', 'https://x/'));
+        merchant = url.searchParams.get('to') || '';
+        amount   = url.searchParams.get('amount') || '0';
+      } else if (text.startsWith('@') || /^[a-z0-9_]{2,32}$/i.test(text.trim())) {
+        merchant = text.trim().replace(/^@/, '');
+      } else {
+        merchant = text.slice(0, 50);
+      }
+    } catch { merchant = text.slice(0, 50); }
+
+    if (!merchant) {
+      FyloxNotification.show({
+        icon: '⚠️', title: 'Código inválido',
+        sub: 'No es un código Fylox válido', amt: '', sound: false,
+      });
+      return;
+    }
+
+    PaymentState.setTo(merchant);
+    if (amount !== '0') { PaymentState.setAmt(amount); kval = amount; }
+    if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+    goTo('s11q');
+  } catch (e) {
+    FyloxNotification.show({
+      icon: '⚠️', title: 'No se pudo leer',
+      sub: 'Permitir acceso al portapapeles', amt: '', sound: false,
+    });
+  }
+}
