@@ -1063,7 +1063,7 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   if(amt>bal){alert('Saldo insuficiente. Tenés '+bal.toFixed(2)+' π');return;}
   if(amt>1000000){alert('Monto demasiado alto');return;}
   window.SEND_TO='@'+rcp;
-  if(typeof PaymentState!=='undefined')PaymentState.set({to:rcp,amt:amt});
+  if(typeof PaymentState!=='undefined')PaymentState.set(rcp,amt);
   var px=(window._fyloxLivePrice&&window._fyloxLivePrice>0)?window._fyloxLivePrice:((typeof getPiPrice==='function')?getPiPrice():0.4);
   var usd=(amt*px).toFixed(2);
   document.getElementById('s7amt').innerHTML=amt.toFixed(2)+' <span style=\'font-size:26px;color:var(--c)\'>π</span>';
