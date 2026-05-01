@@ -1,11 +1,12 @@
 // ═══════════════════════════════════════════════════
-//  FYLOX UI — v2
+//  FYLOX UI — v3
 //  - goTo() corregida (código estaba fuera del scope)
 //  - window.SEND_TO/AMT reemplazados por PaymentState
 //  - dispatchEvent('fylox:screen') — activa todos los módulos
 //  - fetchPiPrice usa setPiPrice() de fylox-utils.js
 //  - Sin monkey-patches encadenados
 //  - Contador de Pioneers solo desde la API
+//  - S6 premium: USD en vivo, "Te quedan", haptic, init reset
 // ═══════════════════════════════════════════════════
 
 // ── Tema — restaurar al cargar ───────────────────────
@@ -83,6 +84,26 @@ function goTo(id) {
     const el8 = document.getElementById('s8msg');
     const { to, amt } = PaymentState.get();
     if (el8) el8.textContent = `${fmtPi(amt || 0)} π sent to ${to || '@Pioneer'}`;
+  }
+
+  // ── NUEVO: Reset keypad + init s6 ──────────────────
+  if (id === 's6') {
+    kval = '0';
+    const sa6 = document.getElementById('sa-send');
+    if (sa6) sa6.innerHTML = '0.00 <span class="s6-amt-pi">π</span>';
+    const usd6 = document.getElementById('s6-usd');
+    if (usd6) usd6.textContent = '≈ $0.00 USD';
+    const rem6 = document.getElementById('s6-remaining');
+    if (rem6) rem6.textContent = (window._fyloxBalance || 0).toFixed(2) + ' π';
+    // Reset receiver avatar + input
+    const av6  = document.getElementById('s6-receiver-avatar');
+    const inp6 = document.getElementById('send-to-input');
+    if (av6) {
+      av6.textContent = '@';
+      av6.style.background = 'var(--cd)';
+      av6.style.color = 'var(--c)';
+    }
+    if (inp6) inp6.value = '';
   }
 
 if (curr && curr.id === 's10') {
@@ -215,67 +236,49 @@ if (curr && curr.id === 's10') {
            if (statusEl)   statusEl.innerHTML = '✓ Código detectado';
            if (statusPill) { statusPill.style.borderColor = 'rgba(0,224,144,.4)'; statusPill.style.background = 'rgba(0,224,144,.12)'; }
 
-        // Beep sutil de confirmación
-        try {
-           const ctx = new (window.AudioContext || window.webkitAudioContext)();
-           const osc = ctx.createOscillator();
-           const gain = ctx.createGain();
-           osc.type = 'sine';
-           osc.frequency.setValueAtTime(880, ctx.currentTime);
-           osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12);
-           gain.gain.setValueAtTime(0.18, ctx.currentTime);
-           gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-           osc.connect(gain); gain.connect(ctx.destination);
-           osc.start(); osc.stop(ctx.currentTime + 0.18);
+           // Beep sutil de confirmación
+           try {
+             const ctxA = new (window.AudioContext || window.webkitAudioContext)();
+             const osc = ctxA.createOscillator();
+             const gain = ctxA.createGain();
+             osc.type = 'sine';
+             osc.frequency.setValueAtTime(880, ctxA.currentTime);
+             osc.frequency.exponentialRampToValueAtTime(1320, ctxA.currentTime + 0.12);
+             gain.gain.setValueAtTime(0.18, ctxA.currentTime);
+             gain.gain.exponentialRampToValueAtTime(0.001, ctxA.currentTime + 0.18);
+             osc.connect(gain); gain.connect(ctxA.destination);
+             osc.start(); osc.stop(ctxA.currentTime + 0.18);
            } catch(e) {}
 
-        // Esperar 650ms antes de saltar (para que el usuario vea el efecto)
+           // Esperar 650ms antes de saltar
            setTimeout(() => {
-           stream.getTracks().forEach(t => t.stop());
-           video.srcObject = null;
-           if (s10El) s10El.classList.remove('detected'); // limpiar para próxima vez
-           goTo('s11q');
+             stream.getTracks().forEach(t => t.stop());
+             video.srcObject = null;
+             if (s10El) s10El.classList.remove('detected');
+             goTo('s11q');
            }, 650);
            return;
           }
+        } else if (status && frameCount < 5) {
+          frameCount++;
         }
         window._qrScanLoop = requestAnimationFrame(scanFrame);
       }
-
       window._qrScanLoop = requestAnimationFrame(scanFrame);
-
     } catch (err) {
-      if (status) status.textContent = `Error ${index}: ${err.name} - ${err.message}`;
-      console.warn(`[Fylox] Cámara constraint ${index} falló:`, err.message);
-      setTimeout(() => tryCamera(index + 1), 500);
+      console.warn(`[Fylox] Cámara ${index} falló:`, err.message);
+      tryCamera(index + 1);
     }
   }
-
   tryCamera(0);
-}
-  
-
-  // 8. Animación de balance en s9
-  if (id === 's9') {
-    const wb = document.getElementById('wallet-balance');
-    if (wb) {
-      const target    = parseFloat(wb.dataset.value) || window._fyloxBalance || 0;
-      let startTime   = null;
-      const duration  = 1200;
-      const animate   = (now) => {
-        if (!startTime) startTime = now;
-        const progress = Math.min((now - startTime) / duration, 1);
-        const ease     = 1 - Math.pow(1 - progress, 3);
-        const current  = (target * ease).toFixed(2);
-        wb.innerHTML   = `${current} <span style="font-size:24px;color:var(--c)">π</span>`;
-        if (progress < 1) requestAnimationFrame(animate);
-        else wb.innerHTML = `${target.toFixed(2)} <span style="font-size:24px;color:var(--c)">π</span>`;
-      };
-      requestAnimationFrame(animate);
-    }
   }
 
-  // 9. Animación de balance en s16
+  // 8. Cargar transacciones al entrar a s18
+  if (id === 's18') {
+    if (typeof loadTransactions === 'function') loadTransactions();
+  }
+
+  // 9. Wallet — animar saldo al entrar a s16
   if (id === 's16') {
     const wb = document.getElementById('wallet-balance');
     if (wb) {
@@ -361,15 +364,41 @@ document.addEventListener('click', function(e) {
     if (kval.length > 9) kval = kval.slice(0, -1);
   }
 
-  // Actualizar display
-  const activeSa = document.querySelector('.scr.show #sa') ||
-                   document.querySelector('.scr.show #sa-send');
+  // Detectar pantalla activa (s6 usa estilo nuevo, otras estilo viejo)
+  const showScr = document.querySelector('.scr.show');
+  const isS6    = showScr && showScr.id === 's6';
+  const activeSa = (showScr && showScr.querySelector('#sa')) ||
+                   (showScr && showScr.querySelector('#sa-send'));
   if (activeSa) {
-    activeSa.innerHTML = `${esc(kval)} <span style="font-size:26px;color:var(--c)">π</span>`;
+    if (isS6) {
+      activeSa.innerHTML = `${esc(kval)} <span class="s6-amt-pi">π</span>`;
+    } else {
+      activeSa.innerHTML = `${esc(kval)} <span style="font-size:26px;color:var(--c)">π</span>`;
+    }
   }
 
   // PaymentState en vez de window.SEND_AMT / window.KVAL
   PaymentState.setAmt(kval);
+
+  // ── S6: Update USD en vivo + "Te quedan" ─────────────
+  if (isS6) {
+    const cur = parseFloat(kval) || 0;
+    const px  = (window._fyloxLivePrice && window._fyloxLivePrice > 0)
+                  ? window._fyloxLivePrice
+                  : (typeof getPiPrice === 'function' ? getPiPrice() : 0.4);
+    const usdEl = document.getElementById('s6-usd');
+    if (usdEl) usdEl.textContent = '≈ $' + (cur * px).toFixed(2) + ' USD';
+
+    const remEl = document.getElementById('s6-remaining');
+    if (remEl) {
+      const bal = window._fyloxBalance || 0;
+      const rem = Math.max(0, bal - cur);
+      remEl.textContent = rem.toFixed(2) + ' π';
+    }
+  }
+
+  // Haptic feedback en cada tecla
+  if (navigator.vibrate) navigator.vibrate(8);
 });
 
 function selVote(el) {
@@ -448,167 +477,13 @@ function updateVoteTimer() {
   voteMs = Math.max(0, voteMs - 1000);
   const el = document.getElementById('agora-vote-timer');
   if (!el) return;
-  const d = Math.floor(voteMs / 86400000);
-  const h = Math.floor((voteMs % 86400000) / 3600000);
-  const m = Math.floor((voteMs % 3600000) / 60000);
-  const s = Math.floor((voteMs % 60000) / 1000);
-  el.textContent = d > 0
-    ? `${d}d ${h}h ${m.toString().padStart(2, '0')}m`
-    : `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
+  const days  = Math.floor(voteMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((voteMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins  = Math.floor((voteMs % (1000 * 60 * 60)) / (1000 * 60));
+  el.textContent = `${days}d ${String(hours).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m`;
 }
-setInterval(updateVoteTimer, 1000);
-
-// ═══════════════════════════════════════════════════
-//  TOASTS DEMO (pantalla de inicio)
-// ═══════════════════════════════════════════════════
-
-const TOAST_I18N = {
-  en: [
-    { title:'Maria C. sent you Pi',          sub:'Verified Pioneer · Buenos Aires' },
-    { title:'New ORACLE task nearby',         sub:'Flood verification · 1.2 km away' },
-    { title:'AGORA vote is closing',          sub:'GPT-6 Banking access · 14 min left' },
-    { title:'Rodrigo P. paid at merchant',    sub:'Cafe del Centro · Via Fylox' },
-    { title:'NEXUS score updated',            sub:'ORACLE task completed +81 pts' },
-    { title:'Payment confirmed',              sub:'Supermercado · NFC' },
-    { title:'ORACLE task confirmed',          sub:'Lagos Norte · 3 more verifications' },
-    { title:'New vote proposal live',         sub:'Anthropic · Claude autonomy' },
-  ],
-  es: [
-    { title:'Maria C. te envió Pi',           sub:'Pioneer verificado · Buenos Aires' },
-    { title:'Nueva tarea ORACLE cerca',       sub:'Verificación de inundación · 1.2 km' },
-    { title:'Votación AGORA por cerrar',      sub:'GPT-6 acceso bancario · 14 min' },
-    { title:'Rodrigo P. pagó en comercio',    sub:'Café del Centro · Vía Fylox' },
-    { title:'Puntuación NEXUS actualizada',   sub:'Tarea ORACLE completada +81 pts' },
-    { title:'Pago confirmado',                sub:'Supermercado · NFC' },
-    { title:'Tarea ORACLE confirmada',        sub:'Lagos Norte · 3 verificaciones más' },
-    { title:'Nueva propuesta de voto',        sub:'Anthropic · Autonomía de Claude' },
-  ],
-  tl: [
-    { title:'Nagpadala si Maria C. ng Pi',    sub:'Verified Pioneer · Buenos Aires' },
-    { title:'Bagong ORACLE task malapit',     sub:'Flood verification · 1.2 km ang layo' },
-    { title:'Magsasara na ang AGORA vote',    sub:'GPT-6 Banking access · 14 min na lang' },
-    { title:'Nagbayad si Rodrigo P.',         sub:'Cafe del Centro · Sa Fylox' },
-    { title:'Na-update ang NEXUS score',      sub:'ORACLE task kumpleto +81 pts' },
-    { title:'Nakumpirma ang bayad',           sub:'Supermercado · NFC' },
-    { title:'ORACLE task nakumpirma',         sub:'Lagos Norte · 3 verification pa' },
-    { title:'Bagong vote proposal live',      sub:'Anthropic · Claude autonomy' },
-  ],
-  ng: [
-    { title:'Maria C. don send you Pi',       sub:'Verified Pioneer · Buenos Aires' },
-    { title:'New ORACLE task dey near',       sub:'Flood verification · 1.2 km away' },
-    { title:'AGORA vote go close soon',       sub:'GPT-6 Banking access · 14 min remain' },
-    { title:'Rodrigo P. pay for shop',        sub:'Cafe del Centro · Via Fylox' },
-    { title:'NEXUS score don update',         sub:'ORACLE task complete +81 pts' },
-    { title:'Payment don confirm',            sub:'Supermercado · NFC' },
-    { title:'ORACLE task don confirm',        sub:'Lagos Norte · 3 more check remain' },
-    { title:'New vote proposal don come out', sub:'Anthropic · Claude autonomy' },
-  ],
-  hi: [
-    { title:'Maria C. ने आपको Pi भेजा',       sub:'Verified Pioneer · Buenos Aires' },
-    { title:'नया ORACLE कार्य पास में',        sub:'बाढ़ सत्यापन · 1.2 km दूर' },
-    { title:'AGORA मतदान बंद हो रहा है',      sub:'GPT-6 बैंकिंग · 14 मिनट बाकी' },
-    { title:'Rodrigo P. ने दुकान पर भुगतान', sub:'Cafe del Centro · Fylox से' },
-    { title:'NEXUS स्कोर अपडेट हुआ',          sub:'ORACLE कार्य पूरा +81 pts' },
-    { title:'भुगतान की पुष्टि हुई',           sub:'Supermercado · NFC' },
-    { title:'ORACLE कार्य की पुष्टि हुई',     sub:'Lagos Norte · 3 और सत्यापन' },
-    { title:'नया मतदान प्रस्ताव लाइव',        sub:'Anthropic · Claude स्वायत्तता' },
-  ],
-  pt: [
-    { title:'Maria C. enviou Pi para você',   sub:'Pioneer verificado · Buenos Aires' },
-    { title:'Nova tarefa ORACLE próxima',     sub:'Verificação de enchente · 1.2 km' },
-    { title:'Votação AGORA está encerrando',  sub:'GPT-6 acesso bancário · 14 min' },
-    { title:'Rodrigo P. pagou no comerciante',sub:'Cafe del Centro · Via Fylox' },
-    { title:'Pontuação NEXUS atualizada',     sub:'Tarefa ORACLE completa +81 pts' },
-    { title:'Pagamento confirmado',           sub:'Supermercado · NFC' },
-    { title:'Tarefa ORACLE confirmada',       sub:'Lagos Norte · 3 verificações' },
-    { title:'Nova proposta de voto ao vivo',  sub:'Anthropic · Autonomia do Claude' },
-  ],
-  zh: [
-    { title:'Maria C. 向您发送了Pi',          sub:'已认证Pioneer · 布宜诺斯艾利斯' },
-    { title:'附近有新ORACLE任务',             sub:'洪水核查 · 1.2公里外' },
-    { title:'AGORA投票即将关闭',             sub:'GPT-6银行访问 · 还剩14分钟' },
-    { title:'Rodrigo P. 在商家付款',          sub:'Cafe del Centro · 通过Fylox' },
-    { title:'NEXUS评分已更新',               sub:'ORACLE任务完成 +81分' },
-    { title:'付款已确认',                    sub:'超市 · NFC' },
-    { title:'ORACLE任务已确认',              sub:'拉各斯北部 · 还需3次验证' },
-    { title:'新投票提案已上线',              sub:'Anthropic · Claude自主性' },
-  ],
-  id: [
-    { title:'Maria C. mengirimkan Pi',        sub:'Pioneer Terverifikasi · Buenos Aires' },
-    { title:'Tugas ORACLE baru di dekat',     sub:'Verifikasi banjir · 1.2 km' },
-    { title:'Voting AGORA akan ditutup',      sub:'Akses perbankan GPT-6 · 14 menit' },
-    { title:'Rodrigo P. bayar di merchant',   sub:'Cafe del Centro · Via Fylox' },
-    { title:'Skor NEXUS diperbarui',          sub:'Tugas ORACLE selesai +81 pts' },
-    { title:'Pembayaran dikonfirmasi',        sub:'Supermercado · NFC' },
-    { title:'Tugas ORACLE dikonfirmasi',      sub:'Lagos Norte · 3 verifikasi lagi' },
-    { title:'Proposal voting baru live',      sub:'Anthropic · Otonomi Claude' },
-  ],
-  vi: [
-    { title:'Maria C. đã gửi Pi cho bạn',    sub:'Pioneer đã xác minh · Buenos Aires' },
-    { title:'Có nhiệm vụ ORACLE mới',        sub:'Xác minh lũ lụt · cách 1.2 km' },
-    { title:'Bỏ phiếu AGORA sắp đóng',      sub:'Truy cập ngân hàng GPT-6 · 14 phút' },
-    { title:'Rodrigo P. đã thanh toán',      sub:'Cafe del Centro · Qua Fylox' },
-    { title:'Điểm NEXUS đã cập nhật',        sub:'Hoàn thành ORACLE +81 điểm' },
-    { title:'Thanh toán đã xác nhận',        sub:'Supermercado · NFC' },
-    { title:'Nhiệm vụ ORACLE đã xác nhận',   sub:'Lagos Norte · còn 3 xác minh' },
-    { title:'Đề xuất bỏ phiếu mới',         sub:'Anthropic · Quyền tự chủ Claude' },
-  ],
-  ko: [
-    { title:'Maria C.가 Pi를 보냈습니다',     sub:'인증된 파이오니어 · 부에노스아이레스' },
-    { title:'근처에 새 ORACLE 작업',          sub:'홍수 검증 · 1.2km 거리' },
-    { title:'AGORA 투표가 마감됩니다',        sub:'GPT-6 뱅킹 접근 · 14분 남음' },
-    { title:'Rodrigo P.가 상점에서 결제',     sub:'Cafe del Centro · Fylox 경유' },
-    { title:'NEXUS 점수 업데이트됨',          sub:'ORACLE 작업 완료 +81점' },
-    { title:'결제 확인됨',                   sub:'Supermercado · NFC' },
-    { title:'ORACLE 작업 확인됨',            sub:'Lagos Norte · 검증 3개 더 필요' },
-    { title:'새 투표 제안 공개',             sub:'Anthropic · Claude 자율성' },
-  ],
-};
-
-const TOAST_META = [
-  { icon:'💸', bg:'rgba(0,212,232,.12)',  amt:'+2.5 π' },
-  { icon:'🔭', bg:'rgba(0,212,232,.12)',  amt:'+8 π'   },
-  { icon:'🏛️', bg:'rgba(0,224,144,.12)', amt:'+4 π'   },
-  { icon:'⚡', bg:'rgba(255,183,0,.12)', amt:'−18 π'  },
-  { icon:'📦', bg:'rgba(139,92,246,.12)',amt:'763 pts' },
-  { icon:'✅', bg:'rgba(0,224,144,.12)', amt:'−4.2 π' },
-  { icon:'🌊', bg:'rgba(0,212,232,.12)', amt:'+12.5 π' },
-  { icon:'🏛️', bg:'rgba(0,224,144,.12)', amt:'+6 π'   },
-];
-
-let toastIdx = 0;
-
-function _getToasts() {
-  const lang  = typeof currentLang !== 'undefined' ? currentLang : 'en';
-  const texts = TOAST_I18N[lang] || TOAST_I18N['en'];
-  return TOAST_META.map((m, i) => ({ ...m, ...texts[i] }));
-}
-
-function showToast(data) {
-  const container = document.getElementById('toast-container');
-  if (!container) return;
-  const t         = document.createElement('div');
-  t.className     = 'toast';
-  const amtColor  = data.amt.startsWith('+')
-    ? 'var(--c)'
-    : data.amt.startsWith('−') ? '#ff6b81' : 'var(--ylw)';
-
-  // esc() — estos datos vienen de TOAST_I18N (estático) pero igual aplicamos
-  t.innerHTML = `
-    <div class="toast-icon" style="background:${data.bg}">${esc(data.icon)}</div>
-    <div class="toast-body">
-      <div class="toast-title">${esc(data.title)}</div>
-      <div class="toast-sub">${esc(data.sub)}</div>
-    </div>
-    <div class="toast-amt" style="color:${amtColor}">${esc(data.amt)}</div>
-  `;
-  container.appendChild(t);
-  if (navigator.vibrate) navigator.vibrate([30, 30, 30]);
-  setTimeout(() => {
-    t.classList.add('out');
-    t.addEventListener('animationend', () => t.remove());
-  }, 4200);
-}
+updateVoteTimer();
+setInterval(updateVoteTimer, 60000);
 
 // ═══════════════════════════════════════════════════
 //  QR GENERATOR
