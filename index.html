@@ -1256,18 +1256,36 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   gap: 10px;
 }
 .s5-earn-pillar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 6px;
   background: rgba(255,255,255,.03);
   border: 1px solid rgba(255,255,255,.06);
-  border-radius: 12px;
+  border-radius: 10px;
+  min-width: 0;
 }
 .s5-earn-pillar-icon {
-  width: 28px; height: 28px;
-  border-radius: 8px;
+  width: 24px; height: 24px;
+  border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
+  font-size: 12px;
   flex-shrink: 0;
+}
+.s5-earn-pillar > div:not(.s5-earn-pillar-icon) {
+  min-width: 0;
+  overflow: hidden;
+}
+.s5-earn-pillar > div:not(.s5-earn-pillar-icon) > div:first-child {
+  font-size: 11px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.s5-earn-pillar > div:not(.s5-earn-pillar-icon) > div:last-child {
+  font-size: 9px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 }
 
   .s5-earn-pillar > div:not(.s5-earn-pillar-icon) {
