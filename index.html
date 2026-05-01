@@ -1304,7 +1304,235 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
- 
+
+/* ═══ S6 SEND PREMIUM ULTRA ═══ */
+
+.s6-back {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  transition: transform .2s ease;
+}
+.s6-back:active { transform: scale(0.92); }
+
+/* Receiver card */
+.s6-receiver {
+  margin: 0 0 18px;
+  padding: 16px;
+  background: var(--bg2);
+  border: 1px solid var(--b);
+  border-radius: 18px;
+}
+
+.s6-receiver-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 10px 14px;
+  transition: all .2s ease;
+}
+.s6-receiver-input-wrap:focus-within {
+  border-color: rgba(0,212,232,.5);
+  box-shadow: 0 0 0 3px rgba(0,212,232,.1);
+}
+
+.s6-receiver-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--cd);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c);
+  font-family: var(--fd);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+  transition: all .25s ease;
+}
+
+.s6-receiver-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+  letter-spacing: -0.2px;
+  font-family: inherit;
+}
+.s6-receiver-input::placeholder {
+  color: rgba(255,255,255,.3);
+  font-weight: 500;
+}
+
+/* Amount block */
+.s6-amount-block {
+  margin: 0 0 18px;
+  padding: 18px 16px;
+  background: linear-gradient(135deg, rgba(0,212,232,.04) 0%, rgba(139,92,246,.04) 100%);
+  border: 1px solid rgba(0,212,232,.15);
+  border-radius: 22px;
+}
+
+.s6-max-btn {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--c);
+  background: rgba(0,212,232,.1);
+  border: 1px solid rgba(0,212,232,.25);
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.s6-max-btn:active {
+  transform: scale(0.94);
+  background: rgba(0,212,232,.2);
+}
+
+.s6-amount {
+  font-family: var(--fd);
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: -3px;
+  line-height: 1;
+  text-align: center;
+  color: #FFFFFF;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+  margin-bottom: 6px;
+}
+
+.s6-amt-pi {
+  font-family: var(--fd);
+  font-size: 28px;
+  font-weight: 700;
+  color: #00D4E8;
+  text-shadow: 0 0 16px rgba(0,212,232,.4);
+  letter-spacing: -1px;
+  margin-left: 4px;
+}
+
+.s6-amount-usd {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,.55);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.s6-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.03);
+  border-radius: 12px;
+}
+.s6-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.s6-info-label {
+  font-size: 10px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.s6-info-value {
+  font-family: var(--fd);
+  font-size: 14px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.4px;
+}
+.s6-info-value-fee {
+  font-family: var(--fd);
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,.7);
+  letter-spacing: -0.2px;
+}
+.s6-info-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+
+/* Numpad premium */
+.s6-kpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.s6-key {
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fd);
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all .15s cubic-bezier(.34,1.56,.64,1);
+  letter-spacing: -0.5px;
+}
+.s6-key:active {
+  transform: scale(0.94);
+  background: rgba(0,212,232,.12);
+  border-color: rgba(0,212,232,.3);
+}
+.s6-key-sec {
+  background: rgba(255,255,255,.02);
+  color: rgba(255,255,255,.7);
+}
+.s6-key.kc:active {
+  background: rgba(255,107,129,.12);
+  border-color: rgba(255,107,129,.3);
+  color: #ff6b81;
+}
+
+/* Continue button */
+.s6-continue-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 54px;
+  background: linear-gradient(135deg, #00D4E8, #00AACC);
+  border: none;
+  border-radius: 18px;
+  color: #000;
+  font-family: var(--fd);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,212,232,.3), 0 0 0 1px rgba(255,255,255,.1) inset;
+  transition: all .2s ease;
+  margin-top: auto;
+  margin-bottom: 12px;
+}
+.s6-continue-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 16px rgba(0,212,232,.3);
+}
+.s6-continue-btn svg {
+  stroke: #000;
+}
+   
 </style>
 
 <!--- S5 HOME — PREMIUM ULTRA --->
@@ -1500,32 +1728,108 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   </div>
 </div>
 
-    
-<!-- S6 SEND AMOUNT -->
+  <!-- S6 SEND AMOUNT — PREMIUM ULTRA -->
 <div class="scr" id="s6">
   <div class="grid"></div>
-    <div class="sbar"><span class="stime">9:41</span><div class="sicons"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg><svg width="18" height="18" viewBox="0 0 24 18" fill="currentColor"><rect x="0" y="1" width="20" height="16" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="20" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="2" y="3" width="13" height="12" rx="2" fill="currentColor" opacity="0.8"/></svg></div></div>
-    <div class="tnav"><div class="bk" data-go="s5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div><div class="ttitle" data-i18n="sendPi">Send Pi</div><div style="width:36px"></div></div>
-  <div class="sc" style="display:flex;flex-direction:column">
-    <div style="text-align:center;padding:28px 0 20px">
-      <div style="font-size:13px;color:var(--t2);margin-bottom:10px" data-i18n="sendTo">Send to</div>
-      <div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--b);border-radius:50px;padding:10px 18px;width:100%;max-width:280px">
-  <div style="width:32px;height:32px;border-radius:50%;background:var(--cd);display:flex;align-items:center;justify-content:center;color:var(--c);font-size:14px;font-weight:700">@</div>
-  <input id="send-to-input" type="text" placeholder-i18n="sendToPlaceholder" placeholder="username or .pi address" style="background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:600;width:100%;" oninput="window.SEND_TO='@'+this.value.replace('@','')">
-</div>
+  <div class="sbar">
+    <span class="stime">9:41</span>
+    <div class="sicons">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 18" fill="currentColor"><rect x="0" y="1" width="20" height="16" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="20" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="2" y="3" width="13" height="12" rx="2" fill="currentColor" opacity="0.8"/></svg>
     </div>
-    <div style="text-align:center;padding:10px 0 20px">
-      <div class="amt" id="sa-send" style="margin-bottom:6px">0.00 <span style="font-size:26px;color:var(--c)">π</span></div>
-      <div style="font-size:13px;color:var(--t3)">≈ $0.00 USD</div>
+  </div>
+
+  <!-- Header premium -->
+  <div style="position:relative;z-index:5;padding:14px 20px 8px;display:flex;align-items:center;gap:14px">
+    <div class="bk s6-back" data-go="s5">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </div>
-    <div class="kpad mb16">
-      <div class="kkey" data-k="1">1</div><div class="kkey" data-k="2">2</div><div class="kkey" data-k="3">3</div>
-      <div class="kkey" data-k="4">4</div><div class="kkey" data-k="5">5</div><div class="kkey" data-k="6">6</div>
-      <div class="kkey" data-k="7">7</div><div class="kkey" data-k="8">8</div><div class="kkey" data-k="9">9</div>
-      <div class="kkey" data-k=".">.</div><div class="kkey" data-k="0">0</div><div class="kkey kc" data-k="x">⌫</div>
+    <div style="font-family:var(--fd);font-size:18px;font-weight:800;letter-spacing:-0.4px" data-i18n="sendPi">Enviar Pi</div>
+  </div>
+
+  <div class="sc" style="display:flex;flex-direction:column;padding-top:8px">
+
+    <!-- Card del receiver -->
+    <div class="s6-receiver">
+      <div style="font-size:10px;color:var(--t3);letter-spacing:1.4px;text-transform:uppercase;font-weight:600;margin-bottom:10px" data-i18n="sendTo">Enviar a</div>
+      <div class="s6-receiver-input-wrap">
+        <div id="s6-receiver-avatar" class="s6-receiver-avatar">@</div>
+        <input id="send-to-input" type="text" placeholder="usuario o dirección.pi" placeholder-i18n="sendToPlaceholder" class="s6-receiver-input" oninput="
+          window.SEND_TO='@'+this.value.replace('@','');
+          var av=document.getElementById('s6-receiver-avatar');
+          var v=this.value.replace(/^@/,'').replace(/\.pi$/i,'').trim();
+          if(av){
+            if(v.length>=2){
+              av.textContent=v.slice(0,2).toUpperCase();
+              av.style.background='linear-gradient(135deg,#00D4E8,#8B5CF6)';
+              av.style.color='#000';
+            } else {
+              av.textContent='@';
+              av.style.background='var(--cd)';
+              av.style.color='var(--c)';
+            }
+          }
+        ">
+      </div>
     </div>
-    <div style="flex:1"></div>
-<button class="btn bp" data-i18n="continueBtn" onclick="
+
+    <!-- Monto HERO -->
+    <div class="s6-amount-block">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 4px">
+        <div style="font-size:10px;color:var(--t3);letter-spacing:1.4px;text-transform:uppercase;font-weight:600">Monto</div>
+        <div id="s6-max-btn" class="s6-max-btn" onclick="
+          var b=window._fyloxBalance||0;
+          if(b<=0){return;}
+          var maxAmt=Math.max(0,b-0.01);
+          if(typeof kval!=='undefined'){window.kval=maxAmt.toFixed(2);}
+          var sa=document.getElementById('sa-send');
+          if(sa){sa.innerHTML=maxAmt.toFixed(2)+' <span class=\'s6-amt-pi\'>π</span>';}
+          var px=(window._fyloxLivePrice&&window._fyloxLivePrice>0)?window._fyloxLivePrice:((typeof getPiPrice==='function')?getPiPrice():0.4);
+          var u=document.getElementById('s6-usd');
+          if(u)u.textContent='≈ $'+(maxAmt*px).toFixed(2)+' USD';
+          var rem=document.getElementById('s6-remaining');
+          if(rem)rem.textContent='0.00 π';
+          if(navigator.vibrate)navigator.vibrate(12);
+        ">MAX</div>
+      </div>
+
+      <div class="amt s6-amount" id="sa-send">0.00 <span class="s6-amt-pi">π</span></div>
+      <div id="s6-usd" class="s6-amount-usd">≈ $0.00 USD</div>
+
+      <!-- Info row -->
+      <div class="s6-info-row">
+        <div class="s6-info-item">
+          <span class="s6-info-label" data-i18n="remaining">Te quedan</span>
+          <span class="s6-info-value" id="s6-remaining">— π</span>
+        </div>
+        <div class="s6-info-divider"></div>
+        <div class="s6-info-item">
+          <span class="s6-info-label" data-i18n="networkFee">Comisión</span>
+          <span class="s6-info-value-fee">0.01 π · <span style="color:#00E090" data-i18n="coveredByFylox">Gratis</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Numpad premium -->
+    <div class="kpad s6-kpad">
+      <div class="kkey s6-key" data-k="1">1</div>
+      <div class="kkey s6-key" data-k="2">2</div>
+      <div class="kkey s6-key" data-k="3">3</div>
+      <div class="kkey s6-key" data-k="4">4</div>
+      <div class="kkey s6-key" data-k="5">5</div>
+      <div class="kkey s6-key" data-k="6">6</div>
+      <div class="kkey s6-key" data-k="7">7</div>
+      <div class="kkey s6-key" data-k="8">8</div>
+      <div class="kkey s6-key" data-k="9">9</div>
+      <div class="kkey s6-key s6-key-sec" data-k=".">.</div>
+      <div class="kkey s6-key" data-k="0">0</div>
+      <div class="kkey s6-key s6-key-sec kc" data-k="x">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+      </div>
+    </div>
+
+    <!-- Botón Continuar premium -->
+    <button class="s6-continue-btn" data-i18n="continueBtn" onclick="
   var inp=document.getElementById('send-to-input');
   var rcp=((inp&&inp.value)||'').trim().replace(/^@/,'').replace(/\.pi$/i,'').toLowerCase();
   var amtStr=(typeof kval!=='undefined'?kval:'0')||'0';
@@ -1547,11 +1851,16 @@ html.light .dark-toggle.on { background:rgba(0,212,232,.15) !important; }
   document.getElementById('s7total').textContent=amt.toFixed(2)+' π';
   document.getElementById('s7to').textContent='@'+rcp+'.pi';
   var u=document.getElementById('s7usd');if(u)u.textContent='≈ $'+usd+' USD';
+  if(navigator.vibrate)navigator.vibrate([10,5,10]);
   goTo('s7');
-">Continue</button>
-</div>
-</div>
-  
+">
+      <span data-i18n="continueBtn">Continuar</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+
+  </div>
+</div>  
+
 <!-- S7 CONFIRM SEND -->
 <div class="scr" id="s7">
   <div class="grid"></div>
